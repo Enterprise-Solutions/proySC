@@ -1,49 +1,256 @@
 <?php echo $this->doctype(); ?>
 
-<html lang="en">
+<html lang="es">
     <head>
         <meta charset="utf-8">
-        <?php echo $this->headTitle('ZF2 '. $this->translate('Skeleton Application'))->setSeparator(' - ')->setAutoEscape(false) ?>
+        <title>Sistema de Gestion</title>
+        <link rel="stylesheet" href="<?=$this->basePath();?>/extjs/resources/css/ext-all.css"/>
+        <link rel="stylesheet" href="<?=$this->basePath();?>/css/layout/style.css"/>
+        <link rel="stylesheet" href="<?=$this->basePath();?>/css/layout/menu.css"/>
+		<script type="text/javascript" src="<?php echo $this->basePath(); ?>/extjs/adapter/ext/ext-base.js"></script>
+		<script type="text/javascript" src="<?php echo $this->basePath(); ?>/extjs/ext-all.js"></script>
+		<script type="text/javascript" src="<?=$this->basePath()?>/extjs/src/locale/ext-lang-es.js">  </script> 
+		<script type="text/javascript">
 
-        <?php echo $this->headMeta()->appendName('viewport', 'width=device-width, initial-scale=1.0') ?>
+		var baseURL = '<?=$this->basePath()?>';
+		
+		var menuPrincipal = [
+		                     {
+			                     modulo: 'org',
+			                     texto: 'Organizacion',
+			                     operaciones: [
+			                                   {
+				                                   nombre: 'Mantener Sede',
+				                                   url: 'sede'
+			                                   },
+			                                   {
+				                                   nombre: 'Mantener Tipo Sede',
+				                                   url: 'tipo-sede'
+			                                   }
+			  			  		 ]
+		                     },
+		                     {
+			                     modulo: 'stock',
+			                     texto: 'Stock',
+			                     operaciones:[
+												{
+												    nombre: 'Stock 1',
+												    url: 'stock1'
+												}
+ 			                     ]
+		                     },
+		                     {
+			                     modulo: 'adm',
+			                     texto: 'Administracion',
+			                     operaciones:[
+												{
+												    nombre: 'Adm1',
+												    url: 'adm1'
+												}
+			                     ]
+		                     },
+		                     {
+			                     modulo: 'cont',
+			                     texto: 'Contabilidad',
+			                     operaciones:[
+												{
+												    nombre: 'Cont 1',
+												    url: 'cont1'
+												}
+			                     ]
+		                     },
+		                     {
+			                     modulo: 'rep',
+			                     texto: 'Reportes',
+			                     operaciones:[
+												{
+												    nombre: 'Rep1',
+												    url: 'rep1'
+												}
+			                     ]
+		                     }
+		];
+		
+			Ext.onReady(function(){
 
-        <!-- Le styles -->
-        <?php echo $this->headLink(array('rel' => 'shortcut icon', 'type' => 'image/vnd.microsoft.icon', 'href' => $this->basePath() . '/img/favicon.ico'))
-                        ->prependStylesheet($this->basePath() . '/css/bootstrap-responsive.min.css')
-                        ->prependStylesheet($this->basePath() . '/css/style.css')
-                        ->prependStylesheet($this->basePath() . '/css/bootstrap.min.css') ?>
+				
+	
+				//creamos un contenedor para todo el contenido general centrado
+				var mainContainer = new Ext.Container({
+					layout: 'column',
+					width: 1024,
+					height: 484,
+					autoScroll:true,
+					cls: 'mainContainer',
+					renderTo: 'containerDiv',
+					items:[
+					       {
+						       xtype:'container',
+						       height: 50,
+						       layout: 'column',
+						       itemId: 'frameSuperiorArriba',
+						       columnWidth: 1,
+						       items:[
+										{
+											xtype:'container',
+										    width: 200,
+										    height: 50,
+										    cls: 'logoEmpresa'
+										},
+										{
+											xtype:'container',
+										    columnWidth: 1,
+										    layout: 'anchor',
+										    height: 50,
+										    items:[
+										           {
+											           xtype:'container',
+											           width: 100,
+													   style:{float:'right', paddingTop: '10px'},
+													   items:[
+																{
+																    xtype: 'box',
+																    cls: 'listaHorizontal',
+																    height: 50,
+																    html: '<ul><li><a href="#">Salir</a></li><li><a href="#">Ayuda</a></li></ul>'
+																}
+													   ]
+										           }
+										           
+										 	]
+										}
+							   ]
+					       },
+					       {
+					    	   xtype:'container',
+					    	   height: 50,
+					    	   id: 'frameSuperiorAbajo',
+						       columnWidth: 1,
+							   cls: 'menuContainer',
+						       items:[
+										{
+											xtype:'container',
+											height: 25,
+									        style:{margin: '0 30px 0 0'},
+										 	columnWidth: 1,
+										 	data: menuPrincipal,
+										 	tpl: new Ext.XTemplate(
+										 		'<ul class="menuPrimerNivel">',
+												'<tpl for=".">',
+														'<li id="{[this.getLinkId()]}" class="liPrimerNivel" codigo="{modulo}">{texto}',
+														'</li>',
+												'</tpl>',
+												'</ul>',
+												{
+													getLinkId: function(values)
+													{
+														var result = Ext.id();
+												        this.addListener.defer(1, this, [result]);
+												        return result;
+													},
+													addListener: function(id)
+													{
 
-        <!-- Scripts -->
-        <?php echo $this->headScript()->prependFile($this->basePath() . '/js/html5.js', 'text/javascript', array('conditional' => 'lt IE 9',))
-                                      ->prependFile($this->basePath() . '/js/bootstrap.min.js')
-                                      ->prependFile($this->basePath() . '/js/jquery.min.js') ?>
+														Ext.get(id).on('mouseover', function(e)
+																{
+																	
+																	e.stopEvent();
+																	
+																	//el codigo donde se hizo click
+																	var codigoClick = this.dom.attributes.codigo.value;
+																	var valor = null;
+																	
+																	//tenemos que encontrar el codogp
+																	for(var x=0; x<menuPrincipal.length; x++)
+																	{
+																		if(menuPrincipal[x].modulo == codigoClick)
+																		{
+																			valor = menuPrincipal[x];
+																			break;
+																		}
+																	}
+																	
+																	if(valor)
+																	{
+																		
+																		//guardamos los datos
+																		var listaHija = valor;
+																		listaHija.modulo = valor.modulo;
+																		//encontramos destino y agregamos los datos
+																		var abuelo = Ext.getCmp('frameSuperiorAbajo');
+																		var buscado = abuelo.find('itemId','listaNivelDos');
+																		if(buscado.length>0)
+																		{
+																			buscado = buscado[0];
+																			buscado.tpl.overwrite(buscado.el, listaHija);
+																		}
+																	}
+																	
+																	
+																}
+															);
+														/*
+														Ext.get(id).on('mouseover', function(e)
+															{
+																console.log(id, this);
+																e.stopEvent();
+																var listaHija = this.dom.children[0];
+																if(listaHija){
+																	listaHija.style.display = 'block';
+																}
+															}
+														);
 
+														Ext.get(id).on('mouseout', function(e)
+																{
+																	e.stopEvent();
+																	var listaHija = this.dom.children[0];
+																	if(listaHija){
+																		listaHija.style.display = 'none';
+																	}
+																}
+															);
+														*/
+													}
+												}
+											)
+										},
+										{
+											xtype:'container',
+											height: 25,
+										 	columnWidth: 1,
+										 	cls: 'menuSegundoNivelContenedor',
+										 	itemId: 'listaNivelDos',
+										 	style:{backgroundColor:'darkblue',  margin: '0 10px', borderTop: '1px solid black'},
+										 	tpl: new Ext.XTemplate(
+										 		'<ul class="menuSegundoNivel">',
+													'<tpl for="operaciones">',
+														'<li class="liSegundoNivel">',
+															'<a href="{[this.getHref(parent,values)]}">{nombre}</a>',
+														'</li>',
+													'</tpl>',
+												'</ul>',
+												{
+													getHref: function(parent,values)
+													{
+														return baseURL + '/' + parent.modulo + '/' + values.url;
+													}
+												}
+											)
+										}
+							   ]
+					       }
+					]
+				});
+				
+			});//onready
+		
+		</script>
     </head>
-    <body>
-        <div class="navbar navbar-inverse navbar-fixed-top">
-            <div class="navbar-inner">
-                <div class="container">
-                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </a>
-                    <a class="brand" href="<?php echo $this->url('home') ?>"><?php echo $this->translate('Skeleton Application') ?></a>
-                    <div class="nav-collapse collapse">
-                        <ul class="nav">
-                            <li class="active"><a href="<?php echo $this->url('home') ?>"><?php echo $this->translate('Home') ?></a></li>
-                        </ul>
-                    </div><!--/.nav-collapse -->
-                </div>
-            </div>
-        </div>
-        <div class="container">
-            <?php echo $this->content; ?>
-            <hr>
-            <footer>
-                <p>&copy; 2005 - <?php echo date('Y') ?> by Zend Technologies Ltd. <?php echo $this->translate('All rights reserved.') ?></p>
-            </footer>
-        </div> <!-- /container -->
-        <?php echo $this->inlineScript() ?>
+    <body id='bodyHTML'>
+       <div id='frameDiv' class='frameDiv'>
+       	<div id='containerDiv'>
+       	</div>
+       </div>
     </body>
 </html>

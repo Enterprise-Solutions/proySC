@@ -1,0 +1,38 @@
+@CHARSET "ISO-8859-1";
+body{
+	background-image: url("../../img/layout/bg.jpg");
+	background-repeat: repeat;	
+	font-size: 11px;
+	font-family: Arial, sans-serif;
+}
+
+.frameDiv
+{
+	border: 1px solid black;
+	width: 1024px;
+	margin: 25px auto;
+}
+
+.mainContainer
+{
+	border: 2px solid rgb(171,168,151);
+	border-right: 2px solid white;
+	border-bottom: 2px solid white;
+	background-color: white;
+}
+
+.logoEmpresa{
+	background-image: url("../../img/layout/logoMain.jpg");
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
+.listaHorizontal{
+	list-style-image: none;
+	display: inline; 
+}
+
+.listaHorizontal li{
+	display: inline;
+	padding: 0 10px;
+}
