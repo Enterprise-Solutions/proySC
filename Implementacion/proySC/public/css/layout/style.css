@@ -1,9 +1,10 @@
 @CHARSET "ISO-8859-1";
+/*
 body{
-	background-image: url("../../img/layout/bg.jpg");
-	background-repeat: repeat;	
 	font-size: 11px;
 	font-family: Arial, sans-serif;
+	border: solid 15px #4E78B1;
+	background-color: #4E78B1;
 }
 
 .frameDiv
@@ -36,3 +37,4 @@ body{
 	display: inline;
 	padding: 0 10px;
 }
+*/

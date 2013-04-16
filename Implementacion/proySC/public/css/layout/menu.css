@@ -1,4 +1,48 @@
 @CHARSET "ISO-8859-1";
+.topFrame{
+	background-color: black;	
+}
+
+.topFrameTop{
+	margin-top: 1px;
+	border-top: 1px solid gray;
+	background-image: url("../../img/layout/bgBot.jpg");
+	background-repeat: repeat;
+}
+
+.topFrameMid{
+	border-top: 1px solid gray;
+	border-bottom: 1px solid black;	
+	background-image: url("../../img/layout/bgTop.jpg");
+	background-repeat: repeat;
+}
+
+.topFrameBot{
+	border-top: 1px solid gray;
+	background-image: url("../../img/layout/bgBot.jpg");
+	background-repeat: repeat;
+}
+
+.fittedContainer{
+	border: 10px solid white;
+	padding: 10px;
+}
+
+.quickAccessBottom{
+	margin: 10px;
+	font-size: small;
+	height: 25px;
+	padding: 0 10px 10px 10px;
+	margin-right: 20px;
+	padding-left: 20px;
+	color: #666;
+}
+
+.ladoDerecho{
+	margin: 48px 10px 10px;
+}
+
+/*
 .menuContainer{
 	
 }
@@ -65,5 +109,5 @@
 	font-weight: bold;
 	color: white;
 }
-
+*/
 

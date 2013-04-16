@@ -7,6 +7,7 @@
         <link rel="stylesheet" href="<?=$this->basePath();?>/extjs/resources/css/ext-all.css"/>
         <link rel="stylesheet" href="<?=$this->basePath();?>/css/layout/style.css"/>
         <link rel="stylesheet" href="<?=$this->basePath();?>/css/layout/menu.css"/>
+        <link rel="stylesheet" href="<?=$this->basePath();?>/css/layout/contenedor.css"/>
 		<script type="text/javascript" src="<?php echo $this->basePath(); ?>/extjs/adapter/ext/ext-base.js"></script>
 		<script type="text/javascript" src="<?php echo $this->basePath(); ?>/extjs/ext-all.js"></script>
 		<script type="text/javascript" src="<?=$this->basePath()?>/extjs/src/locale/ext-lang-es.js">  </script> 
@@ -73,184 +74,145 @@
 		
 			Ext.onReady(function(){
 
-				
-	
-				//creamos un contenedor para todo el contenido general centrado
-				var mainContainer = new Ext.Container({
-					layout: 'column',
-					width: 1024,
-					height: 484,
-					autoScroll:true,
-					cls: 'mainContainer',
-					renderTo: 'containerDiv',
-					items:[
-					       {
-						       xtype:'container',
-						       height: 50,
-						       layout: 'column',
-						       itemId: 'frameSuperiorArriba',
-						       columnWidth: 1,
-						       items:[
-										{
-											xtype:'container',
-										    width: 200,
-										    height: 50,
-										    cls: 'logoEmpresa'
-										},
-										{
-											xtype:'container',
-										    columnWidth: 1,
-										    layout: 'anchor',
-										    height: 50,
-										    items:[
-										           {
-											           xtype:'container',
-											           width: 100,
-													   style:{float:'right', paddingTop: '10px'},
-													   items:[
-																{
-																    xtype: 'box',
-																    cls: 'listaHorizontal',
-																    height: 50,
-																    html: '<ul><li><a href="#">Salir</a></li><li><a href="#">Ayuda</a></li></ul>'
-																}
-													   ]
-										           }
-										           
-										 	]
-										}
-							   ]
-					       },
-					       {
-					    	   xtype:'container',
-					    	   height: 50,
-					    	   id: 'frameSuperiorAbajo',
-						       columnWidth: 1,
-							   cls: 'menuContainer',
-						       items:[
-										{
-											xtype:'container',
-											height: 25,
-									        style:{margin: '0 30px 0 0'},
-										 	columnWidth: 1,
-										 	data: menuPrincipal,
-										 	tpl: new Ext.XTemplate(
-										 		'<ul class="menuPrimerNivel">',
-												'<tpl for=".">',
-														'<li id="{[this.getLinkId()]}" class="liPrimerNivel" codigo="{modulo}">{texto}',
-														'</li>',
-												'</tpl>',
-												'</ul>',
-												{
-													getLinkId: function(values)
-													{
-														var result = Ext.id();
-												        this.addListener.defer(1, this, [result]);
-												        return result;
-													},
-													addListener: function(id)
-													{
-
-														Ext.get(id).on('mouseover', function(e)
-																{
-																	
-																	e.stopEvent();
-																	
-																	//el codigo donde se hizo click
-																	var codigoClick = this.dom.attributes.codigo.value;
-																	var valor = null;
-																	
-																	//tenemos que encontrar el codogp
-																	for(var x=0; x<menuPrincipal.length; x++)
-																	{
-																		if(menuPrincipal[x].modulo == codigoClick)
-																		{
-																			valor = menuPrincipal[x];
-																			break;
-																		}
-																	}
-																	
-																	if(valor)
-																	{
-																		
-																		//guardamos los datos
-																		var listaHija = valor;
-																		listaHija.modulo = valor.modulo;
-																		//encontramos destino y agregamos los datos
-																		var abuelo = Ext.getCmp('frameSuperiorAbajo');
-																		var buscado = abuelo.find('itemId','listaNivelDos');
-																		if(buscado.length>0)
-																		{
-																			buscado = buscado[0];
-																			buscado.tpl.overwrite(buscado.el, listaHija);
-																		}
-																	}
-																	
-																	
-																}
-															);
-														/*
-														Ext.get(id).on('mouseover', function(e)
-															{
-																console.log(id, this);
-																e.stopEvent();
-																var listaHija = this.dom.children[0];
-																if(listaHija){
-																	listaHija.style.display = 'block';
-																}
-															}
-														);
-
-														Ext.get(id).on('mouseout', function(e)
-																{
-																	e.stopEvent();
-																	var listaHija = this.dom.children[0];
-																	if(listaHija){
-																		listaHija.style.display = 'none';
-																	}
-																}
-															);
-														*/
-													}
-												}
-											)
-										},
-										{
-											xtype:'container',
-											height: 25,
-										 	columnWidth: 1,
-										 	cls: 'menuSegundoNivelContenedor',
-										 	itemId: 'listaNivelDos',
-										 	style:{backgroundColor:'darkblue',  margin: '0 10px', borderTop: '1px solid black'},
-										 	tpl: new Ext.XTemplate(
-										 		'<ul class="menuSegundoNivel">',
-													'<tpl for="operaciones">',
-														'<li class="liSegundoNivel">',
-															'<a href="{[this.getHref(parent,values)]}">{nombre}</a>',
-														'</li>',
-													'</tpl>',
-												'</ul>',
-												{
-													getHref: function(parent,values)
-													{
-														return baseURL + '/' + parent.modulo + '/' + values.url;
-													}
-												}
-											)
-										}
-							   ]
-					       }
-					]
+				new Ext.Viewport({
+    				layout: 'anchor',
+    				style: {overflowY: 'auto'},
+    				items: [
+    					{
+        					height: 139,
+        					xtype: 'container',
+        					cls: 'topFrame',
+        					border: false,
+        					defaults: {xtype:'container'},
+        					items:[
+        							//tres bloques
+        							{
+        								height: 20,
+        								cls: 'topFrameTop'
+        							},
+        							{
+        								height: 84,
+        								cls: 'topFrameMid'
+        							},
+        							{
+        								height: 33,
+        								cls: 'topFrameBot'
+        							}
+        					]
+    					},
+    					{
+        					layout: 'fit',
+        					xtype: 'container',
+        					autoHeight: true,
+        					cls: 'fittedContainer',
+        					items: [
+        							{
+        								xtype: 'container',
+        								layout: 'column',
+        								items:[
+        										{
+        											xtype: 'container',
+        											columnWidth: .65,
+        											layout: 'anchor',
+        											items:[
+        													{
+        														xtype: 'container',
+        														html: 'Mantener Organizacion',
+        														cls: 'mainTitle'
+        													},
+        													{
+										       	       			xtype: 'container',
+										       	       			itemId: 'gridContainer',
+										       	       			cls: 'gridContainer',
+										       	       			layout: 'anchor',
+										       	       			items: [
+										       	       					{
+										               						xtype: 'grid',
+										               						height: 300,
+										               						sm: new Ext.grid.CellSelectionModel(),
+										               						store: new Ext.data.JsonStore({
+    																			// store configs
+    																			storeId: 'myStore',
+    																			// reader configs
+    																			root: '',
+    																			idProperty: 'name',
+    																			fields: ['name', 'url', {name:'size', type: 'float'}, {name:'lastmod', type:'date'}]
+																				}),
+										               						cm: new Ext.grid.ColumnModel([
+    																			{ header: "Ticker", width: 60},
+    																			{ header: "Company Name", width: 150, id: 'company'},
+    																			{ header: "Market Cap.", width: 100},
+    																			{ header: "$ Sales", width: 100},
+    																			{ header: "Employees", width: 100, resizable: false}
+ 																			])
+										           						}
+										       	       			]
+										       	   			},
+										       	   			{
+										       	       			xtype: 'container',
+										       	       			layout: 'anchor',
+										       	       			cls: 'pagingContainer',
+										       	       			items:[
+										       	       	   				{
+										       	       	       				xtype: 'paging',
+										       	       	       				store: null
+										       	       	   				}
+										       	       			]
+										       	   			}
+        											]
+        										},
+        										{
+        											xtype: 'container',
+        											columnWidth: .35,
+        											layout: 'anchor',
+        											items:[
+        													{
+        														xtype: 'panel',
+        														title: 'Crear Org',
+        														cls: 'ladoDerecho',
+        														layout: 'anchor',
+        														height: 200,
+        														items:[]
+        													}
+        											]
+        										}
+        								]
+        							}
+        					]
+    					},
+        				{
+        					xtype: 'container',
+        					columnWidth: 1,
+        					layout: 'column',
+        					cls: 'quickAccessBottom',
+        					items:[
+        							{
+        								cls: 'dataBottom',
+        								html: 'Agregar Organizacion',
+        								xtype: 'container'
+        							},
+        							{
+        								cls: 'dataBottom',
+        								html: 'Agregar Otra Cosa',
+        								xtype: 'container'
+        							},
+        							{
+        								cls: 'dataBottom',
+        								html: 'Ir Para Otro Lado',
+        								xtype: 'container'
+        							}				
+        					]
+        				}
+    				]
 				});
+	
+				
 				
 			});//onready
 		
 		</script>
     </head>
     <body id='bodyHTML'>
-       <div id='frameDiv' class='frameDiv'>
-       	<div id='containerDiv'>
-       	</div>
-       </div>
+       
     </body>
 </html>

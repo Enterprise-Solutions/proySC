@@ -1,0 +1,316 @@
+//creamos un contenedor para todo el contenido general centrado
+				var mainContainer = new Ext.Container({
+					layout: 'column',
+					width: 1024,
+					minHeight: 484,
+					//autoScroll:true,
+					autoHeight:true,
+					cls: 'mainContainer',
+					renderTo: 'containerDiv',
+					items:[
+					       {
+						       xtype:'container',
+						       height: 50,
+						       layout: 'column',
+						       itemId: 'frameSuperiorArriba',
+						       columnWidth: 1,
+						       items:[
+										{
+											xtype:'container',
+										    width: 200,
+										    height: 50,
+										    cls: 'logoEmpresa'
+										},
+										{
+											xtype:'container',
+										    columnWidth: 1,
+										    layout: 'anchor',
+										    height: 50,
+										    items:[
+										           {
+											           xtype:'container',
+											           width: 100,
+													   style:{float:'right', paddingTop: '10px'},
+													   items:[
+																{
+																    xtype: 'box',
+																    cls: 'listaHorizontal',
+																    height: 50,
+																    html: '<ul><li><a href="#">Salir</a></li><li><a href="#">Ayuda</a></li></ul>'
+																}
+													   ]
+										           }
+										           
+										 	]
+										}
+							   ]
+					       },
+					       {
+					    	   xtype:'container',
+					    	   height: 50,
+					    	   id: 'frameSuperiorAbajo',
+						       columnWidth: 1,
+							   cls: 'menuContainer',
+						       items:[
+										{
+											xtype:'container',
+											height: 25,
+									        style:{margin: '0 30px 0 0'},
+										 	columnWidth: 1,
+										 	data: menuPrincipal,
+										 	tpl: new Ext.XTemplate(
+										 		'<ul class="menuPrimerNivel">',
+												'<tpl for=".">',
+														'<li id="{[this.getLinkId()]}" class="liPrimerNivel" codigo="{modulo}">{texto}',
+														'</li>',
+												'</tpl>',
+												'</ul>',
+												{
+													getLinkId: function(values)
+													{
+														var result = Ext.id();
+												        this.addListener.defer(1, this, [result]);
+												        return result;
+													},
+													addListener: function(id)
+													{
+
+														Ext.get(id).on('mouseover', function(e)
+																{
+																	
+																	e.stopEvent();
+																	
+																	//el codigo donde se hizo click
+																	var codigoClick = this.dom.attributes.codigo.value;
+																	var valor = null;
+																	
+																	//tenemos que encontrar el codogp
+																	for(var x=0; x<menuPrincipal.length; x++)
+																	{
+																		if(menuPrincipal[x].modulo == codigoClick)
+																		{
+																			valor = menuPrincipal[x];
+																			break;
+																		}
+																	}
+																	
+																	if(valor)
+																	{
+																		
+																		//guardamos los datos
+																		var listaHija = valor;
+																		listaHija.modulo = valor.modulo;
+																		//encontramos destino y agregamos los datos
+																		var abuelo = Ext.getCmp('frameSuperiorAbajo');
+																		var buscado = abuelo.find('itemId','listaNivelDos');
+																		if(buscado.length>0)
+																		{
+																			buscado = buscado[0];
+																			buscado.tpl.overwrite(buscado.el, listaHija);
+																		}
+																	}
+																	
+																	
+																}
+															);
+													}
+												}
+											)
+										},
+										{
+											xtype:'container',
+											height: 25,
+										 	columnWidth: 1,
+										 	cls: 'menuSegundoNivelContenedor',
+										 	itemId: 'listaNivelDos',
+										 	style:{backgroundColor:'darkblue',  margin: '0 10px', borderTop: '1px solid black'},
+										 	tpl: new Ext.XTemplate(
+										 		'<ul class="menuSegundoNivel">',
+													'<tpl for="operaciones">',
+														'<li class="liSegundoNivel">',
+															'<a href="{[this.getHref(parent,values)]}">{nombre}</a>',
+														'</li>',
+													'</tpl>',
+												'</ul>',
+												{
+													getHref: function(parent,values)
+													{
+														return baseURL + '/' + parent.modulo + '/' + values.url;
+													}
+												}
+											)
+										}
+							   ]
+					       },
+					       {
+						       xtype: 'container',
+						       columnWidth: 1,
+						       //autoScroll: true,
+						       autoHeight:true,
+						       layout: 'anchor',
+						       //height: 375,
+						       style:{marginTop: '5px'},
+						       items: [{
+									xtype: 'container',
+									layout: 'anchor',
+									items:[
+									       {
+									           xtype: 'container',
+									           layout: 'column',
+									           cls: 'subbloqueArriba',
+									           items:[
+									           		{
+									           			columnWidth: .5,
+									           			xtype: 'container',
+									           			layout: 'anchor',
+									           			items:[
+									           				{
+										       					html: 'titulssso',
+										       					cls: 'tituloPrincipal',
+										       					xtype:'container',
+										       					height: 25
+									       					}
+									           			]
+									           		},
+									           		{
+									           			columnWidth: .5,
+									           			xtype: 'container',
+									           			layout: 'column',
+									           			items:[
+									           				{
+									           					xtype: 'container',
+									           					columnWidth: 1,
+									           					items:[
+									           						{
+									           							xtype:'container',
+									           							html: '&nbsp;'
+									           						}
+									           					]
+									           				},
+									           				{
+									           					xtype: 'form',
+									           					labelWidth: 0,
+									           					border: false,
+									           					width: 150,
+									           					style:{paddingRight: '10px'},
+									           					items:[
+									           						{
+										       							xtype: 'textfield',
+										       							height: 18,
+										       							hideLabel: true,
+										       							width: 100
+									       							}
+									           					]
+									           				}
+									           			]
+									           		}
+									           ]
+									       },
+									       {
+										       style:{minHeight: '300px'},
+										       cls: 'zonaCentral',
+										       xtype:'container',
+										       layout: 'anchor',
+										       items:[
+										       	   {
+										       	       xtype: 'container',
+										       	       itemId: 'gridContainer',
+										       	       cls: 'gridContainer',
+										       	       layout: 'anchor',
+										       	       items: [
+										       	       			{
+										               				xtype: 'grid',
+										               				sm: new Ext.grid.CellSelectionModel(),
+										               				store: new Ext.data.JsonStore({
+    																	// store configs
+    																	storeId: 'myStore',
+    																	// reader configs
+    																	root: '',
+    																	idProperty: 'name',
+    																	fields: ['name', 'url', {name:'size', type: 'float'}, {name:'lastmod', type:'date'}]
+																		}),
+										               				height: 200,
+										               				cm: new Ext.grid.ColumnModel([
+    																	{ header: "Ticker", width: 60},
+    																	{ header: "Company Name", width: 150, id: 'company'},
+    																	{ header: "Market Cap.", width: 100},
+    																	{ header: "$ Sales", width: 100},
+    																	{ header: "Employees", width: 100, resizable: false}
+ 																	])
+										           				}
+										       	       ]
+										       	   },
+										       	   {
+										       	       xtype: 'container',
+										       	       layout: 'anchor',
+										       	       cls: 'pagingContainer',
+										       	       items:[
+										       	       	   {
+										       	       	       xtype: 'paging',
+										       	       	       store: null
+										       	       	   }
+										       	       ]
+										       	   }
+										       ]
+									       },
+									       {
+										       cls: 'accesosDirectos',
+										       xtype:'container',
+										       id: 'accesosDirectos',
+										       style: {overflow: 'visible !important'},
+										       layout: 'column',
+										       height: 25,
+										       items:[
+										       	   {
+										       	       xtype: 'toolbar',
+										       	       width: 724,
+										       	       items:[
+										       	           {
+										               			text: 'hola1',
+										               			xtype: 'button',
+										               			handler: function(b,e){
+										               				var destino = Ext.getCmp('loco');
+										               				
+										               				console.log(destino, destino.isVisible());
+										               				
+										               			}
+										       	   			},
+										       	   			{
+										               			text: 'hola2'
+										       	   			}
+										       	       ]
+										       	   },
+									       		   {
+										       			xtype:'container',
+										       			width: 300,
+										       			height: 25,
+										       			layout: 'anchor',
+										       			style: {overflow: 'visible !important'},
+										       			html: 'g',
+										       			style:{backgroundColor: '#B1BBE8'},
+										       			items:[
+										           			{
+										               			xtype: 'container',
+										               			style: {position:'relative', overflow: 'visible !important'},
+										              			itemId: 'origenVentana',
+										              			id: 'origenVentana',
+										              			items:[
+										              					{
+										              						xtype: 'container',
+										              						html: 'hola',
+										               						id: 'loco',
+										               						height: 200,
+										               						width: 300,
+										               						style:{position: 'absolute', backgroundColor: 'red', bottom: '0px', right: '0px', display: 'block', zIndex: 11, overflow: 'visible'}
+										              					}
+										              			]
+										           			}
+										       			]
+									       			}
+										       ]
+									       }
+									]
+								}]
+					       }
+					]
+				});
