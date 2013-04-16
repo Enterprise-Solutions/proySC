@@ -27,6 +27,48 @@
 .dataBottom:FIRST-CHILD {
 	margin-left: 0px;
 }
+
+.miniMenuSuperior{
+	font-size: 10px;
+	font-family: "myriad-pro";
+	text-transform: uppercase;
+}
+
+.miniMenuSuperiorDIV{
+	list-style: none;
+	margin: 3px 30px;
+	float: right;
+}
+
+.miniMenuSuperiorDIV a{
+	margin: 0 20px;
+	color: #ABB1B1;
+}
+
+.menuPrimerNivel{
+	margin-right: 30px;
+	float: right;
+}
+
+.liPrimerNivel{
+	background-color: gray;
+	float: left;
+	margin: 5px;
+	padding: 5px;
+	line-height: 9px;
+	background: rgb(85,95,96);
+	border-radius: 3px;
+	color: #F8FCFC;
+	font-size: 9px;
+	font-family: "myriad-pro";
+	text-transform: uppercase;
+	cursor: pointer;
+}
+
+.liPrimerNivel:HOVER{
+	background: rgb(95,105,96);
+}
+
 /*
 .subbloqueArriba{
 	

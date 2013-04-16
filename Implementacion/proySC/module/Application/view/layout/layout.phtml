@@ -83,20 +83,135 @@
         					xtype: 'container',
         					cls: 'topFrame',
         					border: false,
+        					id: 'frameSuperiorAbajo',
         					defaults: {xtype:'container'},
         					items:[
         							//tres bloques
         							{
         								height: 20,
-        								cls: 'topFrameTop'
+        								layout: 'anchor',
+        								cls: 'topFrameTop',
+        								items: [
+        										{
+        											cls: 'miniMenuSuperior',
+        											xtype: 'container',
+        											data: [
+        												{data:'Ayuda', link:'http://www.google.com'},
+        												{data:'Otro', link:'http://www.google.com'},
+        												{data:'Salir', link:'http://www.google.com'}
+        											],
+        											tpl: new Ext.XTemplate(
+        												'<div class="miniMenuSuperiorDIV">',
+        												'<tpl for=".">',
+        													'<a href="{link}">{data}',
+        													'</a>',
+        												'</tpl>',
+        												'</div>'
+        											),
+        											items:[
+        											]
+        										}
+        								]
         							},
         							{
         								height: 84,
-        								cls: 'topFrameMid'
+        								cls: 'topFrameMid',
+        								items:[
+        										{
+        											xtype: 'container',
+        											data: menuPrincipal,
+										 			tpl: new Ext.XTemplate(
+										 				'<ul class="menuPrimerNivel">',
+														'<tpl for=".">',
+																'<li id="{[this.getLinkId()]}" class="liPrimerNivel" codigo="{modulo}">{texto}',
+																'</li>',
+														'</tpl>',
+														'</ul>',
+														{
+															getLinkId: function(values)
+															{
+																var result = Ext.id();
+												        		this.addListener.defer(1, this, [result]);
+												        		return result;
+															},
+															addListener: function(id)
+															{
+
+																Ext.get(id).on('mouseover', function(e)
+																		{
+																	
+																			e.stopEvent();
+																	
+																			//el codigo donde se hizo click
+																			var codigoClick = this.dom.attributes.codigo.value;
+																			var valor = null;
+																	
+																			//tenemos que encontrar el codogp
+																			for(var x=0; x<menuPrincipal.length; x++)
+																			{
+																				if(menuPrincipal[x].modulo == codigoClick)
+																				{
+																					valor = menuPrincipal[x];
+																					break;
+																				}
+																			}
+																	
+																			if(valor)
+																			{
+																		
+																				//guardamos los datos
+																				var listaHija = valor;
+																				listaHija.modulo = valor.modulo;
+																				//encontramos destino y agregamos los datos
+																				var abuelo = Ext.getCmp('frameSuperiorAbajo');
+																				var buscado = abuelo.find('itemId','listaNivelDos');
+																				if(buscado.length>0)
+																				{
+																					buscado = buscado[0];
+																					buscado.tpl.overwrite(buscado.el, listaHija);
+																				}
+																			}
+																	
+																	
+																		}
+																	);
+															}
+														}
+													),
+        											width: 600,
+        											height: 35,
+        											style:{float:'right'}
+        										},
+        										{
+        											xtype: 'container',
+        											html: 'Crear Factura',
+        											cls: 'crearFactura',
+        											height: 30
+        										}
+        								]
         							},
         							{
-        								height: 33,
-        								cls: 'topFrameBot'
+											xtype:'container',
+											height: 33,
+        									cls: 'topFrameBot',
+										 	columnWidth: 1,
+										 	itemId: 'listaNivelDos',
+										 	style:{margin: '0 10px', borderTop: '1px solid black'},
+										 	tpl: new Ext.XTemplate(
+										 		'<ul class="menuSegundoNivel">',
+													'<tpl for="operaciones">',
+														'<a href="{[this.getHref(parent,values)]}"><li class="liSegundoNivel">',
+															'{nombre}',
+														'</li></a>',
+													'</tpl>',
+												'</ul>',
+												{
+													getHref: function(parent,values)
+													{
+														return baseURL + '/' + parent.modulo + '/' + values.url;
+													}
+												}
+											)
         							}
         					]
     					},
