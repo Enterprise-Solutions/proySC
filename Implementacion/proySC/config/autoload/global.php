@@ -12,5 +12,16 @@
  */
 
 return array(
-    // ...
+    'db' => array(
+        'driver'         => 'Pdo_Pgsql',
+        'dsn'            => 'pgsql:host=127.0.0.1;dbname=calendario',
+    	'username'       => 'pislas',
+        'password'       => 'pislas'	
+    ),
+    'service_manager' => array(
+        'factories' => array(
+            'Zend\Db\Adapter\Adapter'
+                    => 'Zend\Db\Adapter\AdapterServiceFactory',
+        ),
+    ),
 );

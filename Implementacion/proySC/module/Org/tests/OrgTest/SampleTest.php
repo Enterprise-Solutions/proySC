@@ -7,22 +7,13 @@
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
-namespace ZendSkeletonModuleTest\Framework;
+namespace OrgTest;
 
-use PHPUnit_Framework_TestCase;
-
-class TestCase extends PHPUnit_Framework_TestCase
+class SampleTest extends Framework\TestCase
 {
 
-    public static $locator;
-
-    public static function setLocator($locator)
+    public function testSample()
     {
-        self::$locator = $locator;
-    }
-
-    public function getLocator()
-    {
-        return self::$locator;
+        $this->assertInstanceOf('Zend\Di\LocatorInterface', $this->getLocator());
     }
 }

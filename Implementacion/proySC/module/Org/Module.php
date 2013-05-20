@@ -25,6 +25,7 @@ class Module implements AutoloaderProviderInterface
 		    // if we're in a namespace deeper than one level we need to fix the \ in the path
                     //__NAMESPACE__ => __DIR__ . '/src/' . str_replace('\\', '/' , __NAMESPACE__),
                 		__NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
+                		//'EnterpriseSolutions' => __DIR__ . '/../../vendor/EnterpriseSolutions' 
                 ),
             ),
         );

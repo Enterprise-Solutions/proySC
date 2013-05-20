@@ -1,7 +1,9 @@
-<phpunit bootstrap="./bootstrap.php" colors="true">
+<?xml version="1.0" encoding="UTF-8"?>
+
+<phpunit bootstrap="Bootstrap.php">
     <testsuites>
-        <testsuite name="ZendSkeletonModule Test Suite">
-            <directory>./</directory>
+        <testsuite name="zf2tutorial">
+            <directory>./OrgTest</directory>
         </testsuite>
     </testsuites>
 </phpunit>
