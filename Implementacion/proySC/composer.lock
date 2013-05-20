@@ -1,0 +1,41 @@
+{
+    "hash": "71556449978da2576c9a324ecc859e88",
+    "packages": [
+        {
+            "package": "doctrine/common",
+            "version": "2.3.0"
+        },
+        {
+            "package": "doctrine/dbal",
+            "version": "2.3.4"
+        },
+        {
+            "package": "doctrine/doctrine-module",
+            "version": "0.7.1"
+        },
+        {
+            "package": "doctrine/doctrine-orm-module",
+            "version": "0.7.0"
+        },
+        {
+            "package": "doctrine/orm",
+            "version": "2.3.4"
+        },
+        {
+            "package": "symfony/console",
+            "version": "v2.2.1"
+        },
+        {
+            "package": "zendframework/zendframework",
+            "version": "2.1.5"
+        }
+    ],
+    "packages-dev": null,
+    "aliases": [
+
+    ],
+    "minimum-stability": "stable",
+    "stability-flags": [
+
+    ]
+}
