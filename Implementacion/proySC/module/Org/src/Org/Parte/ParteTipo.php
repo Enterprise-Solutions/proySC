@@ -10,18 +10,12 @@ use Doctrine\ORM\Mapping as Orm;
 class ParteTipo
 {
 	/**
-	 * @Orm\Id
-	 * @Orm\Column(name="org_parte_tipo_id")
-	 * 
-	 */
-	public $id;
-	
-	/**
 	 * @Orm\Column(name="nombre")
 	 */
 	public $nombre;
 	
     /**
+     * @Orm\Id
      * @Orm\Column(name="codigo")
      */
     public $codigo;

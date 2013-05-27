@@ -11,24 +11,11 @@ use Zend\Form\Annotation as Zf;
 /**
  * @author pislas
  * @Zf\Hydrator("Zend\Stdlib\Hydrator\ObjectProperty")
- * @Orm\Entity @Orm\Table(name="org_parte")
+ * @Orm\Entity
  */
 class Persona extends Parte
-{
-	protected $_codigoDeTipo = 'per';
-	
-	/**
-	 * @Orm\OneToOne(targetEntity="Org\Parte\ParteTipo")
-	 * @Orm\JoinColumn(name="org_parte_tipo_id",referencedColumnName="org_parte_tipo_id")
-	 */
-	protected $_tipo;
-	
-	/**
-	 * @Orm\Id
-	 * @Orm\Column(name="org_parte_id")
-	 * @Zf\Exclude()
-	 */
-	protected $id;
+{	
+	protected $codigo = 'per';
 	
 	/**
 	 * @Orm\Column(name="nombre_persona")
@@ -50,7 +37,7 @@ class Persona extends Parte
 	 * @Orm\Column(name="fecha_nacimiento")
 	 * @Zf\Required({"required":"true"})
 	 * @Zf\Filter({"name":"StripTags"})
-	 * @Zf\Validator({"name":"Date"})
+	 * @Zf\Validator({"name":"Date","options":{"format" : "d-m-Y","locale":"py","message": "La fecha debe tener el formato: 'd-m-Y'"}})
 	 * @Zf\Options({"label": "Fecha de Nacimiento"})
 	 */
 	public $fechaDeNacimiento;
@@ -59,7 +46,7 @@ class Persona extends Parte
 	 * @Orm\Column(name="genero_persona")
 	 * @Zf\Required({"required":"true"})
 	 * @Zf\Filter({"name":"StripTags"})
-	 * @Zf\Validator({"name":"Regex","options":{"pattern":"/^(H|M)$/"}})
+	 * @Zf\Validator({"name":"Regex","options":{"pattern":"/^(H|M)$/","message":"El valor debe ser H o M"}})
 	 * @Zf\Options({"label": "Genero"})
 	 */
 	public $genero;

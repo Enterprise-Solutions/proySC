@@ -1,16 +1,13 @@
 <?php
 
-namespace Org\Parte\Persona;
-
-use Org\Parte\Persona\Persona;
-use Org\Parte\ParteTipo;
-
+namespace Org\Parte;
 use Doctrine\ORM\EntityManager;
+use Org\Parte\Persona\Persona;
+use Org\Parte\Organizacion\Organizacion;
 
 class Factory
 {
 	protected $_em;
-	protected $_tiposDePartes = array();
 	public function __construct(EntityManager $em)
 	{
 		$this->_em = $em;
@@ -19,14 +16,26 @@ class Factory
 	/**
 	 * @return \Org\Parte\Persona\Persona
 	 */
-	public function crear()
+	public function crearPersona()
 	{
-		$tipoDeParte = $this->_findTipoDeParte('per');
+		$parteTipo = $this->_findTipoDeParte('per');
 		$parte = new Persona();
-		$parte->setTipo($tipoDeParte);
-		return $parte; 
+		$parte->setParteTipo($parteTipo);
+		return $parte;
 	}
 	
+	/**
+	 * @return \Org\Parte\Organizacion\Organizacion
+	 */
+	public function crearOrganizacion()
+	{
+		$parteTipo = $this->_findTipoDeParte('org');
+		$parte = new Organizacion();
+		$parte->setParteTipo($parteTipo);
+		return $parte;
+	}
+	
+
 	/**
 	 * @param string $codigo
 	 * @return ParteTipo
