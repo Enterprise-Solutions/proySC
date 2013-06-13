@@ -6,16 +6,43 @@ return array(
     'router' => array(
         'routes' => array(
             'stock' => array(
-                'type' => 'Segment',
+                'type' => 'Literal',
                 'options' => array(
-                    'route' => '/stock[/][:action][/:id]',
-                    'constraints' => array(
-                        'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
-                        'id'     => '[0-9]+',
-                    ),
+                    'route' => '/stock',
                     'defaults' => array(
                         'controller' => 'Stock\Controller\Articulo',
                         'action'     => 'index',
+                    ),
+                ),
+                'may_terminate' => true,
+                'child_routes' => array(
+                    'articulo' => array(
+                        'type' => 'Segment',
+                        'options' => array(
+                            'route' => '/articulo[/][:action][/:id]',
+                            'constraints' => array(
+                                'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
+                                'id'     => '[0-9]+',
+                            ),
+                            'defaults' => array(
+                                'controller' => 'Stock\Controller\Articulo',
+                                'action'     => 'index',
+                            ),
+                        ),
+                    ),
+                    'articulo-tipo' => array(
+                        'type' => 'Segment',
+                        'options' => array(
+                            'route' => '/articulo-tipo[/][:action][/:id]',
+                            'constraints' => array(
+                                'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
+                                'id'     => '[0-9]+',
+                            ),
+                            'defaults' => array(
+                                'controller' => 'Stock\Controller\ArticuloTipo',
+                                'action'     => 'index',
+                            ),
+                        ),
                     ),
                 ),
             ),
