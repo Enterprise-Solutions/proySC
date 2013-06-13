@@ -11,4 +11,25 @@
  * credentials from accidentally being committed into version control.
  */
 
-return array();
+return array(
+    'db' => array(
+        'driver'   => 'Pdo_Pgsql',
+        'dsn'      => 'pgsql:host=127.0.0.1;dbname=proysc',
+        'username' => 'postgres',
+        'password' => 'GuidoUCA2011',
+    ),
+    'doctrine' => array(
+        'connection' => array(
+            'orm_default' => array(
+                'driverClass' => 'Doctrine\DBAL\Driver\PDOPgSql\Driver',
+                'params' => array(
+                    'host'     => 'localhost',
+                    'port'     => '5432',
+                    'user'     => 'postgres',
+                    'password' => 'GuidoUCA2011',
+                    'dbname'   => 'proysc',
+                ),
+            ),
+        ),
+    ),
+);
