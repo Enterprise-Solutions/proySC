@@ -14,9 +14,9 @@
 return array(
     'db' => array(
         'driver'   => 'Pdo_Pgsql',
-        'dsn'      => 'pgsql:host=127.0.0.1;dbname=proysc',
-        'username' => 'postgres',
-        'password' => 'GuidoUCA2011',
+        'dsn'      => 'pgsql:host=127.0.0.1;dbname=proysc1.0.0',
+        'username' => 'pislas',
+        'password' => 'pislas',
     ),
     'doctrine' => array(
         'connection' => array(
@@ -25,9 +25,9 @@ return array(
                 'params' => array(
                     'host'     => 'localhost',
                     'port'     => '5432',
-                    'user'     => 'postgres',
-                    'password' => 'GuidoUCA2011',
-                    'dbname'   => 'proysc',
+                    'user'     => 'pislas',
+                    'password' => 'pislas',
+                    'dbname'   => 'proysc1.0.0',
                 ),
             ),
         ),

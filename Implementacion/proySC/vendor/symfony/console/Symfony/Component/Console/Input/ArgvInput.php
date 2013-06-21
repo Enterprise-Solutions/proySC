@@ -215,6 +215,11 @@ class ArgvInput extends Input
 
         $option = $this->definition->getOption($name);
 
+        // Convert false values (from a previous call to substr()) to null
+        if (false === $value) {
+            $value = null;
+        }
+
         if (null === $value && $option->acceptValue() && count($this->parsed)) {
             // if option accepts an optional or mandatory argument
             // let's see if there is one provided
@@ -233,7 +238,9 @@ class ArgvInput extends Input
                 throw new \RuntimeException(sprintf('The "--%s" option requires a value.', $name));
             }
 
-            $value = $option->isValueOptional() ? $option->getDefault() : true;
+            if (!$option->isArray()) {
+                $value = $option->isValueOptional() ? $option->getDefault() : true;
+            }
         }
 
         if ($option->isArray()) {
@@ -311,5 +318,28 @@ class ArgvInput extends Input
         }
 
         return $default;
+    }
+
+    /**
+     * Returns a stringified representation of the args passed to the command
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        $self = $this;
+        $tokens = array_map(function ($token) use ($self) {
+            if (preg_match('{^(-[^=]+=)(.+)}', $token, $match)) {
+                return $match[1] . $self->escapeToken($match[2]);
+            }
+
+            if ($token && $token[0] !== '-') {
+                return $self->escapeToken($token);
+            }
+
+            return $token;
+        }, $this->tokens);
+
+        return implode(' ', $tokens);
     }
 }
