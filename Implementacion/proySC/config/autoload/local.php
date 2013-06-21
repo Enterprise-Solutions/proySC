@@ -15,7 +15,7 @@ return array(
     'db' => array(
         'driver'   => 'Pdo_Pgsql',
         'dsn'      => 'pgsql:host=127.0.0.1;dbname=proysc1.0.0',
-        'username' => 'pislas',
+        'username' => 'pislas123',
         'password' => 'pislas',
     ),
     'doctrine' => array(
