@@ -3,7 +3,9 @@ namespace Org;
 return array(
     'controllers' => array(
         'invokables' => array(
-            'Org\Controller\Skeleton' => 'Org\Controller\SkeletonController',
+            'Org\Controller\Parte' => 'Org\Controller\ParteController',
+        	'Org\Controller\Personas' => 'Org\Controller\PersonasController',
+        	'Org\Controller\Empresas' => 'Org\Controller\EmpresasController'
         ),
     ),
     'router' => array(
@@ -17,8 +19,6 @@ return array(
                         // Change this value to reflect the namespace in which
                         // the controllers for your module are found
                        '__NAMESPACE__' => 'Org\Controller',
-                        'controller'    => 'Skeleton',
-                        'action'        => 'index',
                     ),
                 ),
                 'may_terminate' => true,

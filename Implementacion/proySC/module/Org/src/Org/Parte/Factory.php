@@ -14,6 +14,22 @@ class Factory
 	}
 	
 	/**
+	 * @param unknown_type $orgParteTipoCodigo
+	 * @return \Org\Parte\Parte
+	 */
+	public function crear($orgParteTipoCodigo)
+	{
+		switch ($orgParteTipoCodigo){
+			case 'per':
+				return $this->crearPersona();
+		        break;
+			case 'org':
+				return $this->crearOrganizacion();
+				break;
+		}
+	}
+	
+	/**
 	 * @return \Org\Parte\Persona\Persona
 	 */
 	public function crearPersona()

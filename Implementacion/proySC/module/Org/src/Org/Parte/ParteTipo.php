@@ -16,7 +16,7 @@ class ParteTipo
 	
     /**
      * @Orm\Id
-     * @Orm\Column(name="codigo")
+     * @Orm\Column(name="org_parte_tipo_codigo")
      */
     public $codigo;
 

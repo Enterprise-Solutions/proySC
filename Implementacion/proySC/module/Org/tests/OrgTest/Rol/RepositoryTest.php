@@ -1,33 +1,32 @@
 <?php
-namespace OrgTest;
+namespace OrgTest\Rol;
 use PHPUnit_Framework_TestCase;
 use Doctrine\ORM\EntityManager;
+use Org\Rol\Repository;
 
 use OrgTest\Bootstrap;
-
 
 /**
  * test case.
  */
-class DoctrineTest extends PHPUnit_Framework_TestCase {
-	/**
-	 * @var EntityManager
-	 */
-	protected $_em;
+class RepositoryTest extends PHPUnit_Framework_TestCase {
+	
+	public $_repository;
 	/**
 	 * Prepares the environment before running a test.
 	 */
 	protected function setUp() {
 		parent::setUp ();
 		$sm = Bootstrap::getServiceManager();
-		$this->_em = $sm->get('doctrine.entitymanager.orm_default');
+		$em = $sm->get('doctrine.entitymanager.orm_default');
+		$this->_repository = new Repository($em);
 	}
 	
 	/**
 	 * Cleans up the environment after running a test.
 	 */
 	protected function tearDown() {
-		$this->_em = null;
+		$this->_repository = null;
 		parent::tearDown ();
 	}
 	
@@ -35,13 +34,14 @@ class DoctrineTest extends PHPUnit_Framework_TestCase {
 	 * Constructs the test case.
 	 */
 	public function __construct() {
-		// TODO Auto-generated constructor
+		
 	}
 	
-	public function testGetEntidadConDoctrine()
+	public function testGetRolExistente()
 	{
-		$entidad = $this->_em->find('Org\Parte\ParteTipo', 'per');
-		$this->assertInstanceOf('Org\Parte\ParteTipo', $entidad);
+		$rol = $rol = $this->_repository->getRol('cliente');
+		$this->assertInstanceOf('Org\Rol\Rol', $rol);
+		$this->assertEquals('cliente',$rol->getCodigo());
 	}
 }
 

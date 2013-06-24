@@ -1,33 +1,31 @@
 <?php
-namespace OrgTest;
+namespace OrgTest\Rol\Service;
 use PHPUnit_Framework_TestCase;
 use Doctrine\ORM\EntityManager;
-
 use OrgTest\Bootstrap;
-
+use Org\Rol\Service\Listado\Select;
 
 /**
  * test case.
  */
-class DoctrineTest extends PHPUnit_Framework_TestCase {
-	/**
-	 * @var EntityManager
-	 */
-	protected $_em;
+class SelectOrgParteRolTest extends PHPUnit_Framework_TestCase {
+	public $_select;
 	/**
 	 * Prepares the environment before running a test.
 	 */
 	protected function setUp() {
 		parent::setUp ();
 		$sm = Bootstrap::getServiceManager();
-		$this->_em = $sm->get('doctrine.entitymanager.orm_default');
+		$dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
+		$this->_select = new Select($dbAdapter);
 	}
 	
 	/**
 	 * Cleans up the environment after running a test.
 	 */
 	protected function tearDown() {
-		$this->_em = null;
+		ob_flush();
+		$this->_select = null;
 		parent::tearDown ();
 	}
 	
@@ -38,10 +36,12 @@ class DoctrineTest extends PHPUnit_Framework_TestCase {
 		// TODO Auto-generated constructor
 	}
 	
-	public function testGetEntidadConDoctrine()
+	public function testEjecucion()
 	{
-		$entidad = $this->_em->find('Org\Parte\ParteTipo', 'per');
-		$this->assertInstanceOf('Org\Parte\ParteTipo', $entidad);
+		$this->_select->addSearchByOrgParteTipoCodigo('per');
+		$this->_select->addSearchByOrgRolCodigo('vendedor');
+		$rs = $this->_select->execute();
+		print_r($rs->toArray());
 	}
 }
 

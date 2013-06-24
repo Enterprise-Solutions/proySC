@@ -2,7 +2,7 @@
 namespace Org\Controller;
 use OrgTest\Bootstrap;
 use PHPUnit_Framework_TestCase;
-use Org\Controller\SkeletonController;
+use Org\Controller\EmpresasController;
 use Zend\Http\Request,Zend\Http\Response,Zend\Mvc\MvcEvent,Zend\Mvc\Router\RouteMatch;
 //require_once 'PHPUnit/Framework/TestCase.php';
 
@@ -25,10 +25,10 @@ class SkeletonControllerTest extends PHPUnit_Framework_TestCase {
 		$serviceManager = Bootstrap::getServiceManager();
 		//$serviceManager->setInvokableClass('submitParams','EnterpriseSolutions\Controller\Plugin\SubmitParams');
 		
-		$this->controller = new SkeletonController();
+		$this->controller = new EmpresasController();
 		$this->controller->getPluginManager()->setInvokableClass('submitParams', 'EnterpriseSolutions\Controller\Plugin\SubmitParams');
 		$this->request = new Request();
-		$this->routeMatch = new RouteMatch(array('controller' => 'skeleton'));
+		$this->routeMatch = new RouteMatch(array('controller' => 'empresas'));
 		$this->event = new MvcEvent();
 		$this->event->setRouteMatch($this->routeMatch);
 		$this->controller->setEvent($this->event);
@@ -39,7 +39,7 @@ class SkeletonControllerTest extends PHPUnit_Framework_TestCase {
 	 * Cleans up the environment after running a test.
 	 */
 	protected function tearDown() {
-		// TODO Auto-generated SkeletonControllerTest::tearDown()
+		ob_flush();
 		parent::tearDown ();
 	}
 	
@@ -52,15 +52,30 @@ class SkeletonControllerTest extends PHPUnit_Framework_TestCase {
 	
 	public function testIndex()
 	{
-		$this->routeMatch->setParam('action', 'index');
+		$this->routeMatch->setParam('action', 'empresas');
+		$this->request->setMethod('get');
+		
+		//$this->request->getHeaders()->addHeaderLine('Content-Type','application/json');
+		//$this->request->setContent('{"param1":"hello"}');
+		//$this->request->getPost()->set('param1','hello1');
+		//$this->request->setPost('{"param1":"hello"}');
+		//$this->request->setContent('{"param1":"hello"}');
+		//$result = $this->controller->dispatch($this->request);
+		//print_r($result);
+	}
+	
+	public function testCrear()
+	{
+		$this->routeMatch->setParam('action', 'crear');
 		$this->request->setMethod('post');
 		
 		$this->request->getHeaders()->addHeaderLine('Content-Type','application/json');
-		$this->request->setContent('{"param1":"hello"}');
+		$this->request->setContent('{"post":{"nombre":"BBSoft"}}');
 		//$this->request->getPost()->set('param1','hello1');
 		//$this->request->setPost('{"param1":"hello"}');
 		//$this->request->setContent('{"param1":"hello"}');
 		$result = $this->controller->dispatch($this->request);
+		print_r($result);
 	}
 }
 

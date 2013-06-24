@@ -22,6 +22,15 @@ class SubmitParams extends Params {
 	    return $value;	
 	}
 	
+	public function getParams()
+	{
+		return array_merge(
+		    $this->fromQuery(),
+		    $this->fromPost(),
+			$this->decodificarPostSegunContentType()
+		);
+	}
+	
 	/**
 	 * @return array
 	 */
@@ -30,8 +39,11 @@ class SubmitParams extends Params {
 		$contentType = $this->getController()->getRequest()->getHeader("CONTENT_TYPE");
 		$postData = $this->getController()->getRequest()->getContent();
 		//$postData = $this->fromPost();
-		if($contentType->value == 'application/json'){
+		if($contentType && $contentType->value == 'application/json'){
 			$postData = Json::decode($postData,Json::TYPE_ARRAY);
+		}
+		if(!$postData){
+			$postData = array();
 		}
 		return $postData;
 	}
