@@ -15,6 +15,10 @@ var menuPrincipal = [
 				                                   nombre: 'Mantener Vendedor',
 				                                   codigo: 'rol-tipo'
 			                                   },
+											   {
+												    nombre: 'Mantener Persona',
+												    codigo: 'personas'
+											   },
 			                                   {
 				                                   nombre: 'Mantener Proveedor',
 				                                   codigo: 'documento-tipo'
@@ -61,10 +65,6 @@ var menuPrincipal = [
 			                     operaciones:[
 												{
 												    nombre: 'Mantener Parametros',
-												    codigo: 'adm1'
-												},
-												{
-												    nombre: 'Persona',
 												    codigo: 'adm1'
 												},
 												{
