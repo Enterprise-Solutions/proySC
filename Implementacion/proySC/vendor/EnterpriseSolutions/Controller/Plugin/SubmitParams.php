@@ -4,7 +4,7 @@ namespace EnterpriseSolutions\Controller\Plugin;
 
 use Zend\Mvc\Controller\Plugin\Params;
 use Zend\Json\Json;
-
+use Zend\Http\Header\ContentType;
 class SubmitParams extends Params {
 	
 	public function getParam($name)
@@ -39,12 +39,17 @@ class SubmitParams extends Params {
 		$contentType = $this->getController()->getRequest()->getHeader("CONTENT_TYPE");
 		$postData = $this->getController()->getRequest()->getContent();
 		//$postData = $this->fromPost();
-		if($contentType['value'] == 'application/json'){
+		if($contentType instanceof ContentType && $contentType->value == 'application/json'){
 			$postData = Json::decode($postData,Json::TYPE_ARRAY);
-		}
-		if(!$postData){
+		}else{
 			$postData = array();
 		}
+		/*if($contentType && $contentType['value'] == 'application/json'){
+			$postData = Json::decode($postData,Json::TYPE_ARRAY);
+		}*/
+		/*if(!$postData){
+			$postData = array();
+		}*/
 		return $postData;
 	}
 }
