@@ -3,7 +3,7 @@ namespace OrgTest\Listado;
 use PHPUnit_Framework_TestCase;
 use Doctrine\ORM\EntityManager;
 use OrgTest\Bootstrap;
-use Org\Parte\Listado\Select;
+use Org\Parte\Service\Listado\Select;
 
 /**
  * test case.
@@ -46,7 +46,14 @@ class SelectTest extends PHPUnit_Framework_TestCase {
 	
 	public function testBusquedaPorOrgParteTipoCodigo()
 	{
-		$this->_select->addSearchByOrgParteTipoCodigo('org');
+		/*$this->_select->addSearchByOrgParteTipoCodigo('org');
+		$rs = $this->_select->execute();
+		print_r($rs->toArray());*/
+	}
+	
+	public function testBusquedaPorNombre()
+	{
+		$this->_select->addSearchByNombre('Islas Pablo');
 		$rs = $this->_select->execute();
 		print_r($rs->toArray());
 	}

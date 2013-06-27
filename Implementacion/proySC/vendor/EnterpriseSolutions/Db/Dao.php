@@ -53,7 +53,7 @@ class Dao {
 	public function _consultarDs()
 	{
 		return array(
-				'records'    => $this->_paginator->execute()->toArray(),
+				'records'    => $this->_paginator->execute(),
 				'numResults' => $this->_paginator->getNumResults()
 		);
 	}
