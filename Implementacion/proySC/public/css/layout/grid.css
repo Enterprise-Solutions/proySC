@@ -1,0 +1,28 @@
+
+.editIcon {
+	background-image: url("../../img/icons/grid/edit.png");
+	height: 32px;
+	background-repeat: no-repeat;
+	background-position: center center;
+}
+
+.addIcon {
+	background-image: url("../../img/icons/grid/add.png");
+	height: 32px;
+	background-repeat: no-repeat;
+	background-position: center center;
+}
+
+.deleteIcon {
+	background-image: url("../../img/icons/grid/delete.png");
+	height: 32px;
+	background-repeat: no-repeat;
+	background-position: center center;
+}
+
+.viewIcon {
+	background-image: url("../../img/icons/grid/view.png");
+	height: 32px;
+	background-repeat: no-repeat;
+	background-position: center center;
+}
