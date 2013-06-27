@@ -4,25 +4,42 @@
 	height: 32px;
 	background-repeat: no-repeat;
 	background-position: center center;
+	cursor: pointer;
 }
 
 .addIcon {
 	background-image: url("../../img/icons/grid/add.png");
 	height: 32px;
+	width: 32px;
+	margin: 0 auto;
 	background-repeat: no-repeat;
 	background-position: center center;
+	cursor: pointer;
 }
 
 .deleteIcon {
 	background-image: url("../../img/icons/grid/delete.png");
 	height: 32px;
+	margin: 0 auto;
+	width: 32px;
 	background-repeat: no-repeat;
 	background-position: center center;
+	cursor: pointer;
 }
 
 .viewIcon {
 	background-image: url("../../img/icons/grid/view.png");
 	height: 32px;
+	margin: 0 auto;
+	width: 32px;
 	background-repeat: no-repeat;
 	background-position: center center;
+	cursor: pointer;
+}
+
+.x-grid3-col {vertical-align: middle !important;}
+
+.x-grid3-row-alt{
+	background-color: rgb(45, 107, 199);
+	background-color: rgba(45, 107, 199, 0.45);
 }

@@ -1,0 +1,147 @@
+
+<script type="text/javascript">
+var mainStore = new Ext.data.JsonStore({
+	// store configs
+	totalProperty: 'numResults',
+	url: baseURL + '/org/empresas/index',
+	// reader configs
+	root: 'records',
+	paramNames: {
+		start: 'p[page]',
+		limit: 'p[limit]'
+	},
+	baseParams: {
+		'p[limit]': 1,
+		'p[page]': 0
+	},
+	autoLoad:true,
+	idProperty: 'name',
+	fields: ['org_parte_id','org_parte_tipo_codigo','nombre_organizacion','fecha_nacimiento','foto','org_parte_tipo_nombre']
+});
+
+viewContainer.bodyPanel = [{
+	layout: 'fit',
+	xtype: 'container',
+	autoHeight: true,
+	cls: 'fittedContainer',
+	items: [
+			{
+				xtype: 'container',
+				layout: 'column',
+				items:[
+						{
+							xtype: 'container',
+							columnWidth: .65,
+							layout: 'anchor',
+							items:[
+									{
+										xtype: 'container',
+										html: 'Mantener Organizacion / Empresas',
+										cls: 'mainTitle'
+									},
+									{
+				       	       			xtype: 'container',
+				       	       			itemId: 'gridContainer',
+				       	       			cls: 'gridContainer',
+				       	       			layout: 'anchor',
+				       	       			items: [
+				       	       					{
+				               						xtype: 'grid',
+				               						height: 300,
+				               						id: 'mainGrid',
+				               						stripeRows: true,
+				               						sm: new Ext.grid.CellSelectionModel(),
+				               						viewConfig: {
+				               					        forceFit: true,
+				               					        emptyText: 'Sin Registros'
+				               						},
+				               						store: mainStore,
+				               						cm: new Ext.grid.ColumnModel([
+														{ header: "Nombre", dataIndex: 'nombre_organizacion', width: 160},
+														{ header: "Fecha", dataIndex: 'fecha_nacimiento', width: 150},
+														{ header: "Tipo", dataIndex: 'org_parte_tipo_nombre',  width: 100},
+														{ header: "Ver", dataIndex: null,  width: 32, align: 'center', renderer: function(v,meta,record){
+															return '<div class="viewIcon"></div>';
+														}},
+														{ header: "Editar", dataIndex: null,  width: 32, align: 'center', renderer: function(v,meta,record){
+															return '<div class="editIcon"></div>';
+														}},
+														{ header: "Borrar", dataIndex: null,  width: 32, align: 'center', renderer: function(v,meta,record){
+															return '<div class="deleteIcon"></div>';
+														}}
+														])
+				           						}
+				       	       			]
+				       	   			},
+				       	   			{
+				       	       			xtype: 'toolbar',
+				       	       			layout: 'toolbar',
+				       	       			cls: 'pagingContainer',
+				       	       			items:[
+				       	       			        {
+					       	       			        xtype: 'button',
+					       	       			        iconCls: 'addIcon',
+					       	       			        text: 'Agregar'
+				       	       			        },
+						       	       			'->',
+				       	       	   				{
+				       	       	       				xtype: 'paging',
+				       	       	       				displayInfo: true,
+				       	       	       				store: mainStore,
+				       	       	       				pageSize: 1,
+				       	       	       				preprendButtons: true,
+				       	       	       				listeners:{
+														'render':function(thisCmp){
+														},
+														'change':function(thisToolbar, pageData){
+															console.log(pageData);
+														}
+					       	       	       			}
+				       	       	   				}
+				       	       			]
+				       	   			}
+							]
+						},
+						{
+							xtype: 'container',
+							columnWidth: .35,
+							layout: 'anchor',
+							items:[
+									/*{
+										xtype: 'panel',
+										title: 'Crear Org',
+										cls: 'ladoDerecho',
+										layout: 'anchor',
+										height: 200,
+										items:[]
+									}*/
+							]
+						}
+				]
+			}
+	]
+},
+{
+	xtype: 'container',
+	columnWidth: 1,
+	layout: 'column',
+	cls: 'quickAccessBottom',
+	items:[
+			{
+				cls: 'dataBottom',
+				html: 'Agregar Organizacion',
+				xtype: 'container'
+			},
+			{
+				cls: 'dataBottom',
+				html: 'Agregar Otra Cosa',
+				xtype: 'container'
+			},
+			{
+				cls: 'dataBottom',
+				html: 'Ir Para Otro Lado',
+				xtype: 'container'
+			}				
+	]
+}];
+</script>

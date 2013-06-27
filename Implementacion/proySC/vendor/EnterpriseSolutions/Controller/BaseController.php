@@ -42,4 +42,9 @@ class BaseController extends AbstractActionController {
 			return $viewModel;
 		};
 	}
+	
+	public function indexUIAction()
+	{
+		
+	}
 }

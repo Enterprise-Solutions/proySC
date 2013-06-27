@@ -7,75 +7,21 @@
         <link rel="stylesheet" href="<?=$this->basePath();?>/extjs/resources/css/ext-all.css"/>
         <link rel="stylesheet" href="<?=$this->basePath();?>/css/layout/style.css"/>
         <link rel="stylesheet" href="<?=$this->basePath();?>/css/layout/menu.css"/>
+        <link rel="stylesheet" href="<?=$this->basePath();?>/css/layout/grid.css"/>
         <link rel="stylesheet" href="<?=$this->basePath();?>/css/layout/contenedor.css"/>
 		<script type="text/javascript" src="<?php echo $this->basePath(); ?>/extjs/adapter/ext/ext-base.js"></script>
 		<script type="text/javascript" src="<?php echo $this->basePath(); ?>/extjs/ext-all.js"></script>
 		<script type="text/javascript" src="<?=$this->basePath()?>/extjs/src/locale/ext-lang-es.js">  </script> 
+		<script type="text/javascript" src="<?php echo $this->basePath(); ?>/js/menu.js"></script>
 		<script type="text/javascript">
 
 		var baseURL = '<?=$this->basePath()?>';
-		
-		var menuPrincipal = [
-		                     {
-			                     modulo: 'org',
-			                     texto: 'Organizacion',
-			                     operaciones: [
-			                                   {
-				                                   nombre: 'Mantener Sede',
-				                                   url: 'sede'
-			                                   },
-			                                   {
-				                                   nombre: 'Mantener Tipo Sede',
-				                                   url: 'tipo-sede'
-			                                   }
-			  			  		 ]
-		                     },
-		                     {
-			                     modulo: 'stock',
-			                     texto: 'Stock',
-			                     operaciones:[
-												{
-												    nombre: 'Stock 1',
-												    url: 'stock1'
-												}
- 			                     ]
-		                     },
-		                     {
-			                     modulo: 'adm',
-			                     texto: 'Administracion',
-			                     operaciones:[
-												{
-												    nombre: 'Adm1',
-												    url: 'adm1'
-												}
-			                     ]
-		                     },
-		                     {
-			                     modulo: 'cont',
-			                     texto: 'Contabilidad',
-			                     operaciones:[
-												{
-												    nombre: 'Cont 1',
-												    url: 'cont1'
-												}
-			                     ]
-		                     },
-		                     {
-			                     modulo: 'rep',
-			                     texto: 'Reportes',
-			                     operaciones:[
-												{
-												    nombre: 'Rep1',
-												    url: 'rep1'
-												}
-			                     ]
-		                     }
-		];
 		
 			Ext.onReady(function(){
 
 				new Ext.Viewport({
     				layout: 'anchor',
+    				id: 'mainContainer',
     				style: {overflowY: 'auto'},
     				items: [
     					{
@@ -123,7 +69,7 @@
 										 			tpl: new Ext.XTemplate(
 										 				'<ul class="menuPrimerNivel">',
 														'<tpl for=".">',
-																'<li id="{[this.getLinkId()]}" class="liPrimerNivel" codigo="{modulo}">{texto}',
+																'<li id="{[this.getLinkId()]}" class="liPrimerNivel" codigo="{codigo}">{texto}',
 																'</li>',
 														'</tpl>',
 														'</ul>',
@@ -149,7 +95,7 @@
 																			//tenemos que encontrar el codogp
 																			for(var x=0; x<menuPrincipal.length; x++)
 																			{
-																				if(menuPrincipal[x].modulo == codigoClick)
+																				if(menuPrincipal[x].codigo == codigoClick)
 																				{
 																					valor = menuPrincipal[x];
 																					break;
@@ -161,7 +107,7 @@
 																		
 																				//guardamos los datos
 																				var listaHija = valor;
-																				listaHija.modulo = valor.modulo;
+																				listaHija.codigo = valor.codigo;
 																				//encontramos destino y agregamos los datos
 																				var abuelo = Ext.getCmp('frameSuperiorAbajo');
 																				var buscado = abuelo.find('itemId','listaNivelDos');
@@ -208,7 +154,7 @@
 												{
 													getHref: function(parent,values)
 													{
-														return baseURL + '/' + parent.modulo + '/' + values.url;
+														return baseURL + '/' + parent.codigo + '/' + values.codigo;
 													}
 												}
 											)
@@ -216,108 +162,10 @@
         					]
     					},
     					{
-        					layout: 'fit',
-        					xtype: 'container',
-        					autoHeight: true,
-        					cls: 'fittedContainer',
-        					items: [
-        							{
-        								xtype: 'container',
-        								layout: 'column',
-        								items:[
-        										{
-        											xtype: 'container',
-        											columnWidth: .65,
-        											layout: 'anchor',
-        											items:[
-        													{
-        														xtype: 'container',
-        														html: 'Mantener Organizacion',
-        														cls: 'mainTitle'
-        													},
-        													{
-										       	       			xtype: 'container',
-										       	       			itemId: 'gridContainer',
-										       	       			cls: 'gridContainer',
-										       	       			layout: 'anchor',
-										       	       			items: [
-										       	       					{
-										               						xtype: 'grid',
-										               						height: 300,
-										               						sm: new Ext.grid.CellSelectionModel(),
-										               						store: new Ext.data.JsonStore({
-    																			// store configs
-    																			storeId: 'myStore',
-    																			// reader configs
-    																			root: '',
-    																			idProperty: 'name',
-    																			fields: ['name', 'url', {name:'size', type: 'float'}, {name:'lastmod', type:'date'}]
-																				}),
-										               						cm: new Ext.grid.ColumnModel([
-    																			{ header: "Ticker", width: 60},
-    																			{ header: "Company Name", width: 150, id: 'company'},
-    																			{ header: "Market Cap.", width: 100},
-    																			{ header: "$ Sales", width: 100},
-    																			{ header: "Employees", width: 100, resizable: false}
- 																			])
-										           						}
-										       	       			]
-										       	   			},
-										       	   			{
-										       	       			xtype: 'container',
-										       	       			layout: 'anchor',
-										       	       			cls: 'pagingContainer',
-										       	       			items:[
-										       	       	   				{
-										       	       	       				xtype: 'paging',
-										       	       	       				store: null
-										       	       	   				}
-										       	       			]
-										       	   			}
-        											]
-        										},
-        										{
-        											xtype: 'container',
-        											columnWidth: .35,
-        											layout: 'anchor',
-        											items:[
-        													{
-        														xtype: 'panel',
-        														title: 'Crear Org',
-        														cls: 'ladoDerecho',
-        														layout: 'anchor',
-        														height: 200,
-        														items:[]
-        													}
-        											]
-        										}
-        								]
-        							}
-        					]
-    					},
-        				{
-        					xtype: 'container',
-        					columnWidth: 1,
-        					layout: 'column',
-        					cls: 'quickAccessBottom',
-        					items:[
-        							{
-        								cls: 'dataBottom',
-        								html: 'Agregar Organizacion',
-        								xtype: 'container'
-        							},
-        							{
-        								cls: 'dataBottom',
-        								html: 'Agregar Otra Cosa',
-        								xtype: 'container'
-        							},
-        							{
-        								cls: 'dataBottom',
-        								html: 'Ir Para Otro Lado',
-        								xtype: 'container'
-        							}				
-        					]
-        				}
+    						xtype: 'container',
+    						layout: 'anchor',
+    						items: viewContainer.bodyPanel
+    					}
     				]
 				});
 	
@@ -325,6 +173,7 @@
 				
 			});//onready
 		
+		var viewContainer = Ext.ns('viewContainer');
 		</script>
     </head>
     <body id='bodyHTML'>
