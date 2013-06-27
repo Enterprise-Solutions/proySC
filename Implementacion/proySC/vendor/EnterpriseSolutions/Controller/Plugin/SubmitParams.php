@@ -39,7 +39,7 @@ class SubmitParams extends Params {
 		$contentType = $this->getController()->getRequest()->getHeader("CONTENT_TYPE");
 		$postData = $this->getController()->getRequest()->getContent();
 		//$postData = $this->fromPost();
-		if($contentType && $contentType->value == 'application/json'){
+		if($contentType['value'] == 'application/json'){
 			$postData = Json::decode($postData,Json::TYPE_ARRAY);
 		}
 		if(!$postData){

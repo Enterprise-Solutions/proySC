@@ -28,7 +28,7 @@ class Dto {
 	public function getParametrosDeBusqueda()
 	{
         if(isset($this->_params['s'])){
-        	return $this->_params['s'];
+        	return array_filter($this->_params['s']);
         }
         return array();
 	}

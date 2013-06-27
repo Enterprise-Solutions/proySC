@@ -29,7 +29,7 @@ class BaseController extends AbstractActionController {
 	{
 		$self = $this;
 		return function($dao,$params = array(),$overwritedParams = array()) use($self){
-			$params = array_merge(
+			$params = array_merge_recursive(
 			    $params,
 				$self->SubmitParams()->getParams(),
 				$overwritedParams
