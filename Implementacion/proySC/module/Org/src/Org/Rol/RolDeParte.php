@@ -21,6 +21,16 @@ class RolDeParte
 	protected $id;
 	
 	/**
+	 * @Orm\Column(name="org_rol_codigo")
+	 */
+	protected $orgRolCodigo;
+	
+	/**
+	 * @Orm\Column(name="org_parte_id")
+	 */
+	protected $orgParteId;
+	
+	/**
 	 * @var Org\Parte\Parte
 	 * 
      * @Orm\ManyToOne(targetEntity="Org\Parte\Parte")

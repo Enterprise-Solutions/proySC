@@ -1,8 +1,10 @@
 <?php
 namespace Org\Controller;
+use Org\Rol\RolDeParte;
+
 use OrgTest\Bootstrap;
 use PHPUnit_Framework_TestCase;
-use Org\Controller\ParteController;
+use Org\Controller\RolesDePartesController;
 use Zend\Http\Request,Zend\Http\Response,Zend\Mvc\MvcEvent,Zend\Mvc\Router\RouteMatch;
 //require_once 'PHPUnit/Framework/TestCase.php';
 
@@ -25,7 +27,7 @@ class SkeletonControllerTest extends PHPUnit_Framework_TestCase {
 		$serviceManager = Bootstrap::getServiceManager();
 		//$serviceManager->setInvokableClass('submitParams','EnterpriseSolutions\Controller\Plugin\SubmitParams');
 		
-		$this->controller = new ParteController();
+		$this->controller = new RolesDePartesController();
 		$this->controller->getPluginManager()->setInvokableClass('submitParams', 'EnterpriseSolutions\Controller\Plugin\SubmitParams');
 		$this->request = new Request();
 		$this->routeMatch = new RouteMatch(array('controller' => 'parte'));
@@ -66,13 +68,13 @@ class SkeletonControllerTest extends PHPUnit_Framework_TestCase {
 	
 	public function testBorrar()
 	{
-		$this->routeMatch->setParam('action', 'borrar');
+		$this->routeMatch->setParam('action', 'crear');
 		$this->request->setMethod('post');
 		
 		$this->request->getHeaders()->addHeaderLine('Content-Type','application/json');
 		//$this->request->setContent('{"post":{"nombre":"BBSoft"}}');
-		//$this->request->setContent('{"post":{"org_rol_codigo":"cliente","org_parte":{"org_parte_id":39}}}');
-		$this->request->setContent('{"delete":[39]}');
+		$this->request->setContent('{"post":{"org_rol_codigo":"vendedor","org_parte":{"org_parte_id":39}}}');
+		//$this->request->setContent('{"delete":[39]}');
 		//$this->request->getPost()->set('param1','hello1');
 		//$this->request->setPost('{"param1":"hello"}');
 		//$this->request->setContent('{"param1":"hello"}');
