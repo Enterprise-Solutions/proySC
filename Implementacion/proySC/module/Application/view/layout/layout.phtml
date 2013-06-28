@@ -9,10 +9,13 @@
         <link rel="stylesheet" href="<?=$this->basePath();?>/css/layout/menu.css"/>
         <link rel="stylesheet" href="<?=$this->basePath();?>/css/layout/grid.css"/>
         <link rel="stylesheet" href="<?=$this->basePath();?>/css/layout/contenedor.css"/>
+        <link rel="stylesheet" href="<?=$this->basePath();?>/css/layout/messageBox.css"/>
 		<script type="text/javascript" src="<?php echo $this->basePath(); ?>/extjs/adapter/ext/ext-base.js"></script>
 		<script type="text/javascript" src="<?php echo $this->basePath(); ?>/extjs/ext-all.js"></script>
 		<script type="text/javascript" src="<?=$this->basePath()?>/extjs/src/locale/ext-lang-es.js">  </script> 
 		<script type="text/javascript" src="<?php echo $this->basePath(); ?>/js/menu.js"></script>
+		<script type="text/javascript" src="<?php echo $this->basePath(); ?>/js/ajax.js"></script>
+		<script type="text/javascript" src="<?php echo $this->basePath(); ?>/js/formatearFecha.js"></script>
 		<script type="text/javascript">
 
 		var baseURL = '<?=$this->basePath()?>';
@@ -154,7 +157,7 @@
 												{
 													getHref: function(parent,values)
 													{
-														return baseURL + '/' + parent.codigo + '/' + values.codigo;
+														return baseURL + '/' + parent.codigo + '/' + values.codigo + '/index-ui';
 													}
 												}
 											)

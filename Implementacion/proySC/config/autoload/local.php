@@ -14,20 +14,20 @@
 return array(
     'db' => array(
         'driver'   => 'Pdo_Pgsql',
-        'dsn'      => 'pgsql:host=127.0.0.1;dbname=proysc1.0.0',
-        'username' => 'pislas123',
-        'password' => 'pislas',
+        'dsn'      => 'pgsql:host=10.0.2.2;port=8054;dbname=stock',
+        'username' => 'postgres',
+        'password' => 'postgres',
     ),
     'doctrine' => array(
         'connection' => array(
             'orm_default' => array(
                 'driverClass' => 'Doctrine\DBAL\Driver\PDOPgSql\Driver',
                 'params' => array(
-                    'host'     => 'localhost',
-                    'port'     => '5432',
-                    'user'     => 'pislas',
-                    'password' => 'pislas',
-                    'dbname'   => 'proysc1.0.0',
+                    'host'     => '10.0.2.2',
+                    'port'     => '8054',
+                    'user'     => 'postgres',
+                    'password' => 'postgres',
+                    'dbname'   => 'stock',
                 ),
             ),
         ),

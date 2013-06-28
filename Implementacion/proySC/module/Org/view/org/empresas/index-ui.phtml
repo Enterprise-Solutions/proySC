@@ -1,5 +1,133 @@
 
 <script type="text/javascript">
+function hideBloque()
+{
+	var cajaMensaje = Ext.getCmp('messageBox');
+	if(cajaMensaje){
+		cajaMensaje.addClass('oculto');
+	}	
+}
+
+function formularioEmpresa(isNew, id, nombre)
+{
+	return {
+		xtype: 'form',
+		title: (isNew)?('Crear Empresa'):('Editar Empresa'),
+		cls: 'ladoDerecho',
+		bodyCssClass: 'formularioGeneral',
+		layout: 'form',
+		autoHeight: true,
+		items:[
+		       {
+			       xtype: 'hidden',
+			       name: 'org_parte_id',
+			       value: (isNew)?(null):(id)
+		       },
+		       {
+			       fieldLabel: 'Nombre',
+			       name: 'nombre',
+			       value: nombre,
+			       xtype: 'textfield',
+			       allowBlank: false
+		       },
+		       {
+			       xtype: 'container',
+			       layout: 'column',
+			       defaults:{style: {margin: '5px'}},
+			       items:[
+							{
+							    xtype: 'button',
+							    text: 'Guardar',
+							    handler: function(b,e){
+								       //verificar si esta todo ok
+								       var mainForm = b.ownerCt.ownerCt;
+								       basicForm = mainForm.getForm();
+								       if(basicForm.isValid())
+								       {
+									       var valores = basicForm.getFieldValues();
+							
+									       if(valores.org_parte_id)//si existe es edicion
+									       {
+									    	   Ajax.PostElement.request({
+												   url: baseURL + '/org/empresas/editar',
+												   success: function(response, opt){
+												       mainStore.reload();
+												   },
+												   jsonData:{
+												       'put':{
+														   'org_parte_id':valores.org_parte_id,
+														   'nombre': valores.nombre
+													   },
+													   'formulario': mainForm.id
+												   }
+											   });
+									       }
+									       else
+									       {
+										       //sino es creacion
+									    	   //si esta todo ok hacemos la solicitud
+									    	   Ajax.PostElement.request({
+												   url: baseURL + '/org/empresas/crear',
+												   success: function(response, opt){
+													   mainStore.reload();
+												   },
+												   jsonData:{
+												       'post':{
+														   'org_parte_id':null,
+														   'nombre': valores.nombre
+													   },
+													   'formulario': mainForm.id
+												   }
+											   });
+									       }
+									       
+									       
+									       
+								       }
+								       else
+									   {
+										   Ext.Msg.alert('Aviso','Hay campos inv&aacute;lidos');
+									   }       
+								   }
+							},
+							{
+								xtype: 'button',
+								text: 'Cancelar',
+								handler: function(b,e){
+									var mainForm = b.ownerCt.ownerCt;
+							        var padre = mainForm.ownerCt;
+							        padre.remove(mainForm);
+								}
+							}
+				   ]
+		       }
+		],
+		listeners:{
+			'render':function(){
+				hideBloque();
+			}
+		}
+	};	
+}
+
+function editarEmpresa(id)
+{
+	
+	var registro = mainStore.getById(id);
+	
+	if(registro)
+	{
+		var destino = Ext.getCmp('formContainer');
+		if(destino)
+		{
+			destino.removeAll();
+			var addedEl = destino.add(formularioEmpresa(false, id, registro.data.nombre_organizacion));
+			destino.doLayout();
+			addedEl.body.highlight();
+		}
+	}
+}
+
 var mainStore = new Ext.data.JsonStore({
 	// store configs
 	totalProperty: 'numResults',
@@ -11,11 +139,11 @@ var mainStore = new Ext.data.JsonStore({
 		limit: 'p[limit]'
 	},
 	baseParams: {
-		'p[limit]': 1,
+		'p[limit]': 10,
 		'p[page]': 0
 	},
 	autoLoad:true,
-	idProperty: 'name',
+	idProperty: 'org_parte_id',
 	fields: ['org_parte_id','org_parte_tipo_codigo','nombre_organizacion','fecha_nacimiento','foto','org_parte_tipo_nombre']
 });
 
@@ -27,6 +155,7 @@ viewContainer.bodyPanel = [{
 	items: [
 			{
 				xtype: 'container',
+				id: 'secondMainContainer',
 				layout: 'column',
 				items:[
 						{
@@ -45,26 +174,81 @@ viewContainer.bodyPanel = [{
 				       	       			cls: 'gridContainer',
 				       	       			layout: 'anchor',
 				       	       			items: [
+				       	       			        {
+					       	       			        xtype: 'toolbar',
+					       	       			        style:{padding:'5px'},
+					       	       			        items:[
+					       	       			               {
+						       	       			               xtype: 'displayfield',
+						       	       			               style:{marginRight: '5px'},
+						       	       			         	   value: 'Buscar: '
+					       	       			               },
+					       	       			               {
+						       	       			               xtype: 'textfield',
+						       	       			               name: 'nombre_busqueda'
+					       	       			               },
+					       	       			         		{
+						       	       			               xtype: 'button',
+						       	       			         	   iconCls: 'addIcon',
+						       	       			               text: 'Buscar',
+						       	       			               handler: function(b,e){
+																    var padre = b.ownerCt;
+																    //obtener valor del campo de texto
+																    var campo = padre.find('name','nombre_busqueda');
+																    if(campo.length>0)
+																    {
+																	    campo = campo[0];
+																	    mainStore.setBaseParam('s[nombre]',campo.getValue());
+																	    mainStore.load();
+																    }
+								       	       			       }
+					       	       			               },
+					       	       			         		{
+						       	       			               xtype: 'button',
+						       	       			         	   iconCls: 'addIcon',
+						       	       			               text: 'Limpiar',
+						       	       			               handler: function(b,e){
+																    var padre = b.ownerCt;
+																    //obtener valor del campo de texto
+																    var campo = padre.find('name','nombre_busqueda');
+																    if(campo.length>0)
+																    {
+																	    campo = campo[0];
+																	    campo.setValue(null);
+																	    mainStore.setBaseParam('s[nombre]',null);
+																	    mainStore.load();
+																    }
+								       	       			       }
+					       	       			               }
+							       	       			]
+				       	       			        },
 				       	       					{
 				               						xtype: 'grid',
 				               						height: 300,
 				               						id: 'mainGrid',
 				               						stripeRows: true,
+				               						loadMask: true,
 				               						sm: new Ext.grid.CellSelectionModel(),
 				               						viewConfig: {
 				               					        forceFit: true,
-				               					        emptyText: 'Sin Registros'
+				               					        emptyText: 'Sin Registros',
+				               					        loadingText: 'Cargando .. '
 				               						},
 				               						store: mainStore,
 				               						cm: new Ext.grid.ColumnModel([
 														{ header: "Nombre", dataIndex: 'nombre_organizacion', width: 160},
-														{ header: "Fecha", dataIndex: 'fecha_nacimiento', width: 150},
+														{ header: "Fecha", align: 'center', dataIndex: 'fecha_nacimiento', width: 150, renderer: function(v,meta,record){
+															if(!v)
+																return '-';
+
+															return v;
+														}},
 														{ header: "Tipo", dataIndex: 'org_parte_tipo_nombre',  width: 100},
 														{ header: "Ver", dataIndex: null,  width: 32, align: 'center', renderer: function(v,meta,record){
 															return '<div class="viewIcon"></div>';
 														}},
 														{ header: "Editar", dataIndex: null,  width: 32, align: 'center', renderer: function(v,meta,record){
-															return '<div class="editIcon"></div>';
+															return '<div class="editIcon" onclick="editarEmpresa(' + record.data.org_parte_id + ')"></div>';
 														}},
 														{ header: "Borrar", dataIndex: null,  width: 32, align: 'center', renderer: function(v,meta,record){
 															return '<div class="deleteIcon"></div>';
@@ -81,22 +265,26 @@ viewContainer.bodyPanel = [{
 				       	       			        {
 					       	       			        xtype: 'button',
 					       	       			        iconCls: 'addIcon',
-					       	       			        text: 'Agregar'
+					       	       			        text: 'Agregar',
+													handler: function(b,e){
+														//buscamos destino
+														var destino = Ext.getCmp('formContainer');
+														if(destino)
+														{
+															destino.removeAll();
+															var addedEl = destino.add(formularioEmpresa(true, null, null));
+															destino.doLayout();
+															addedEl.body.highlight();
+														}
+													}
 				       	       			        },
 						       	       			'->',
 				       	       	   				{
 				       	       	       				xtype: 'paging',
 				       	       	       				displayInfo: true,
 				       	       	       				store: mainStore,
-				       	       	       				pageSize: 1,
-				       	       	       				preprendButtons: true,
-				       	       	       				listeners:{
-														'render':function(thisCmp){
-														},
-														'change':function(thisToolbar, pageData){
-															console.log(pageData);
-														}
-					       	       	       			}
+				       	       	       				pageSize: 10,
+				       	       	       				preprendButtons: true
 				       	       	   				}
 				       	       			]
 				       	   			}
@@ -107,6 +295,24 @@ viewContainer.bodyPanel = [{
 							columnWidth: .35,
 							layout: 'anchor',
 							items:[
+			    					{
+			    						xtype: 'container',
+			    						layout: 'anchor',
+			    						cls: 'oculto',
+			    						id: 'messageBox',
+			    						items:[
+			    						       {
+			        						       xtype: 'container',
+			    						    	   html: 'Generico'
+			    						       }
+			    					
+			   	    					]
+			    					},
+							       {
+									     xtype: 'container',
+									     layout: 'anchor',
+									     id: 'formContainer'
+							       }
 									/*{
 										xtype: 'panel',
 										title: 'Crear Org',

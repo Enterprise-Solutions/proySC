@@ -3,10 +3,18 @@ var menuPrincipal = [
 			                     codigo: 'org',
 			                     texto: 'Organizacion',
 			                     operaciones: [
-			                                   {
+			                                   /*{
 				                                   nombre: 'Mantener Sede',
 				                                   codigo: 'sede'
+			                                   },*/
+			                                   {
+				                                   nombre: 'Mantener Empresa',
+				                                   codigo: 'empresas'
 			                                   },
+											   {
+												    nombre: 'Mantener Persona',
+												    codigo: 'personas'
+											   }/*,
 			                                   {
 				                                   nombre: 'Mantener Tipo Sede',
 				                                   codigo: 'parte'
@@ -15,10 +23,6 @@ var menuPrincipal = [
 				                                   nombre: 'Mantener Vendedor',
 				                                   codigo: 'rol-tipo'
 			                                   },
-											   {
-												    nombre: 'Mantener Persona',
-												    codigo: 'personas'
-											   },
 			                                   {
 				                                   nombre: 'Mantener Proveedor',
 				                                   codigo: 'documento-tipo'
@@ -26,14 +30,14 @@ var menuPrincipal = [
 			                                   {
 				                                   nombre: 'Mantener Cliente',
 				                                   codigo: 'relacion-tipo'
-			                                   }
+			                                   }*/
 			  			  		 ]
 		                     },
 		                     {
 		                    	 codigo: 'stock',
 			                     texto: 'Stock',
 			                     operaciones:[
-												{
+												/*{
 												    nombre: 'Mantener Articulo Tipo',
 												    codigo: 'articulo'
 												},
@@ -56,9 +60,9 @@ var menuPrincipal = [
 												{
 												    nombre: 'Mantener Procedencia',
 												    codigo: 'articulo'
-												}
+												}*/
  			                     ]
-		                     },
+		                     }/*,
 		                     {
 		                    	 codigo: 'adm',
 			                     texto: 'Administracion',
@@ -134,5 +138,5 @@ var menuPrincipal = [
 												    codigo: 'rep1'
 												}
 			                     ]
-		                     }
+		                     }*/
 		];

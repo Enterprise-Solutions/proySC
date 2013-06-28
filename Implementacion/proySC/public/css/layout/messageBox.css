@@ -1,0 +1,39 @@
+
+#messageBox{
+	width: 70% !important;
+	padding: 10px;
+	font-family: sans-serif;
+	font-size: 15px;
+	text-transform: capitalize;
+	margin: 5px auto 5px auto;
+	font-weight: bold;
+	text-align: center;
+	autoHeight: true;
+	
+}
+
+#messageBox .okBox{
+	background-color: green;
+	color: white;
+	border: 1px solid yellow;
+}
+
+#messageBox .processBox{
+	background-image: url("../../img/icons/ajax/ajax-loader.gif");
+	background-repeat: no-repeat;
+	background-position: center top;
+	padding-top: 40px;
+	background-color: rgb(27, 155, 187);
+	color: black;
+	border: 1px solid gray;
+}
+
+#messageBox .errorBox{
+	background-color: red;
+	color: black;
+	border: 1px solid yellow;
+}
+
+.oculto{
+	visibility: hidden;
+}
