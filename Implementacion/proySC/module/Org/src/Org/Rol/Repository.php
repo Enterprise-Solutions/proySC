@@ -14,7 +14,7 @@ class Repository
 	
 	public function getRol($orgRolCodigo)
 	{
-		return $this->_em->getRepository('Org\Rol\Rol')->find($orgRolCodigo);
+		return $this->_em->getRepository('Org\Rol\Rol')->findOneBy(array('codigo' => $orgRolCodigo));
 	}
 	
 	public function persistir($rolDeParte)

@@ -5,7 +5,8 @@ return array(
         'invokables' => array(
             'Org\Controller\Parte' => 'Org\Controller\ParteController',
         	'Org\Controller\Personas' => 'Org\Controller\PersonasController',
-        	'Org\Controller\Empresas' => 'Org\Controller\EmpresasController'
+        	'Org\Controller\Empresas' => 'Org\Controller\EmpresasController',
+        	'Org\Controller\RolesDePartes' => 'Org\Controller\RolesDePartesController'
         ),
     ),
     'router' => array(

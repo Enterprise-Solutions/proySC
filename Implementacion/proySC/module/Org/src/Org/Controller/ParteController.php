@@ -2,11 +2,14 @@
 
 namespace Org\Controller;
 
+use Org\Parte\Repository;
+
 use EnterpriseSolutions\Controller\BaseController;
 use Org\Parte\Service\Listado\Select;
 use EnterpriseSolutions\Db\Dao;
 use Org\Parte\Service\Creacion;
 use Org\Parte\Service\Edicion;
+use Org\Parte\Service\Borrado;
 use Org\Parte\Service\Transaccional;
 
 class ParteController extends BaseController
@@ -38,6 +41,17 @@ class ParteController extends BaseController
 		$actionService = new Edicion($em);
 		$service = new Transaccional($em,$actionService);
 		$datos = $this->SubmitParams()->getParam('put');
+		$parte = $service->ejecutar($datos);
+		return $this->_returnAsJson($service->getRespuesta());
+	}
+	
+	public function borrarAction()
+	{
+		$em = $this->getServiceLocator()->get('doctrine.entitymanager.orm_default');
+		$repository = new Repository($em);
+		$actionService = new Borrado($repository);
+		$service = new Transaccional($em,$actionService);
+		$datos = $this->SubmitParams()->getParam('delete');
 		$parte = $service->ejecutar($datos);
 		return $this->_returnAsJson($service->getRespuesta());
 	}

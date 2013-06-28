@@ -35,4 +35,10 @@ class Select extends DbSelect
 	{
 		$this->_select->where("orp.org_rol_codigo = '$codigo'");
 	}
+	
+	public function addSearchByNombre($nombre)
+	{
+		$this->_select
+			 ->where(" '$nombre' ~* ('('||op.nombre_persona || '|' || op.apellido_persona||')')  or '$nombre' ~* op.nombre_organizacion");
+	}
 }

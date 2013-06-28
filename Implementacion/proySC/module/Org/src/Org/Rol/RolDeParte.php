@@ -4,6 +4,7 @@ namespace Org\Rol;
 use Org\Parte\Parte;
 
 use Doctrine\ORM\Mapping as Orm;
+use Zend\Stdlib\Hydrator\ObjectProperty as Hydrator;
 
 /**
  * @author pislas
@@ -56,5 +57,10 @@ class RolDeParte
 	public function _rolSeteado(Rol $rol)
 	{
 		$this->rol = $rol;
+	}
+	
+	public function toArray()
+	{
+		return array('org_parte_rol_id' => $this->id,'org_parte_id' => $this->parte->getId(),'org_rol' => $this->rol->getCodigo());
 	}
 }

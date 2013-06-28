@@ -2,7 +2,7 @@
 namespace Org\Controller;
 use OrgTest\Bootstrap;
 use PHPUnit_Framework_TestCase;
-use Org\Controller\EmpresasController;
+use Org\Controller\ParteController;
 use Zend\Http\Request,Zend\Http\Response,Zend\Mvc\MvcEvent,Zend\Mvc\Router\RouteMatch;
 //require_once 'PHPUnit/Framework/TestCase.php';
 
@@ -25,10 +25,10 @@ class SkeletonControllerTest extends PHPUnit_Framework_TestCase {
 		$serviceManager = Bootstrap::getServiceManager();
 		//$serviceManager->setInvokableClass('submitParams','EnterpriseSolutions\Controller\Plugin\SubmitParams');
 		
-		$this->controller = new EmpresasController();
+		$this->controller = new ParteController();
 		$this->controller->getPluginManager()->setInvokableClass('submitParams', 'EnterpriseSolutions\Controller\Plugin\SubmitParams');
 		$this->request = new Request();
-		$this->routeMatch = new RouteMatch(array('controller' => 'empresas'));
+		$this->routeMatch = new RouteMatch(array('controller' => 'parte'));
 		$this->event = new MvcEvent();
 		$this->event->setRouteMatch($this->routeMatch);
 		$this->controller->setEvent($this->event);
@@ -52,8 +52,8 @@ class SkeletonControllerTest extends PHPUnit_Framework_TestCase {
 	
 	public function testIndex()
 	{
-		$this->routeMatch->setParam('action', 'empresas');
-		$this->request->setMethod('get');
+		//$this->routeMatch->setParam('action', 'crear');
+		//$this->request->setMethod('get');
 		
 		//$this->request->getHeaders()->addHeaderLine('Content-Type','application/json');
 		//$this->request->setContent('{"param1":"hello"}');
@@ -64,13 +64,15 @@ class SkeletonControllerTest extends PHPUnit_Framework_TestCase {
 		//print_r($result);
 	}
 	
-	public function testCrear()
+	public function testBorrar()
 	{
-		$this->routeMatch->setParam('action', 'crear');
+		$this->routeMatch->setParam('action', 'borrar');
 		$this->request->setMethod('post');
 		
 		$this->request->getHeaders()->addHeaderLine('Content-Type','application/json');
-		$this->request->setContent('{"post":{"nombre":"BBSoft"}}');
+		//$this->request->setContent('{"post":{"nombre":"BBSoft"}}');
+		//$this->request->setContent('{"post":{"org_rol_codigo":"cliente","org_parte":{"org_parte_id":39}}}');
+		$this->request->setContent('{"delete":[39]}');
 		//$this->request->getPost()->set('param1','hello1');
 		//$this->request->setPost('{"param1":"hello"}');
 		//$this->request->setContent('{"param1":"hello"}');

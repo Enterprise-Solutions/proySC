@@ -14,6 +14,7 @@ class CreacionDeRolDeParte
 {
 	public $_rolRepository;
 	public $_em;
+	public $_respuesta;
 	public function __construct(EntityManager $em)
 	{
 		$this->_em = $em;
@@ -37,8 +38,10 @@ class CreacionDeRolDeParte
 		$parte = $this->_crearOEditarParte($orgParte);
 		$rolesDeParte = new RolesDeParte($parte, $this->_rolRepository);
 		$rolDeParte = $rolesDeParte->agregar($orgRolCodigo);
+		
 		$this->_rolRepository
 			 ->persistir($rolDeParte);
+		$this->_setRespuesta($rolDeParte);
 		return $rolDeParte;
 	}
 	
@@ -56,5 +59,15 @@ class CreacionDeRolDeParte
 		}
 		$parte = $service->ejecutar($datos);
 		return $parte;
+	}
+	
+	public function _setRespuesta($rolDeParte)
+	{
+		$this->_respuesta = array($rolDeParte->toArray());
+	}
+	
+	public function getRespuesta()
+	{
+		return $this->_respuesta;
 	}
 }

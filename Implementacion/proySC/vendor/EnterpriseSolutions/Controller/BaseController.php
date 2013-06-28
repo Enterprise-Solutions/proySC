@@ -43,6 +43,20 @@ class BaseController extends AbstractActionController {
 		};
 	}
 	
+	public function _crearTemplateParaGet()
+	{
+		$self = $this;
+		return function($dao) use($self){
+			$id = $self->SubmitParams()->getParam('id');
+			$rs = $dao->get($id);
+			$viewModel = $self->_seleccionarViewModelSegunContexto(array('Zend\View\Model\JsonModel' => array(
+					'text/html','application/json'
+			)));
+			$viewModel->setVariables($rs);
+			return $viewModel;
+		};
+	}
+	
 	public function indexUIAction()
 	{
 		
