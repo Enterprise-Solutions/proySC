@@ -28,6 +28,6 @@ class Select extends DbSelect
 	public function addSearchByNombre($nombre)
 	{
 		$this->_select
-			->where(" '$nombre' ~* ('('||op.nombre_persona || '|' || op.apellido_persona||')')  or '$nombre' ~* op.nombre_organizacion");
+			->where(" ('('||op.nombre_persona || '|' || op.apellido_persona||')') ~* '$nombre' or op.nombre_organizacion ~* '$nombre'");
 	}
 }
