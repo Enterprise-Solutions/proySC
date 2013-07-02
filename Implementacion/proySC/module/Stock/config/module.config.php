@@ -10,37 +10,22 @@ return array(
                 'options' => array(
                     'route' => '/stock',
                     'defaults' => array(
-                        'controller' => 'Stock\Controller\Articulo',
-                        'action'     => 'index',
+                        // Change this value to reflect the namespace in which
+                        // the controllers for your module are found
+                        '__NAMESPACE__' => 'Stock\Controller',
                     ),
                 ),
                 'may_terminate' => true,
                 'child_routes' => array(
-                    'articulo' => array(
+                    'default' => array(
                         'type' => 'Segment',
                         'options' => array(
-                            'route' => '/articulo[/][:action][/:id]',
+                            'route' => '/[:controller[/:action]]',
                             'constraints' => array(
-                                'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
-                                'id'     => '[0-9]+',
+                                'controller' => '[a-zA-Z][a-zA-Z0-9_-]*',
+                                'action'     => '[a-zA-Z][a-zA-Z0-9_-]*',
                             ),
                             'defaults' => array(
-                                'controller' => 'Stock\Controller\Articulo',
-                                'action'     => 'index',
-                            ),
-                        ),
-                    ),
-                    'articulo-tipo' => array(
-                        'type' => 'Segment',
-                        'options' => array(
-                            'route' => '/articulo-tipo[/][:action][/:id]',
-                            'constraints' => array(
-                                'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
-                                'id'     => '[0-9]+',
-                            ),
-                            'defaults' => array(
-                                'controller' => 'Stock\Controller\ArticuloTipo',
-                                'action'     => 'index',
                             ),
                         ),
                     ),
@@ -50,8 +35,8 @@ return array(
     ),
     'controllers' => array(
         'invokables' => array(
-            'Stock\Controller\ArticuloTipo' => 'Stock\Controller\ArticuloTipoController',
-            'Stock\Controller\Articulo'     => 'Stock\Controller\ArticuloController',
+            'Stock\Controller\Articulo' => 'Stock\Controller\ArticuloController',
+            'Stock\Controller\Combos'   => 'Stock\Controller\CombosController',
         ),
     ),
     'view_manager' => array(
