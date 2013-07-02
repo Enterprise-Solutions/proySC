@@ -2,14 +2,17 @@
 
 namespace Stock\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
-use Zend\View\Model\JsonModel;
+use EnterpriseSolutions\Controller\BaseController;
+use EnterpriseSolutions\Db\Dao;
+use Stock\Articulo\Listado\Select;
 
-class ArticuloController extends AbstractActionController
+class ArticuloController extends BaseController
 {
-    public function indexAction()
+    public function indexAction($overwritedParams = array())
     {
-        $results = array("records" => array(), "numResults" => 0);
-        return new JsonModel($results);
+        $select = new Select($this->getServiceLocator()->get('Zend\Db\Adapter\Adapter'));
+        $dao = new Dao($select);
+        $template = $this->_crearTemplateParaListado();
+        return $template($dao, array(), $overwritedParams);
     }
 }
