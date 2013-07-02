@@ -14,6 +14,11 @@ class Select extends DbSelect
 			 	array('org_parte_tipo_nombre' => 'nombre'));
 	}
 	
+	public function addSearchById($id)
+	{
+		return $this->addSearchByOrgParteId($id);
+	}
+	
 	public function addSearchByOrgParteTipoCodigo($orgParteTipoCodigo)
 	{
 		$this->_select->where("op.org_parte_tipo_codigo = '$orgParteTipoCodigo'");
@@ -28,6 +33,6 @@ class Select extends DbSelect
 	public function addSearchByNombre($nombre)
 	{
 		$this->_select
-			->where(" '$nombre' ~* ('('||op.nombre_persona || '|' || op.apellido_persona||')')  or '$nombre' ~* op.nombre_organizacion");
+			->where(" ('('||op.nombre_persona || '|' || op.apellido_persona||')') ~* '$nombre' or op.nombre_organizacion ~* '$nombre'");
 	}
 }

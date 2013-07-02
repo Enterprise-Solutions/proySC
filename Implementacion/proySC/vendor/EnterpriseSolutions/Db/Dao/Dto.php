@@ -40,4 +40,17 @@ class Dto {
 		}
 		return array();
 	}
+	
+	public function getId()
+	{
+		if(isset($this->_params['id'])){
+			return $this->_params['id'];
+		}
+		return false;
+	}
+	
+	public function getParametrosDeGet()
+	{
+		return array('id' => $this->getId());
+	}
 }

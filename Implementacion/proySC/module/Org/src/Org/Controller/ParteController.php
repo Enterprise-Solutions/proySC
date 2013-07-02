@@ -7,6 +7,7 @@ use Org\Parte\Repository;
 use EnterpriseSolutions\Controller\BaseController;
 use Org\Parte\Service\Listado\Select;
 use EnterpriseSolutions\Db\Dao;
+use EnterpriseSolutions\Db\Dao\Get as GetDao;
 use Org\Parte\Service\Creacion;
 use Org\Parte\Service\Edicion;
 use Org\Parte\Service\Borrado;
@@ -20,6 +21,14 @@ class ParteController extends BaseController
 		$dao = new Dao($select);
 		$template = $this->_crearTemplateParaListado();
 		return $template($dao,array(),$overwritedParams);
+	}
+	
+	public function getAction()
+	{
+		$select = new Select($this->getServiceLocator()->get('Zend\Db\Adapter\Adapter'));
+		$dao = new GetDao($select);
+		$template = $this->_crearTemplateParaGet();
+		return $template($dao,array());
 	}
 	
 	public function crearAction($orgParteTipoCodigo = null)
