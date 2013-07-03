@@ -1,0 +1,676 @@
+
+<script type="text/javascript">
+function hideBloque()
+{
+	var cajaMensaje = Ext.getCmp('messageBox');
+	if(cajaMensaje){
+		cajaMensaje.addClass('oculto');
+	}	
+}
+
+function formularioArticulo(isNew, data)
+{
+	return {
+		xtype: 'form',
+		title: (isNew)?('Crear Articulo'):('Editar Articulo'),
+		cls: 'ladoDerecho',
+		bodyCssClass: 'formularioGeneral',
+		layout: 'form',
+		autoHeight: true,
+		items:[
+		       {
+			       xtype: 'hidden',
+			       name: 'stock_articulo_id',
+			       value: (isNew)?(null):(data.stock_articulo_id)
+		       },
+		       {
+			       fieldLabel: 'Nombre',
+			       name: 'nombre',
+			       width: 150,
+			       maxLength: 40,
+			       //value: data.nombre,
+			       xtype: 'textfield',
+			       allowBlank: false
+		       },
+		       {
+			       fieldLabel: 'Codigo',
+			       name: 'codigo',
+			       width: 115,
+			       maxLength: 40,
+			       //value: data.codigo,
+			       xtype: 'textfield',
+			       allowBlank: false
+		       },
+		       {
+			       fieldLabel: 'Modelo',
+			       name: 'modelo',
+			       maxLength: 100,
+			       width: 150,
+			       //value: data.modelo,
+			       xtype: 'textfield',
+			       allowBlank: false
+		       },
+		       {
+			       	fieldLabel: 'Marca',
+			        hiddenName: 'stock_marca_id',
+			       	width: 130,
+			       	valueField: 'stock_marca_id',
+			       	displayField:'marca',
+			       	//value: data.tiempo_garantia,
+			       	xtype: 'combo',
+			       	store: stockMarcaStore,
+			       	typeAhead:true,mode:'local',
+			       	allowBlank: false
+		       },
+		       {
+			       	fieldLabel: 'Categoria',
+			        hiddenName: 'stock_categoria_id',
+			       	width: 130,
+			       	valueField: 'stock_categoria_id',
+			       	displayField:'categoria',
+			       	//value: data.tiempo_garantia,
+			       	xtype: 'combo',
+			       	store: stockCategoriaStore,
+			       	typeAhead:true,mode:'local',
+			       	allowBlank: false
+		       },
+		       {
+			       fieldLabel: 'Descrip.',
+			       name: 'descripcion',
+			       width: '80%',
+			       //value: data.descripcion,
+			       xtype: 'textarea'
+		       },
+		       {
+		           xtype: 'fieldset',
+		           title: 'Precio Venta',
+		           layout: 'column',
+		           defaults:{xtype:'container'},
+		           items:[
+		           			{
+		           				width: 200,
+		           				layout: 'form',
+		           				labelWidth: 100,
+		           				items:[
+		       							{
+			       							fieldLabel: 'Precio Venta',
+			       							name: 'precio_venta',
+			       							width: 80,
+			       							//value: data.precio_venta,
+			       							xtype: 'numberfield',
+			      							allowBlank: false,
+			      							allowDecimals:true,
+			      							allowNegative: false
+		       							}
+		           				]
+		           			},
+		           			{
+		           				width: 150,
+		           				layout: 'form',
+		           				labelWidth: 60,
+		           				items:[
+		           						{
+			       							hideLabel:true,
+			       							hiddenName: 'cont_moneda_id',
+			       							width: 90,
+			       							valueField: 'cont_moneda_id',
+			       							displayField:'moneda',
+			       							//value: data.tiempo_garantia,
+			       							xtype: 'combo',
+			       							store: stockMonedaStore,
+			       							typeAhead:true,mode:'local',
+			       							allowBlank: false
+		       							}
+		           				]
+		           			}
+		           ]
+		       },
+		       {
+		           xtype: 'fieldset',
+		           title: 'Garantia',
+		           layout: 'column',
+		           defaults:{xtype:'container'},
+		           items:[
+		           			{
+		           				width: 150,
+		           				layout: 'form',
+		           				labelWidth: 80,
+		           				items:[
+		           						{
+			       							fieldLabel: 'Tiempo Gar.',
+			       							name: 'tiempo_garantia',
+			       							width: 50,
+			       							//value: data.tiempo_garantia,
+			       							xtype: 'numberfield',
+			       							allowNegative:false,
+			       							allowDecimals: false
+		       							}
+		           				]
+		           			},
+		           			{
+		           				width: 150,
+		           				layout: 'form',
+		           				labelWidth: 60,
+		           				items:[
+		           						{
+			       							hideLabel:true,
+			       							hiddenName: 'stock_garantia_tipo_id',
+			       							width: 90,
+			       							valueField: 'stock_garantia_tipo_id',
+			       							displayField:'garantia_tipo',
+			       							//value: data.tiempo_garantia,
+			       							xtype: 'combo',
+			       							store: stockGarantiaTipoStore,
+			       							typeAhead:true,mode:'local',
+			       							allowBlank: false
+		       							}
+		           				]
+		           			}
+		           ]
+		       },
+		       {
+			       fieldLabel: '%IVA',
+			       hiddenName: 'porcentaje_impuesto',
+			       //value: data.porcentaje_impuesto,
+			       xtype: 'combo',
+			       triggerAction: 'all',
+			       store: stockImpuestoStore,
+			       displayField: 'valor',
+			       valueField: 'id',
+			       mode: 'local',
+			       width: 100,
+			       allowBlank: false
+		       },
+		       {
+			       fieldLabel: '% Max. Desc.',
+			       name: 'descuento_maximo',
+			       //value: data.descuento_maximo,
+			       xtype: 'numberfield',
+			       width: 45,
+			       allowNegative: false,
+			       allowBlank: false
+		       },
+		       {
+			       fieldLabel: 'Estado',
+			       hiddenName: 'estado',
+			       //value: data.estado,
+			       xtype: 'combo',
+			       store: stockEstadoStore,
+			       displayField: 'valor',
+			       valueField: 'id',
+			       mode: 'local',
+			       triggerAction: 'all',
+			       width: 100,
+			       allowBlank: false
+		       },
+		       {
+			       fieldLabel: 'Es Servicio?',
+			       name: 'es_servicio',
+			       checked: false,
+			       //value: data.tipo,
+			       xtype: 'checkbox'
+		       },
+		       {
+			       xtype: 'container',
+			       layout: 'column',
+			       defaults:{style: {margin: '5px'}},
+			       items:[
+							{
+							    xtype: 'button',
+							    text: 'Guardar',
+							    handler: function(b,e){
+								       //verificar si esta todo ok
+								       var mainForm = b.ownerCt.ownerCt;
+								       basicForm = mainForm.getForm();
+								       if(basicForm.isValid())
+								       {
+									       var valores = basicForm.getFieldValues();
+									       
+							
+									       if(valores.stock_articulo_id)//si existe es edicion
+									       {
+									    	   Ajax.PostElement.request({
+												   url: baseURL + '/stock/articulo/editar',
+												   success: function(response, opt){
+												       mainStore.reload();
+												   },
+												   jsonData:{
+												       'put': valores,
+													   'formulario': mainForm.id
+												   }
+											   });
+									       }
+									       else
+									       {
+										       //sino es creacion
+									    	   //si esta todo ok hacemos la solicitud
+									    	   Ajax.PostElement.request({
+												   url: baseURL + '/stock/articulo/crear',
+												   success: function(response, opt){
+													   mainStore.reload();
+												   },
+												   jsonData:{
+												       'post': valores,
+													   'formulario': mainForm.id
+												   }
+											   });
+									       }
+									       
+									       
+									       
+								       }
+								       else
+									   {
+										   Ext.Msg.alert('Aviso','Hay campos inv&aacute;lidos');
+									   }       
+								   }
+							},
+							{
+								xtype: 'button',
+								text: 'Cancelar',
+								handler: function(b,e){
+									var mainForm = b.ownerCt.ownerCt;
+							        var padre = mainForm.ownerCt;
+							        padre.remove(mainForm);
+								}
+							}
+				   ]
+		       }
+		],
+		listeners:{
+			'render':function(){
+				hideBloque();
+			}
+		}
+	};	
+}
+
+function editarEmpresa(id)
+{
+	
+	var registro = mainStore.getById(id);
+	
+	if(registro)
+	{
+		var destino = Ext.getCmp('formContainer');
+		if(destino)
+		{
+			destino.removeAll();
+			var addedEl = destino.add(formularioEmpresa(false, id, registro.data.nombre_organizacion));
+			destino.doLayout();
+			addedEl.body.highlight();
+		}
+	}
+}
+
+var mainStore = new Ext.data.JsonStore({
+	// store configs
+	totalProperty: 'numResults',
+	url: baseURL + '/stock/articulo/index',
+	// reader configs
+	root: 'records',
+	paramNames: {
+		start: 'p[page]',
+		limit: 'p[limit]'
+	},
+	baseParams: {
+		'p[limit]': 10,
+		'p[page]': 0
+	},
+	autoLoad:true,
+	idProperty: 'stock_articulo_id',
+	fields: ['stock_articulo_id','categoria','codigo','existencia','marca','nombre','precio_venta']
+});
+
+var stockCategoriaStore = new Ext.data.JsonStore({
+	// store configs
+	url: baseURL + '/stock/combos/categoria',
+	// reader configs
+	autoLoad:true,
+	root: 'records',
+	idProperty: 'stock_categoria_id',
+	fields: ['stock_categoria_id','categoria']
+});
+
+var stockMarcaStore = new Ext.data.JsonStore({
+	// store configs
+	url: baseURL + '/stock/combos/marca',
+	// reader configs
+	root: 'records',
+	autoLoad:true,
+	idProperty: 'stock_marca_id',
+	fields: ['stock_marca_id','marca']
+});
+
+var stockImpuestoStore = new Ext.data.ArrayStore({
+	idIndex: 0,  
+    fields: ['id','valor'],
+    data: [
+    	[0,'Exento'],
+    	[5,'5%'],
+    	[10,'10%']
+    ]
+});
+
+var stockEstadoStore = new Ext.data.ArrayStore({
+	idIndex: 0,  
+    fields: ['id','valor'],
+    data: [
+    	['A','Activo'],
+    	['I','Inactivo'],
+    	['D','Descontinuado'],
+    	['O','Obsoleto'],
+    ]
+});
+
+var stockMonedaStore = new Ext.data.JsonStore({
+	// store configs
+	url: baseURL + '/stock/combos/moneda',
+	// reader configs
+	root: 'records',
+	autoLoad:true,
+	idProperty: 'cont_moneda_id',
+	fields: ['cont_moneda_id','moneda']
+});
+
+var stockGarantiaTipoStore = new Ext.data.JsonStore({
+	// store configs
+	url: baseURL + '/stock/combos/garantia-tipo',
+	// reader configs
+	root: 'records',
+	autoLoad:true,
+	idProperty: 'stock_garantia_tipo_id',
+	fields: ['stock_garantia_tipo_id','garantia_tipo']
+});
+
+
+viewContainer.bodyPanel = [{
+	layout: 'fit',
+	xtype: 'container',
+	autoHeight: true,
+	cls: 'fittedContainer',
+	items: [
+			{
+				xtype: 'container',
+				autoHeight: true,
+				id: 'secondMainContainer',
+				layout: 'column',
+				items:[
+						{
+							xtype: 'container',
+							columnWidth: .65,
+							layout: 'anchor',
+							items:[
+									{
+										xtype: 'container',
+										html: 'Mantener Articulo',
+										cls: 'mainTitle'
+									},
+									{
+				       	       			xtype: 'container',
+				       	       			itemId: 'gridContainer',
+				       	       			cls: 'gridContainer',
+				       	       			layout: 'anchor',
+				       	       			items: [
+				       	       			        {
+					       	       			        xtype: 'toolbar',
+					       	       			        style:{padding:'5px'},
+					       	       			        items:[
+					       	       			               {
+						       	       			               xtype: 'displayfield',
+						       	       			               style:{margin: '0 5px'},
+						       	       			         	   value: 'Nombre: '
+					       	       			               },
+					       	       			               {
+						       	       			               xtype: 'textfield',
+						       	       			               name: 'articulo',
+						       	       			               width: 75
+					       	       			               },
+					       	       			               {
+						       	       			               xtype: 'displayfield',
+						       	       			               style:{margin: '0 5px'},
+						       	       			         	   value: 'Codigo: '
+					       	       			               },
+					       	       			               {
+						       	       			               xtype: 'textfield',
+						       	       			               name: 'codigo',
+						       	       			               width: 75
+					       	       			               },
+					       	       			               {
+						       	       			               xtype: 'displayfield',
+						       	       			               style:{margin: '0 5px'},
+						       	       			         	   value: 'Marca: '
+					       	       			               },
+					       	       			               {
+						       	       			               xtype: 'combo',
+						       	       			               store: stockMarcaStore,
+						       	       			               displayField: 'marca',
+						       	       			               triggerAction: 'all',
+						       	       			               valueField: 'stock_marca_id',
+						       	       			               name: 'marca',
+						       	       			               width: 115
+					       	       			               },
+					       	       			               {
+						       	       			               xtype: 'displayfield',
+						       	       			               style:{margin: '0 5px'},
+						       	       			         	   value: 'Categoria: '
+					       	       			               },
+					       	       			               {
+						       	       			               xtype: 'combo',
+						       	       			               store: stockCategoriaStore,
+						       	       			               displayField: 'categoria',
+						       	       			               triggerAction: 'all',
+						       	       			               valueField: 'stock_categoria_id',
+						       	       			               name: 'categoria',
+						       	       			               width: 115
+					       	       			               },'->',
+					       	       			         		{
+						       	       			               xtype: 'button',
+						       	       			         	   iconCls: 'addIcon',
+						       	       			               text: 'Buscar',
+						       	       			               handler: function(b,e){
+																    var padre = b.ownerCt;
+																    //obtener valor del campo de texto
+																    var campo = padre.find('name','articulo');
+																    if(campo.length>0)
+																    {
+																	    campo = campo[0];
+																	    mainStore.setBaseParam('s[articulo]',campo.getValue());
+																    }
+																    
+																    campo = padre.find('name','codigo');
+																    if(campo.length>0)
+																    {
+																	    campo = campo[0];
+																	    mainStore.setBaseParam('s[codigo]',campo.getValue());
+																    }
+																    
+																    campo = padre.find('name','marca');
+																    if(campo.length>0)
+																    {
+																	    campo = campo[0];
+																	    mainStore.setBaseParam('s[marca]',campo.getValue());
+																    }
+																    
+																    campo = padre.find('name','categoria');
+																    if(campo.length>0)
+																    {
+																	    campo = campo[0];
+																	    mainStore.setBaseParam('s[categoria]',campo.getValue());
+																    }
+																    
+																    mainStore.load();
+								       	       			       }
+					       	       			               },
+					       	       			         		{
+						       	       			               xtype: 'button',
+						       	       			         	   iconCls: 'addIcon',
+						       	       			               text: 'Limpiar',
+						       	       			               handler: function(b,e){
+																    var padre = b.ownerCt;
+																    //obtener valor del campo de texto
+																    var campo = padre.find('name','articulo');
+																    if(campo.length>0)
+																    {
+																	    campo = campo[0];
+																	    campo.setValue(null);
+																	    mainStore.setBaseParam('s[articulo]',null);
+																	    
+																    }
+																    
+																    campo = padre.find('name','codigo');
+																    if(campo.length>0)
+																    {
+																	    campo = campo[0];
+																	    campo.setValue(null);
+																	    mainStore.setBaseParam('s[codigo]',null);
+																    }
+																    
+																    campo = padre.find('name','marca');
+																    if(campo.length>0)
+																    {
+																	    campo = campo[0];
+																	    campo.setValue(null);
+																	    mainStore.setBaseParam('s[marca]',null);
+																    }
+																    
+																    campo = padre.find('name','categoria');
+																    if(campo.length>0)
+																    {
+																	    campo = campo[0];
+																	    campo.setValue(null);
+																	    mainStore.setBaseParam('s[categoria]',null);
+																    }
+																    
+																    mainStore.load();
+								       	       			       }
+					       	       			               }
+							       	       			]
+				       	       			        },
+				       	       					{
+				               						xtype: 'grid',
+				               						height: 300,
+				               						id: 'mainGrid',
+				               						stripeRows: true,
+				               						loadMask: true,
+				               						sm: new Ext.grid.CellSelectionModel(),
+				               						viewConfig: {
+				               					        forceFit: true,
+				               					        emptyText: 'Sin Registros',
+				               					        loadingText: 'Cargando .. '
+				               						},
+				               						store: mainStore,
+				               						cm: new Ext.grid.ColumnModel([
+														{ header: "Nombre", dataIndex: 'nombre', width: 160},
+														{ header: "Codigo", dataIndex: 'codigo',  width: 100},
+														{ header: "Categ.", dataIndex: 'categoria',  width: 100},
+														{ header: "Marca", dataIndex: 'marca',  width: 100},
+														{ header: "Precio", dataIndex: 'precio_venta',  width: 60},
+														{ header: "Existencia", dataIndex: 'existencia',  width: 60},
+														{ header: "Ver", dataIndex: null,  width: 32, align: 'center', renderer: function(v,meta,record){
+															return '<div class="viewIcon"></div>';
+														}},
+														{ header: "Editar", dataIndex: null,  width: 32, align: 'center', renderer: function(v,meta,record){
+															return '<div class="editIcon" onclick="editarEmpresa(' + record.data.org_parte_id + ')"></div>';
+														}},
+														{ header: "Borrar", dataIndex: null,  width: 32, align: 'center', renderer: function(v,meta,record){
+															return '<div class="deleteIcon"></div>';
+														}}
+														])
+				           						}
+				       	       			]
+				       	   			},
+				       	   			{
+				       	       			xtype: 'toolbar',
+				       	       			layout: 'toolbar',
+				       	       			cls: 'pagingContainer',
+				       	       			items:[
+				       	       			        {
+					       	       			        xtype: 'button',
+					       	       			        iconCls: 'addIcon',
+					       	       			        text: 'Agregar',
+													handler: function(b,e){
+														//buscamos destino
+														var destino = Ext.getCmp('formContainer');
+														if(destino)
+														{
+															destino.removeAll();
+															var addedEl = destino.add(formularioArticulo(true, null));
+															destino.doLayout();
+															addedEl.body.highlight();
+														}
+													}
+				       	       			        },
+						       	       			'->',
+				       	       	   				{
+				       	       	       				xtype: 'paging',
+				       	       	       				displayInfo: true,
+				       	       	       				store: mainStore,
+				       	       	       				pageSize: 10,
+				       	       	       				preprendButtons: true
+				       	       	   				}
+				       	       			]
+				       	   			}
+							]
+						},
+						{
+							xtype: 'container',
+							columnWidth: .35,
+							layout: 'anchor',
+							items:[
+			    					{
+			    						xtype: 'container',
+			    						layout: 'anchor',
+			    						cls: 'oculto',
+			    						id: 'messageBox',
+			    						items:[
+			    						       {
+			        						       xtype: 'container',
+			    						    	   html: 'Generico'
+			    						       }
+			    					
+			   	    					]
+			    					},
+							       {
+									     xtype: 'container',
+									     layout: 'anchor',
+									     id: 'formContainer'
+							       }
+									/*{
+										xtype: 'panel',
+										title: 'Crear Org',
+										cls: 'ladoDerecho',
+										layout: 'anchor',
+										height: 200,
+										items:[]
+									}*/
+							]
+						}
+				]
+			}
+	]
+},
+{
+	xtype: 'container',
+	columnWidth: 1,
+	layout: 'column',
+	cls: 'quickAccessBottom',
+	items:[
+			{
+				cls: 'dataBottom',
+				html: 'Agregar Organizacion',
+				xtype: 'container'
+			},
+			{
+				cls: 'dataBottom',
+				html: 'Agregar Otra Cosa',
+				xtype: 'container'
+			},
+			{
+				cls: 'dataBottom',
+				html: 'Ir Para Otro Lado',
+				xtype: 'container'
+			}				
+	]
+}];
+</script>

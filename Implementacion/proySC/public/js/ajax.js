@@ -56,7 +56,9 @@ Ajax.PostElement.on('requestcomplete', function(conn, response, options){
 	}
 	
 	//aca procesamo el formulario si tiene el id
-	var formularioId = options.jsonData.formulario;
+	var formularioId;
+	if(options.jsonData)
+		formularioId = options.jsonData.formulario;
 	
 	if(formularioId){
 		

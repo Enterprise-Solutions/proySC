@@ -110,6 +110,125 @@ function formularioEmpresa(isNew, id, nombre)
 	};	
 }
 
+function borrarEmpresa(id)
+{
+	var destino = Ext.getCmp('formContainer');
+	if(destino)
+	{
+		destino.removeAll();
+	}
+	
+	var registro = mainStore.getById(id);
+   	
+   	if(registro)
+   	{
+       	Ext.Msg.show({
+ 		   title:'Borrar',
+ 		   msg: 'Esta seguro de querer borrar el elemento "' + registro.data.nombre_organizacion + '"?',
+ 		   buttons: Ext.Msg.YESNO,
+ 		   fn: function(a,b){
+                if(a == 'yes')
+                {
+                	Ajax.PostElement.request({
+					   url: baseURL + '/org/parte/borrar',
+					   success: function(response, opt){
+					       mainStore.reload();
+					   },
+					   jsonData:{
+					       'delete':[id],
+						   'formulario':null
+					   }
+				   });
+                }
+ 	       },
+ 		   icon: Ext.MessageBox.QUESTION
+ 		});
+   	}
+}
+
+function formularioVerEmpresa(data)
+{
+	return {
+		xtype: 'form',
+		title: 'Ver Empresa',
+		cls: 'ladoDerecho',
+		bodyCssClass: 'formularioGeneral',
+		layout: 'form',
+		autoHeight: true,
+		defaults:{xtype: 'displayfield'},
+		items:[
+		       {
+			       xtype: 'hidden',
+			       name: 'org_parte_id',
+			       value: data.org_parte_id
+		       },
+		       {
+			       fieldLabel: 'Nombre',
+			       name: 'nombre',
+			       value: data.nombre_organizacion
+		       },
+		       {
+		    	   fieldLabel: 'Fecha Fund.',
+			       name: 'fecha',
+			       value: data.fecha_nacimiento
+		       },
+		       {
+			       xtype: 'container',
+			       layout: 'column',
+			       defaults:{style: {margin: '5px'}},
+			       items:[
+							{
+								xtype: 'button',
+								text: 'Cerrar Detalle',
+								handler: function(b,e){
+									var mainForm = b.ownerCt.ownerCt;
+							        var padre = mainForm.ownerCt;
+							        padre.remove(mainForm);
+								}
+							}
+				   ]
+		       }
+		],
+		listeners:{
+			'render':function(){
+				hideBloque();
+			}
+		}
+	};
+}
+
+function verEmpresa(id)
+{
+	var registro = mainStore.getById(id);
+   	
+   	if(registro)
+   	{
+   		var destino = Ext.getCmp('formContainer');
+		if(destino)
+		{
+			destino.removeAll();
+
+			Ajax.PostElement.request({
+				   url: baseURL + '/org/parte/get',
+				   method: 'GET',
+				   success: function(response, opt){
+							var data = Ext.decode(response.responseText);
+							var addedEl = destino.add(formularioVerEmpresa(data));
+							destino.doLayout();
+							addedEl.body.highlight();
+						
+				   },
+				   params:{
+				       'id':id,
+					   'formulario':null
+				   }
+			   });
+		}
+		
+   		
+   	}
+}
+
 function editarEmpresa(id)
 {
 	
@@ -156,6 +275,7 @@ viewContainer.bodyPanel = [{
 			{
 				xtype: 'container',
 				id: 'secondMainContainer',
+				autoHeight: true,
 				layout: 'column',
 				items:[
 						{
@@ -186,7 +306,7 @@ viewContainer.bodyPanel = [{
 					       	       			               {
 						       	       			               xtype: 'textfield',
 						       	       			               name: 'nombre_busqueda'
-					       	       			               },
+					       	       			               },'->',
 					       	       			         		{
 						       	       			               xtype: 'button',
 						       	       			         	   iconCls: 'addIcon',
@@ -245,13 +365,13 @@ viewContainer.bodyPanel = [{
 														}},
 														{ header: "Tipo", dataIndex: 'org_parte_tipo_nombre',  width: 100},
 														{ header: "Ver", dataIndex: null,  width: 32, align: 'center', renderer: function(v,meta,record){
-															return '<div class="viewIcon"></div>';
+															return '<div class="viewIcon" onclick="verEmpresa(' + record.data.org_parte_id + ')"></div>';
 														}},
 														{ header: "Editar", dataIndex: null,  width: 32, align: 'center', renderer: function(v,meta,record){
 															return '<div class="editIcon" onclick="editarEmpresa(' + record.data.org_parte_id + ')"></div>';
 														}},
 														{ header: "Borrar", dataIndex: null,  width: 32, align: 'center', renderer: function(v,meta,record){
-															return '<div class="deleteIcon"></div>';
+															return '<div class="deleteIcon" onclick="borrarEmpresa(' + record.data.org_parte_id + ')"></div>';
 														}}
 														])
 				           						}

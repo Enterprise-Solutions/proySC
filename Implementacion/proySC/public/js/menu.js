@@ -14,11 +14,11 @@ var menuPrincipal = [
 											   {
 												    nombre: 'Mantener Persona',
 												    codigo: 'personas'
-											   }/*,
+											   },
 			                                   {
-				                                   nombre: 'Mantener Tipo Sede',
-				                                   codigo: 'parte'
-			                                   },
+				                                   nombre: 'Mantener Roles',
+				                                   codigo: 'roles-de-partes'
+			                                   }/*,
 			                                   {
 				                                   nombre: 'Mantener Vendedor',
 				                                   codigo: 'rol-tipo'
@@ -37,14 +37,14 @@ var menuPrincipal = [
 		                    	 codigo: 'stock',
 			                     texto: 'Stock',
 			                     operaciones:[
-												/*{
+												{
 												    nombre: 'Mantener Articulo Tipo',
-												    codigo: 'articulo'
+												    codigo: 'articulo-tipo'
 												},
 												{
 												    nombre: 'Mantener Articulo',
 												    codigo: 'articulo'
-												},
+												}/*,
 												{
 												    nombre: 'Mantener Traslados',
 												    codigo: 'articulo'

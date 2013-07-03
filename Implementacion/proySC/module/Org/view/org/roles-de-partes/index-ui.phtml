@@ -295,7 +295,7 @@ function editarPersona(id)
 var mainStore = new Ext.data.JsonStore({
 	// store configs
 	totalProperty: 'numResults',
-	url: baseURL + '/org/personas/index',
+	url: baseURL + '/org/roles-de-partes/index',
 	// reader configs
 	root: 'records',
 	paramNames: {
@@ -307,8 +307,8 @@ var mainStore = new Ext.data.JsonStore({
 		'p[page]': 0
 	},
 	autoLoad:true,
-	idProperty: 'org_parte_id',
-	fields: ['org_parte_id','org_parte_tipo_codigo','nombre_persona','apellido_persona','genero_persona','fecha_nacimiento','foto','org_parte_tipo_nombre']
+	idProperty: 'org_parte_rol_id',
+	fields: ['org_parte_rol_id','org_rol_nombre','org_parte_tipo_nombre','org_parte_id','nombre','apellido','fechaDeNacimiento','genero']
 });
 
 viewContainer.bodyPanel = [{
@@ -319,8 +319,8 @@ viewContainer.bodyPanel = [{
 	items: [
 			{
 				xtype: 'container',
-				autoHeight: true,
 				id: 'secondMainContainer',
+				autoHeight: true,
 				layout: 'column',
 				items:[
 						{
@@ -330,7 +330,7 @@ viewContainer.bodyPanel = [{
 							items:[
 									{
 										xtype: 'container',
-										html: 'Mantener Personas',
+										html: 'Mantener Roles',
 										cls: 'mainTitle'
 									},
 									{
@@ -345,12 +345,33 @@ viewContainer.bodyPanel = [{
 					       	       			        items:[
 					       	       			               {
 						       	       			               xtype: 'displayfield',
-						       	       			               style:{marginRight: '5px'},
-						       	       			         	   value: 'Buscar: '
+						       	       			               style:{margin: '0 5px'},
+						       	       			         		width: 50,
+						       	       			         	   value: 'Nombre: '
 					       	       			               },
 					       	       			               {
 						       	       			               xtype: 'textfield',
-						       	       			               name: 'nombre_busqueda'
+						       	       			               name: 'nombre'
+					       	       			               },
+					       	       			         		{
+						       	       			               xtype: 'displayfield',
+						       	       			               style:{margin: '0 5px'},
+						       	       			         	   value: 'Tipo (Per | Emp): '
+					       	       			               },
+					       	       			         		{
+						       	       			               xtype: 'textfield',
+						       	       			         		width: 50,
+						       	       			               name: 'org_parte_tipo_codigo'
+					       	       			               },
+					       	       			         		{
+						       	       			               xtype: 'displayfield',
+						       	       			               style:{margin: '0 5px'},
+						       	       			         	   value: 'Rol: '
+					       	       			               },
+					       	       			         		{
+						       	       			               xtype: 'textfield',
+						       	       			         		width: 50,
+						       	       			               name: 'org_rol_codigo'
 					       	       			               },'->',
 					       	       			         		{
 						       	       			               xtype: 'button',
@@ -359,13 +380,31 @@ viewContainer.bodyPanel = [{
 						       	       			               handler: function(b,e){
 																    var padre = b.ownerCt;
 																    //obtener valor del campo de texto
-																    var campo = padre.find('name','nombre_busqueda');
+																    var campo = padre.find('name','nombre');
 																    if(campo.length>0)
 																    {
 																	    campo = campo[0];
 																	    mainStore.setBaseParam('s[nombre]',campo.getValue());
-																	    mainStore.load();
+																	    
 																    }
+
+																    campo = padre.find('name','org_parte_tipo_codigo');
+																    if(campo.length>0)
+																    {
+																	    campo = campo[0];
+																	    mainStore.setBaseParam('s[org_parte_tipo_codigo]',campo.getValue());
+																	    
+																    }
+
+																    campo = padre.find('name','org_rol_codigo');
+																    if(campo.length>0)
+																    {
+																	    campo = campo[0];
+																	    mainStore.setBaseParam('s[org_rol_codigo]',campo.getValue());
+																	    
+																    }
+
+																    mainStore.load();
 								       	       			       }
 					       	       			               },
 					       	       			         		{
@@ -375,14 +414,32 @@ viewContainer.bodyPanel = [{
 						       	       			               handler: function(b,e){
 																    var padre = b.ownerCt;
 																    //obtener valor del campo de texto
-																    var campo = padre.find('name','nombre_busqueda');
+																    var campo = padre.find('name','nombre');
 																    if(campo.length>0)
 																    {
 																	    campo = campo[0];
 																	    campo.setValue(null);
 																	    mainStore.setBaseParam('s[nombre]',null);
-																	    mainStore.load();
 																    }
+
+																    campo = padre.find('name','org_parte_tipo_codigo');
+																    if(campo.length>0)
+																    {
+																	    campo = campo[0];
+																	    campo.setValue(null);
+																	    mainStore.setBaseParam('s[org_parte_tipo_codigo]',null);
+																    }
+
+																    campo = padre.find('name','org_rol_codigo');
+																    if(campo.length>0)
+																    {
+																	    campo = campo[0];
+																	    campo.setValue(null);
+																	    mainStore.setBaseParam('s[org_rol_codigo]',null);
+																	    
+																    }
+
+																    mainStore.load();
 								       	       			       }
 					       	       			               }
 							       	       			]
@@ -401,16 +458,33 @@ viewContainer.bodyPanel = [{
 				               						},
 				               						store: mainStore,
 				               						cm: new Ext.grid.ColumnModel([
-														{ header: "Apellido", dataIndex: 'apellido_persona', width: 160},
-														{ header: "Nombre", dataIndex: 'nombre_persona', width: 120},
-														{header: 'Gen.', dataIndex: 'genero_persona'},
-														{ header: "Fecha", align: 'center', dataIndex: 'fecha_nacimiento', width: 150, renderer: function(v,meta,record){
+														{ header: "Nombre", dataIndex: 'org_parte_tipo_nombre', width: 160, renderer: function(v,meta,record){
+															if(v == 'Organizacion')
+															{
+																return record.data.nombre;
+															}
+															else if(v == 'Personas')
+															{
+																return record.data.apellido + ', ' + record.data.nombre;
+															}
+															else
+															{
+																return 'No definido';
+															}
+														}},
+														{ header: "Tipo", dataIndex: 'org_parte_tipo_nombre', width: 120},
+														{header: 'Rol', dataIndex: 'org_rol_nombre', width: 100},
+														{header: 'Gen.', dataIndex: 'genero', align: 'center', renderer: function(v,meta,record){
+															if(v)
+																return v;
+															return '-';
+														}},
+														{ header: "Fecha", align: 'center', dataIndex: 'fechaDeNacimiento', width: 150, renderer: function(v,meta,record){
 															if(!v)
 																return '-';
 
 															return v;
 														}},
-														{ header: "Tipo", dataIndex: 'org_parte_tipo_nombre',  width: 100},
 														{ header: "Ver", dataIndex: null, fixed:true, width: 40, align: 'center', renderer: function(v,meta,record){
 															return '<div class="viewIcon" onclick="verPersona(' + record.data.org_parte_id + ')"></div>';
 														}},
