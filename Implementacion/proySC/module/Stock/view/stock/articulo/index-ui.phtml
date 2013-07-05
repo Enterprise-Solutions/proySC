@@ -205,10 +205,17 @@ function formularioArticulo(isNew, data)
 		       },
 		       {
 			       fieldLabel: 'Es Servicio?',
-			       name: 'es_servicio',
-			       checked: false,
-			       //value: data.tipo,
-			       xtype: 'checkbox'
+			       hiddenName: 'es_servicio',
+			       //value: data.estado,
+			       xtype: 'combo',
+			       store: genericoSiNoStore,
+			       displayField: 'valor',
+			       valueField: 'id',
+			       mode: 'local',
+			       triggerAction: 'all',
+			       width: 75,
+			       value: 'N',
+			       allowBlank: false
 		       },
 		       {
 			       xtype: 'container',
@@ -349,6 +356,15 @@ var stockImpuestoStore = new Ext.data.ArrayStore({
     	[0,'Exento'],
     	[5,'5%'],
     	[10,'10%']
+    ]
+});
+
+var genericoSiNoStore = new Ext.data.ArrayStore({
+	idIndex: 0,  
+    fields: ['id','valor'],
+    data: [
+    	['N','No'],
+    	['S','Si']
     ]
 });
 

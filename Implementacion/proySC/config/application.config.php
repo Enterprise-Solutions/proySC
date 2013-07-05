@@ -7,6 +7,7 @@ return array(
         'Application',
         'Org',
         'Stock',
+    	'Cont',
     ),
 
     // These are various options for the listeners attached to the ModuleManager
