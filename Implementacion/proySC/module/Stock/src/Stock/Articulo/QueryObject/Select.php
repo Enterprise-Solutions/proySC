@@ -1,6 +1,6 @@
 <?php
 
-namespace Stock\Articulo\Listado;
+namespace Stock\Articulo\QueryObject;
 
 use EnterpriseSolutions\Db\Select as DbSelect;
 
@@ -13,7 +13,8 @@ class Select extends DbSelect
              ->columns(array('stock_articulo_id', 'nombre', 'codigo', 'precio_venta', 'existencia'))
              
              ->join(array('sm' => 'stock_marca'), 'sa.stock_marca_id = sm.stock_marca_id', array('marca' => 'nombre'))
-             ->join(array('sc' => 'stock_categoria'), 'sa.stock_categoria_id = sc.stock_categoria_id', array('categoria' => 'nombre'));
+             ->join(array('sc' => 'stock_categoria'), 'sa.stock_categoria_id = sc.stock_categoria_id', array('categoria' => 'nombre'))
+             ->join(array('cm' => 'cont_moneda'), 'sa.cont_moneda_id = cm.cont_moneda_id', array('moneda' => 'nombre', 'simbolo'));
     }
     
     public function addSearchByArticulo($articulo = null)
@@ -34,7 +35,7 @@ class Select extends DbSelect
     
     public function addSearchByMarca($marca = null)
     {
-        if ($marca && is_int($marca)) {
+        if ($marca) {
             $this->_select
                  ->where("sm.stock_marca_id = $marca");
         }
@@ -42,7 +43,7 @@ class Select extends DbSelect
     
     public function addSearchByCategoria($categoria = null)
     {
-        if ($categoria && is_int($categoria)) {
+        if ($categoria) {
             $this->_select
                  ->where("sc.stock_categoria_id = $categoria");
         }
