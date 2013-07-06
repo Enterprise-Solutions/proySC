@@ -9,6 +9,8 @@ use EnterpriseSolutions\Db\Dao\Get as DaoGet;
 use Stock\Articulo\QueryObject\Select;
 use Stock\Articulo\QueryObject\Get;
 
+use Stock\Articulo\ServiceManager;
+
 class ArticuloController extends BaseController
 {
     public function indexAction($overwritedParams = array())
@@ -25,5 +27,53 @@ class ArticuloController extends BaseController
         $dao = new DaoGet($query);
         $template = $this->_crearTemplateParaGet();
         return $template($dao, array('id' => 1));
+    }
+    
+    public function postAction()
+    {
+        // Extraer datos del cliente
+        //$data = $this->SubmitParams()->getParam('post');
+        $data = array(
+            'stock_garantia_tipo_id' => 1, 'cont_moneda_id' => 1,
+            'stock_marca_id' => 1, 'stock_categoria_id' => 1,
+            'nombre' => 'Televisor 40"', 'codigo' => 'TV40"',
+            'tiempo_garantia' => 1, 'precio_venta' => '3000000'
+        );
+        
+        // Pasar los datos al service manager para la creacion
+        $serviceManager = $this->getServiceManager();
+        $serviceManager->create($data);
+        
+        $viewModel = $this->_seleccionarViewModelSegunContexto(array('Zend\View\Model\JsonModel' => array(
+				'text/html','application/json'
+		)));
+		$viewModel->setVariables($serviceManager->getResult());
+		return $viewModel;
+    }
+    
+    public function putAction()
+    {
+        $data = $this->SubmitParams()->getParam('put');
+        
+        $serviceManager = $this->getServiceManager();
+        $serviceManager->update($data);
+        
+        return $serviceManager->getResult();
+    }
+    
+    public function deleteAction()
+    {
+        $data = $this->SubmitParams()->getParam('delete');
+        
+        $serviceManager = $this->getServiceManager();
+        $serviceManager->delete($data);
+        
+        return $serviceManager->getResult();
+    }
+    
+    protected function getServiceManager()
+    {
+        $em = $this->getServiceLocator()->get('doctrine.entitymanager.orm_default');
+        return new ServiceManager($em);
     }
 }

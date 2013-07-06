@@ -12,35 +12,39 @@ use Stock\Combos\GarantiaTipo\Select as GarantiaTipoSelect;
 
 class CombosController extends BaseController
 {
-    public function categoriaAction($overwritedParams = array())
+    protected function getDbAdapter()
     {
-        $select = new CategoriaSelect($this->getServiceLocator()->get('Zend\Db\Adapter\Adapter'));
+        return $this->getServiceLocator()->get('Zend\Db\Adapter\Adapter');
+    }
+    
+    protected function listData($select, $defaultParams = array())
+    {
         $dao = new Dao($select);
         $template = $this->_crearTemplateParaListado();
-        return $template($dao, array(), $overwritedParams);
+        return $template($dao, array(), $defaultParams);
+    }
+    
+    public function categoriaAction()
+    {
+        $select = new CategoriaSelect($this->getDbAdapter());
+        return $this->listData($select);
     }
     
     public function marcaAction($overwritedParams = array())
     {
-        $select = new MarcaSelect($this->getServiceLocator()->get('Zend\Db\Adapter\Adapter'));
-        $dao = new Dao($select);
-        $template = $this->_crearTemplateParaListado();
-        return $template($dao, array(), $overwritedParams);
+        $select = new MarcaSelect($this->getDbAdapter());
+        return $this->listData($select);
     }
     
     public function monedaAction($overwritedParams = array())
     {
-        $select = new MonedaSelect($this->getServiceLocator()->get('Zend\Db\Adapter\Adapter'));
-        $dao = new Dao($select);
-        $template = $this->_crearTemplateParaListado();
-        return $template($dao, array(), $overwritedParams);
+        $select = new MonedaSelect($this->getDbAdapter());
+        return $this->listData($select);
     }
     
     public function garantiaTipoAction($overwritedParams = array())
     {
-        $select = new GarantiaTipoSelect($this->getServiceLocator()->get('Zend\Db\Adapter\Adapter'));
-        $dao = new Dao($select);
-        $template = $this->_crearTemplateParaListado();
-        return $template($dao, array(), $overwritedParams);
+        $select = new GarantiaTipoSelect($this->getDbAdapter());
+        return $this->listData($select);
     }
 }
