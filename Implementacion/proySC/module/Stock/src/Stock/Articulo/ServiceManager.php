@@ -8,6 +8,7 @@ use Stock\Entity\Articulo;
 class ServiceManager
 {
     /**
+     * Doctrine Entity Manager
      * @var Doctrine\Orm\EntityManager
      */
     protected $em;
@@ -21,19 +22,27 @@ class ServiceManager
     {
         $articulo = new Articulo();
         $articulo->fromArray($data);
-        
-        $this->em->persist($articulo);
-        $this->em->flush();
+        $this->persist($articulo);
     }
     
     public function update($data)
     {
-        
+        $articulo = $this->em->find('Stock\Entity\Articulo', $data['stock_articulo_id']);
+        $articulo->fromArray($data);
+        $this->persist($articulo);
     }
     
-    public function delete($data)
+    public function delete($id)
     {
-        
+        $articulo = $this->em->find('Stock\Entity\Articulo', $id);
+        $this->em->remove($articulo);
+        $this->em->flush();
+    }
+    
+    protected function persist($entity)
+    {
+        $this->em->persist($entity);
+        $this->em->flush();
     }
     
     public function getResult()

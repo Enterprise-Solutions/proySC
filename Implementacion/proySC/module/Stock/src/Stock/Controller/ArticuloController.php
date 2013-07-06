@@ -26,7 +26,7 @@ class ArticuloController extends BaseController
         $query = new Get($this->getServiceLocator()->get('Zend\Db\Adapter\Adapter'));
         $dao = new DaoGet($query);
         $template = $this->_crearTemplateParaGet();
-        return $template($dao, array('id' => 1));
+        return $template($dao, array());
     }
     
     public function postAction()
@@ -38,21 +38,19 @@ class ArticuloController extends BaseController
         $serviceManager = $this->getServiceManager();
         $serviceManager->create($data);
         
-        $viewModel = $this->_seleccionarViewModelSegunContexto(array('Zend\View\Model\JsonModel' => array(
-				'text/html','application/json'
-		)));
-		$viewModel->setVariables($serviceManager->getResult());
-		return $viewModel;
+        return $this->toJson($serviceManager->getResult());
     }
     
     public function putAction()
     {
+        // Extraer datos del cliente
         $data = $this->SubmitParams()->getParam('put');
         
+        // Pasar los datos al sercice manager para la actualizacion
         $serviceManager = $this->getServiceManager();
         $serviceManager->update($data);
         
-        return $serviceManager->getResult();
+        return $this->toJson($serviceManager->getResult());
     }
     
     public function deleteAction()
@@ -60,9 +58,18 @@ class ArticuloController extends BaseController
         $data = $this->SubmitParams()->getParam('delete');
         
         $serviceManager = $this->getServiceManager();
-        $serviceManager->delete($data);
+        $serviceManager->delete($id);
         
-        return $serviceManager->getResult();
+        return $this->toJson($serviceManager->getResult());
+    }
+    
+    protected function toJson($respuesta)
+    {
+        $viewModel = $this->_seleccionarViewModelSegunContexto(
+            array('Zend\View\Model\JsonModel' => array('text/html', 'application/json')
+        ));
+        $viewModel->setVariables($respuesta);
+        return $viewModel;
     }
     
     protected function getServiceManager()
