@@ -32,13 +32,7 @@ class ArticuloController extends BaseController
     public function postAction()
     {
         // Extraer datos del cliente
-        //$data = $this->SubmitParams()->getParam('post');
-        $data = array(
-            'stock_garantia_tipo_id' => 1, 'cont_moneda_id' => 1,
-            'stock_marca_id' => 1, 'stock_categoria_id' => 1,
-            'nombre' => 'Televisor 40"', 'codigo' => 'TV40"',
-            'tiempo_garantia' => 1, 'precio_venta' => '3000000'
-        );
+        $data = $this->SubmitParams()->getParam('post');
         
         // Pasar los datos al service manager para la creacion
         $serviceManager = $this->getServiceManager();
