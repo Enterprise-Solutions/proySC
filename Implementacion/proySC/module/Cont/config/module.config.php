@@ -35,8 +35,8 @@ return array(
     ),
     'controllers' => array(
         'invokables' => array(
-            'Cont\Controller\Moneda' => 'Cont\Controller\MonedaController'
-            //'Stock\Controller\Combos'   => 'Stock\Controller\CombosController',
+            'Cont\Controller\Moneda' => 'Cont\Controller\MonedaController',
+            'Cont\Controller\MonedaConversion'   => 'Cont\Controller\MonedaConversionController',
         ),
     ),
     'view_manager' => array(

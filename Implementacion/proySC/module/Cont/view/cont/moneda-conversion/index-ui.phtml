@@ -8,11 +8,11 @@ function hideBloque()
 	}	
 }
 
-function formularioMoneda(isNew, data, isReadOnly)
+function formularioMonedaConversion(isNew, data, isReadOnly)
 {
 	return {
 		xtype: 'form',
-		title: (isReadOnly)?('Ver Moneda'):((isNew)?('Crear Moneda'):('Editar Moneda')),
+		title: (isReadOnly)?('Ver Tasa Cambio'):((isNew)?('Crear Tasa Cambio'):('Editar Tasa Cambio')),
 		cls: 'ladoDerecho',
 		bodyCssClass: 'formularioGeneral',
 		layout: 'form',
@@ -21,47 +21,48 @@ function formularioMoneda(isNew, data, isReadOnly)
 		items:[
 		       {
 			       xtype: 'hidden',
-			       name: 'cont_moneda_id',
-			       value: (isNew)?(null):(data.cont_moneda_id)
+			       name: 'cont_moneda_conversion_id',
+			       value: (isNew)?(null):(data.cont_moneda_conversion_id)
 		       },
 		       {
-			       fieldLabel: 'Nombre',
-			       name: 'nombre',
-			       width: 150,
-			       maxLength: 40,
-			       value: (isNew)?(null):(data.nombre),
-			       allowBlank: false
-		       },
+					xtype: 'combo',
+					store: contMonedaStore,
+					displayField: 'mostrar',
+					fieldLabel: 'Origen',
+					mode: 'local',
+					typeAhead:true,
+					disabled: isReadOnly,
+					allowBlank: false,
+					valueField: 'cont_moneda_id',
+					hiddenName: 'cont_moneda_origen_id',
+					value: (isNew)?(null):(data.cont_moneda_origen_id),
+					width: 150
+			   },
 		       {
-			       fieldLabel: 'Nombre Plural',
-			       name: 'nombre_plural',
-			       width: 115,
-			       maxLength: 40,
-			       value: (isNew)?(null):(data.nombre_plural),
-			       allowBlank: false
-		       },
+					xtype: 'combo',
+					fieldLabel: 'Destino',
+					mode: 'local',
+					allowBlank: false,
+					store: contMonedaStore,
+					displayField: 'mostrar',
+					typeAhead:true,
+					width: 150,
+					disabled: isReadOnly,
+					valueField: 'cont_moneda_id',
+					value: (isNew)?(null):(data.cont_moneda_destino_id),
+					hiddenName: 'cont_moneda_destino_id'
+			   },
 		       {
-			       fieldLabel: 'Simbolo',
-			       name: 'simbolo',
-			       maxLength: 40,
-			       width: 120,
-			       value: (isNew)?(null):(data.simbolo),
-			       allowBlank: false
-		       },
-		       {
-			       fieldLabel: 'Descrip.',
-			       name: 'descripcion',
-			       width: '80%',
-			       value: (isNew)?(null):(data.descripcion),
+			       fieldLabel: 'Factor',
+			       name: 'factor',
+			       width: 100,
+			       value: (isNew)?(null):(data.factor),
 			       disabled: isReadOnly,
-			       xtype: 'textarea'
-		       },
-		       {
-			       fieldLabel: 'Permite Decimal?',
-			       name: 'permite_decimal',
-			       checked: (isNew)?(false):((data.permite_decimal == 'S')?(true):(false)),
-			       disabled: isReadOnly,
-			       xtype: 'checkbox'
+			       xtype: 'numberfield',
+			       allowBlank: false,
+			       allowNegative: false,
+			       allowDecimals: true,
+			       decimalPrecision: 10
 		       },
 		       {
 			       xtype: 'container',
@@ -80,19 +81,13 @@ function formularioMoneda(isNew, data, isReadOnly)
 								       {
 									       var valores = basicForm.getFieldValues();
 									       
-									       
-											if(valores.permite_decimal)
-									    	   valores.permite_decimal = 'S';
-									    	else
-									    	   valores.permite_decimal = 'N';	
-									    	   
-									    	var myId = valores.cont_moneda_id;
-									    	delete valores.cont_moneda_id;       
+									    	var myId = valores.cont_moneda_conversion_id;
+									    	delete valores.cont_moneda_conversion_id;       
 								
 									       if(myId)//si existe es edicion
 									       {
 									    	   Ajax.PostElement.request({
-												   url: baseURL + '/cont/moneda/editar',
+												   url: baseURL + '/cont/moneda-conversion/editar',
 												   success: function(response, opt){
 												       mainStore.reload();
 												   },
@@ -108,11 +103,8 @@ function formularioMoneda(isNew, data, isReadOnly)
 										       //sino es creacion
 									    	   //si esta todo ok hacemos la solicitud
 									    	   
-									    	   delete valores.cont_moneda_id;
-									    	   
-									    	   
 									    	   Ajax.PostElement.request({
-												   url: baseURL + '/cont/moneda/crear',
+												   url: baseURL + '/cont/moneda-conversion/crear',
 												   success: function(response, opt){
 													   mainStore.reload();
 												   },
@@ -152,7 +144,7 @@ function formularioMoneda(isNew, data, isReadOnly)
 	};	
 }
 
-function verMoneda(id)
+function verMonedaConversion(id)
 {
 	
 	var registro = mainStore.getById(id);
@@ -163,20 +155,20 @@ function verMoneda(id)
 		if(destino)
 		{
 			destino.removeAll();
-			var addedEl = destino.add(formularioMoneda(false, registro.data, true));
+			var addedEl = destino.add(formularioMonedaConversion(false, registro.data, true));
 			destino.doLayout();
 			addedEl.body.highlight();
 		}
 	}
 }
 
-function borrarMoneda(id)
+function borrarMonedaConversion(id)
 {
 	Ext.Msg.confirm('Borrar','Desea borrar el elemento?', function(idButt){
 		if(idButt == 'yes')
 		{
 			Ajax.PostElement.request({
-				url: baseURL + '/cont/moneda/borrar',
+				url: baseURL + '/cont/moneda-conversion/borrar',
 				success: function(response, opt){
 					mainStore.reload();
 				},
@@ -186,9 +178,10 @@ function borrarMoneda(id)
 	 		});
 		}
 	});
+	
 }
 
-function editarMoneda(id)
+function editarMonedaConversion(id)
 {
 	
 	var registro = mainStore.getById(id);
@@ -199,7 +192,7 @@ function editarMoneda(id)
 		if(destino)
 		{
 			destino.removeAll();
-			var addedEl = destino.add(formularioMoneda(false, registro.data, false));
+			var addedEl = destino.add(formularioMonedaConversion(false, registro.data, false));
 			destino.doLayout();
 			addedEl.body.highlight();
 		}
@@ -209,7 +202,7 @@ function editarMoneda(id)
 var mainStore = new Ext.data.JsonStore({
 	// store configs
 	totalProperty: 'numResults',
-	url: baseURL + '/cont/moneda/index',
+	url: baseURL + '/cont/moneda-conversion/index',
 	// reader configs
 	root: 'records',
 	paramNames: {
@@ -221,8 +214,21 @@ var mainStore = new Ext.data.JsonStore({
 		'p[page]': 0
 	},
 	autoLoad:true,
+	idProperty: 'cont_moneda_conversion_id',
+	fields: ['cont_moneda_conversion_id','cont_moneda_origen_id','simbolo_destino','simbolo_origen','cont_moneda_destino_id','factor','moneda_origen','moneda_destino']
+});
+
+var contMonedaStore = new Ext.data.JsonStore({
+	// store configs
+	url: baseURL + '/cont/moneda/index',
+	// reader configs
+	autoLoad:true,
+	root: 'records',
+	baseParams:{'p[limit]': 'all'},
 	idProperty: 'cont_moneda_id',
-	fields: ['cont_moneda_id','nombre','nombre_plural','simbolo','descripcion','permite_decimal']
+	fields: ['cont_moneda_id',{name: 'mostrar', convert:function(v,data){
+		return data.nombre + ' (' + data.simbolo + ')';	
+	}},'nombre','nombre_plural','simbolo','descripcion','permite_decimal']
 });
 
 
@@ -245,7 +251,7 @@ viewContainer.bodyPanel = [{
 							items:[
 									{
 										xtype: 'container',
-										html: 'Mantener Moneda',
+										html: 'Mantener Tasa Cambio',
 										cls: 'mainTitle'
 									},
 									{
@@ -261,13 +267,18 @@ viewContainer.bodyPanel = [{
 					       	       			               {
 						       	       			               xtype: 'displayfield',
 						       	       			               style:{margin: '0 5px'},
-						       	       			         	   value: 'Nombre: '
+						       	       			         	   value: 'Moneda: '
 					       	       			               },
 					       	       			               {
-						       	       			               xtype: 'textfield',
-						       	       			               name: 'nombre',
-						       	       			               width: 75
-					       	       			               },'->',
+					xtype: 'combo',
+					store: contMonedaStore,
+					displayField: 'mostrar',
+					mode: 'local',
+					typeAhead:true,
+					valueField: 'cont_moneda_id',
+					hiddenName: 'moneda_id',
+					width: 150
+			   },'->',
 					       	       			         		{
 						       	       			               xtype: 'button',
 						       	       			         	   iconCls: 'addIcon',
@@ -275,11 +286,11 @@ viewContainer.bodyPanel = [{
 						       	       			               handler: function(b,e){
 																    var padre = b.ownerCt;
 																    //obtener valor del campo de texto
-																    var campo = padre.find('name','nombre');
+																    var campo = padre.find('hiddenName','moneda_id');
 																    if(campo.length>0)
 																    {
 																	    campo = campo[0];
-																	    mainStore.setBaseParam('s[nombre]',campo.getValue());
+																	    mainStore.setBaseParam('s[cont_moneda_origen_id]',campo.getValue());
 																    }
 																    
 																    mainStore.load();
@@ -292,12 +303,12 @@ viewContainer.bodyPanel = [{
 						       	       			               handler: function(b,e){
 																    var padre = b.ownerCt;
 																    //obtener valor del campo de texto
-																    var campo = padre.find('name','nombre');
+																    var campo = padre.find('hiddenName','moneda_id');
 																    if(campo.length>0)
 																    {
 																	    campo = campo[0];
 																	    campo.setValue(null);
-																	    mainStore.setBaseParam('s[nombre]',null);
+																	    mainStore.setBaseParam('s[cont_moneda_origen_id]',null);
 																	    
 																    }
 																    
@@ -320,19 +331,23 @@ viewContainer.bodyPanel = [{
 				               						},
 				               						store: mainStore,
 				               						cm: new Ext.grid.ColumnModel([
-														{ header: "Nombre", dataIndex: 'nombre', width: 120},
-														{ header: "Nombre Plural", dataIndex: 'nombre_plural',  width: 150},
-														{ header: "Simbolo", dataIndex: 'simbolo',  width: 65},
-														{ header: "Descrip.", dataIndex: 'descripcion',  width: 150},
-														{ header: "Permite Decimal?", dataIndex: 'permite_decimal',  width: 65},
+														{ header: "Origen", dataIndex: 'moneda_origen', width: 120},
+														{ header: "Destino", dataIndex: 'moneda_destino',  width: 120},
+														{ header: "Factor (Ori * Des)", dataIndex: 'factor',  width: 120},
+														{ header: "Ejemplo Ori -> Des", dataIndex: 'descripcion',  width: 150, renderer: function(v,meta,record){
+															return '1 ' + record.data.simbolo_origen + ' x ' + record.data.factor + ' = ' + record.data.factor + ' ' + record.data.simbolo_destino; 
+														}},
+														/*{ header: "Ejemplo Des -> Ori", dataIndex: 'descripcion',  width: 150, renderer: function(v,meta,record){
+															return '1 ' + record.data.simbolo_destino + ' / ' + record.data.factor + ' = ' + (1 / record.data.factor) + ' ' + record.data.simbolo_origen;
+														}},*/
 														{ header: "Ver", dataIndex: null,  width: 32, align: 'center', renderer: function(v,meta,record){
-															return '<div class="viewIcon" onclick="verMoneda(' + record.data.cont_moneda_id + ')"></div>';
+															return '<div class="viewIcon" onclick="verMonedaConversion(' + record.data.cont_moneda_conversion_id + ')"></div>';
 														}},
 														{ header: "Editar", dataIndex: null,  width: 32, align: 'center', renderer: function(v,meta,record){
-															return '<div class="editIcon" onclick="editarMoneda(' + record.data.cont_moneda_id + ')"></div>';
+															return '<div class="editIcon" onclick="editarMonedaConversion(' + record.data.cont_moneda_conversion_id + ')"></div>';
 														}},
 														{ header: "Borrar", dataIndex: null,  width: 32, align: 'center', renderer: function(v,meta,record){
-															return '<div class="deleteIcon" onclick="borrarMoneda(' + record.data.cont_moneda_id + ')"></div>';
+															return '<div class="deleteIcon" onclick="borrarMonedaConversion(' + record.data.cont_moneda_conversion_id + ')"></div>';
 														}}
 														])
 				           						}
@@ -353,7 +368,7 @@ viewContainer.bodyPanel = [{
 														if(destino)
 														{
 															destino.removeAll();
-															var addedEl = destino.add(formularioMoneda(true, null, false));
+															var addedEl = destino.add(formularioMonedaConversion(true, null, false));
 															destino.doLayout();
 															addedEl.body.highlight();
 														}
