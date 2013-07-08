@@ -1,16 +1,18 @@
 <?php
-namespace OrgTest\Listado;
+namespace OrgTest\Documento\Service\Listado\Select;
 use PHPUnit_Framework_TestCase;
 use Doctrine\ORM\EntityManager;
+
 use OrgTest\Bootstrap;
-use Org\Parte\Service\Listado\Select;
+use Org\Documento\Service\Listado\Select;
 
 /**
  * test case.
  */
-class SelectTest extends PHPUnit_Framework_TestCase {
+class SelectDeDocumentosTest extends PHPUnit_Framework_TestCase {
 	
 	public $_select;
+	
 	/**
 	 * Prepares the environment before running a test.
 	 */
@@ -19,15 +21,15 @@ class SelectTest extends PHPUnit_Framework_TestCase {
 		$sm = Bootstrap::getServiceManager();
 		$dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
 		$this->_select = new Select($dbAdapter);
+		
 	}
 	
 	/**
 	 * Cleans up the environment after running a test.
 	 */
 	protected function tearDown() {
-		// TODO Auto-generated SelectTest::tearDown()
-		ob_flush();
 		$this->_select = null;
+		ob_flush();
 		parent::tearDown ();
 	}
 	
@@ -38,24 +40,24 @@ class SelectTest extends PHPUnit_Framework_TestCase {
 		// TODO Auto-generated constructor
 	}
 	
-	public function testEjecucion()
+	public function testPorDefaultListaTodosLosDocumentos()
 	{
+		/*$rs = $this->_select->execute();
+		print_r($rs->toArray());*/
+	}
+	
+	public function testAddSearchByValorBuscaPorElValorDeDocumento()
+	{
+		/*$this->_select->addSearchByValor('1284');
+		$rs = $this->_select->execute();
+		print_r($rs->toArray());*/
+	}
+	
+	public function testAddSearchByParteBuscaPorElNombreDeParte()
+	{
+		$this->_select->addSearchByParte('Islas');
 		$rs = $this->_select->execute();
 		print_r($rs->toArray());
-	}
-	
-	public function testBusquedaPorOrgParteTipoCodigo()
-	{
-		/*$this->_select->addSearchByOrgParteTipoCodigo('org');
-		$rs = $this->_select->execute();
-		print_r($rs->toArray());*/
-	}
-	
-	public function testBusquedaPorNombre()
-	{
-		/*$this->_select->addSearchByNombre('Islas Pablo');
-		$rs = $this->_select->execute();
-		print_r($rs->toArray());*/
 	}
 }
 
