@@ -10,27 +10,6 @@ use Doctrine\ORM\Mapping as ORM;
  * 
  * @ORM\Entity
  * @ORM\Table(name="stock_articulo")
- * 
- * @property int $stock_articulo_id
- * 
- * @property int $stock_garantia_tipo_id
- * @property int $cont_moneda_id
- * @property int $stock_marca_id
- * @property int $stock_categoria_id
- * 
- * @property string $nombre
- * @property string $codigo
- * @property string $descripcion
- * @property int $tiempo_garantia
- * @property string $modelo
- * @property string $estado
- * @property string $tipo
- * @property float $porcentaje_impuesto
- * @property float $precio_venta
- * @property float $descuento_maximo
- * @property string $foto
- * @property int $existencia
- * @property string $ncm
  */
 class Articulo
 {
@@ -136,11 +115,20 @@ class Articulo
      */
     protected $ncm;
     
+    public function getId()
+    {
+        return $this->stock_articulo_id;
+    }
+    
+    public function setDefaultValues()
+    {
+        $this->existencia = 0;
+    }
+    
     public function fromArray($data)
     {
         foreach ($data as $property => $value) {
             $this->$property = $value;
-            //throw new \Exception(print_r($this->stock_garantia_tipo_id, true));
         }
     }
 }
