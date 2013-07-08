@@ -37,6 +37,7 @@ class ArticuloController extends BaseController
         // Pasar los datos al service manager para la creacion
         $serviceManager = $this->getServiceManager();
         $serviceManager->create($data);
+        $serviceManager->run();
         
         return $this->toJson($serviceManager->getResult());
     }
@@ -49,16 +50,20 @@ class ArticuloController extends BaseController
         // Pasar los datos al sercice manager para la actualizacion
         $serviceManager = $this->getServiceManager();
         $serviceManager->update($data);
+        $serviceManager->run();
         
         return $this->toJson($serviceManager->getResult());
     }
     
     public function deleteAction()
     {
+        // Extraer datos del cliente
         $data = $this->SubmitParams()->getParam('delete');
         
+        // Pasar los datos al sercice manager para la actualizacion
         $serviceManager = $this->getServiceManager();
-        $serviceManager->delete($id);
+        $serviceManager->delete($data);
+        $serviceManager->run();
         
         return $this->toJson($serviceManager->getResult());
     }

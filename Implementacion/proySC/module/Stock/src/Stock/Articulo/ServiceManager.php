@@ -2,8 +2,10 @@
 
 namespace Stock\Articulo;
 
-use Stock\Articulo\Service\Create;
 use Stock\Entity\Articulo;
+use Stock\Articulo\Validator\Articulo as ArticuloValidator;
+
+use EnterpriseSolutions\Exceptions\Thrower;
 
 class ServiceManager
 {
@@ -13,6 +15,11 @@ class ServiceManager
      */
     protected $em;
     
+    /**
+     * @var Articulo
+     */
+    protected $articulo;
+    
     public function __construct($em)
     {
         $this->em = $em;
@@ -20,33 +27,57 @@ class ServiceManager
     
     public function create($data)
     {
-        $articulo = new Articulo();
-        $articulo->fromArray($data);
-        $this->persist($articulo);
+        $this->articulo = new Articulo();
+        $this->articulo->fromArray($data);
+        $this->articulo->setDefaultValues();
+        
+        $validator = new ArticuloValidator();
+        if (!$validator->isValid($this->articulo)) {
+            Thrower::throwValidationException('Error de Validacion', $validator->getMessages());
+        }
+        
+        $this->em->persist($this->articulo);
     }
     
     public function update($data)
     {
-        $articulo = $this->em->find('Stock\Entity\Articulo', $data['stock_articulo_id']);
-        $articulo->fromArray($data);
-        $this->persist($articulo);
+        $id = $data['stock_articulo_id'];
+        $this->articulo = $this->em->find('Stock\Entity\Articulo', $id);
+        $this->articulo->fromArray($data);
+        
+        $validator = new ArticuloValidator();
+        if (!$validator->isValid($this->articulo)) {
+            Thrower::throwValidationException('Error de Validacion', $validator->getMessages());
+        }
+        
+        $this->em->persist($this->articulo);
     }
     
-    public function delete($id)
+    public function delete($data)
     {
-        $articulo = $this->em->find('Stock\Entity\Articulo', $id);
-        $this->em->remove($articulo);
-        $this->em->flush();
+        $id = $data['stock_articulo_id'];
+        $this->articulo = $this->em->find('Stock\Entity\Articulo', $id);
+        
+        // APLICAR VALIDACIONES A $this->articulo
+        
+        $this->em->remove($this->articulo);
     }
     
-    protected function persist($entity)
+    public function run()
     {
-        $this->em->persist($entity);
-        $this->em->flush();
+        try {
+            $this->em->flush();
+        } catch (\Exception $e) {
+            $this->em->clear();
+            throw $e;
+        }
     }
     
     public function getResult()
     {
-        return array('exitoso' => true);
+        return array(
+            'stock_articulo_id' => $this->articulo->getId(),
+            'exitoso' => true,
+        );
     }
 }
