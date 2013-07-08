@@ -30,6 +30,14 @@ class Service
 	 */
 	public function ejecutar($datos)
 	{
+		$datos = array_merge_recursive(
+			array('Documentos' => array(
+				'agregados' => array(),
+				'editados'  => array(),
+				'borrados'  => array()	
+			)),
+			$datos
+	 	);
 		$parte = $datos['org_parte'];
 		$documentosData = $datos['Documentos'];
 		$listado = $this->_docRepository->findDocumentosDeParte($parte);
@@ -53,10 +61,11 @@ class Service
 	
 	public function _setRepuesta($agregados = array(),$editados = array(),$borrados = array())
 	{
+		$mapFunction = function($documento){return $documento->toArray();};
 		$respuesta = array(
-			'agregados' => $agregados,
-			'editados' => $editados,
-			'borrados' => $borrados
+			'agregados' => array_map($mapFunction,$agregados),
+			'editados' => array_map($mapFunction,$editados),
+			'borrados' => array_map($mapFunction,$borrados)
 		);
 		//Excluye los vacios, los que no fueron realizados por el servicio
 		$this->_respuesta = array_filter($respuesta);

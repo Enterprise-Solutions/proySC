@@ -113,4 +113,13 @@ class Documento
 		
 	}
 	
+	public function toArray()
+	{
+		return array(
+			'org_documento_id' => $this->id,
+			'valor'            => $this->valor,
+			'org_documento_tipo_codigo' => $this->codigo	
+		);
+	}
+	
 }
