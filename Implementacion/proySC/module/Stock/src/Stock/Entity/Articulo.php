@@ -115,6 +115,11 @@ class Articulo
      */
     protected $ncm;
     
+    public function __get($property)
+    {
+        return $this->$property;
+    }
+    
     public function getId()
     {
         return $this->stock_articulo_id;
