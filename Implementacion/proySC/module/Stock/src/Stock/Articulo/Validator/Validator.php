@@ -58,6 +58,11 @@ class Validator extends AbstractValidator
         return false;
     }
     
+    public function getMessages()
+    {
+    	return $this->errorsValidation;
+    }
+    
     protected function addValidator($validator, $param)
     {
         $this->validatorChain[] = $validator;
@@ -98,7 +103,7 @@ class Validator extends AbstractValidator
     {
         $valoresPermitidos = join(',', $options);
         
-        $inArrayValidator = new InArray();
+        $inArrayValidator = new InArray(array('haystack' => $options));
         $inArrayValidator->setMessage("El campo '$field' es invalido. Valores permitidos: $valoresPermitidos.");
         return $inArrayValidator;
     }
