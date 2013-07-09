@@ -8,53 +8,174 @@ function hideBloque()
 	}	
 }
 
-function formularioPersona(isNew, data)
+function formularioGenerico(isNew, data, readOnly)
 {
 	return {
-		xtype: 'form',
-		title: (isNew)?('Agregar Persona'):('Editar Persona'),
-		cls: 'ladoDerecho',
-		bodyCssClass: 'formularioGeneral',
-		layout: 'form',
-		autoHeight: true,
+		xtype: 'container',
+		layout: 'anchor',
 		items:[
-		       {
-			       xtype: 'hidden',
-			       name: 'org_parte_id',
-			       value: (isNew)?(null):(data.org_parte_id)
-		       },
-		       {
-			       fieldLabel: 'Apellido',
-			       name: 'apellido',
-			       value: (isNew)?(null):(data.apellido_persona),
-			       xtype: 'textfield',
-			       allowBlank: false
-		       },
-		       {
-			       fieldLabel: 'Nombre',
-			       name: 'nombre',
-			       value: (isNew)?(null):(data.nombre_persona),
-			       xtype: 'textfield',
-			       allowBlank: false
-		       },
-		       {
-			       fieldLabel: 'Fecha Nac.',
-			       name: 'fecha_nac',
-			       format: 'd/m/Y',
-			       value: (isNew)?(null):(data.fecha_nacimiento),
-			       xtype: 'datefield'
-		       },
-		       {
-			       fieldLabel: 'Genero',
-			       xtype: 'radiogroup',
-			       name: 'checkBoxGr',
-			       allowBlank: false,
-			       columns: 2,
-			       items: [
-			               {boxLabel: 'Hombre', name: 'genero_persona', inputValue: 'H', checked: (isNew)?(false):( (data.genero_persona == 'H')?(true):(false) )},
-			               {boxLabel: 'Mujer', name: 'genero_persona', inputValue: 'M', checked: (isNew)?(false):( (data.genero_persona == 'M')?(true):(false) )}
-			       ]
-		       },
+				{
+					xtype: 'form',
+					title: 'Asignar Rol a Parte',
+					cls: 'ladoDerecho',
+					bodyCssClass: 'formularioGeneral',
+					layout: 'form',
+					autoHeight: true,
+					items:[
+							{
+								xtype: 'combo',
+								fieldLabel: 'Nombre / Doc.',
+								hideTrigger: true,
+								width: 200,
+								allowBlank: false,
+								minChars: 3,
+								cls: 'searchIcon',
+								displayField: 'mostrar',
+								valueField: 'org_parte_id',
+								forceSelection: true,
+								mode: 'remote',
+								triggerAction: 'all',
+								listWidth: 350,
+								queryDelay: 1500,
+								queryParam: 's[nombre]',
+								store: orgRolParteStore,
+								hiddenName: 'org_parte_id_buscar'
+							},
+							{
+								xtype: 'combo',
+								fieldLabel: 'Rol',
+								width: 125,
+								allowBlank: false,
+								displayField: 'nombre',
+								valueField: 'org_rol_codigo',
+								forceSelection: true,
+								mode: 'local',
+								store: orgRolStore,
+								hiddenName: 'org_rol_codigo_buscar'
+							},
+							{
+			       				xtype: 'container',
+			       				layout: 'column',
+			       				defaults:{style: {margin: '5px'}},
+			       				items:[
+										{
+							    			xtype: 'button',
+							    			text: 'Guardar',
+							    			handler: function(b,e)
+							    			{
+								       			//verificar si esta todo ok
+								       			var mainForm = b.ownerCt.ownerCt;
+								       			basicForm = mainForm.getForm();
+								       			if(basicForm.isValid())
+								       			{
+									       			var valores = basicForm.getFieldValues();
+
+													var parteId = valores.org_parte_id_buscar;
+											
+													delete valores.org_parte_id_buscar;
+											
+													if(parteId)//si la parte ya existe es la unica forma que entre aca sino no es valido
+													{
+														Ajax.PostElement.request({
+												   			url: baseURL + '/org/roles-de-partes/crear',
+												   			success: function(response, opt){
+												       			mainStore.reload();
+												   			},
+												   			jsonData: {
+												   				'post':{
+												   					org_rol_codigo: valores.org_rol_codigo_buscar,
+												   					org_parte: {
+												   						org_parte_id: parteId
+												   					}
+												   				},
+												   				'formulario': mainForm.id
+												   			}
+											   			});
+													}
+								       			}//end of if
+								       			else
+									   			{
+										   			Ext.Msg.alert('Aviso','Hay campos inv&aacute;lidos');
+									   			}       
+								   	   		}//end of handler
+										},//end of button 1
+										{
+											xtype: 'button',
+											text: 'Cancelar',
+											handler: function(b,e){
+												var mainForm = b.ownerCt.ownerCt;
+							        			var padre = mainForm.ownerCt;
+							        			padre.remove(mainForm);
+											}//end of handler
+										}//end of button 2
+				   				]
+		       				}
+					]
+				},
+				{
+					xtype: 'form',
+					title: (readOnly)?('Ver Parte'):((isNew)?('Agregar Parte'):('Editar Parte')),
+					cls: 'ladoDerecho',
+					bodyCssClass: 'formularioGeneral',
+					layout: 'form',
+					autoHeight: true,
+					items:[
+							{
+								xtype: 'combo',
+								fieldLabel: 'Rol',
+								width: 125,
+								allowBlank: false,
+								displayField: 'nombre',
+								valueField: 'org_rol_codigo',
+								forceSelection: true,
+								mode: 'local',
+								store: orgRolStore,
+								name: 'org_rol_codigo'
+							},
+							{
+					xtype: 'combo',
+					fieldLabel: 'Tipo',
+					allowBlank: false,
+					width: 125,
+					displayField: 'nombre',
+					valueField: 'org_parte_tipo_codigo',
+					forceSelection: true,
+					mode: 'local',
+					store: orgParteTipoStore,
+					name: 'org_parte_tipo_codigo',
+					listeners:{
+						'select':function(thisCombo, record, index)
+						{
+							var padre = thisCombo.ownerCt;
+							var destino = padre.find('itemId','bloqueDinamico');
+							if(destino.length > 0)
+							{
+								destino = destino[0];
+								
+								destino.removeAll();
+								
+								if(record.id == 'org')
+								{
+									destino.add(formularioEmpresa(true, null));
+								
+									destino.doLayout();
+								}
+								else if(record.id == 'per')
+								{
+									destino.add(formularioPersona(true, null));
+								
+									destino.doLayout();
+								}
+								
+							}
+						}
+					}
+				},
+				{
+					xtype: 'container',
+					layout: 'form',
+					itemId: 'bloqueDinamico'
+				},  
 		       {
 			       xtype: 'container',
 			       layout: 'column',
@@ -71,49 +192,76 @@ function formularioPersona(isNew, data)
 								       {
 									       var valores = basicForm.getFieldValues();
 
-									       
-									       if(valores.org_parte_id)//si existe es edicion
-									       {
-									    	   Ajax.PostElement.request({
-												   url: baseURL + '/org/empresas/editar',
-												   success: function(response, opt){
-												       mainStore.reload();
-												   },
-												   jsonData:{
-													   'put':{
-														   'org_parte_id': valores.org_parte_id,
-														   'nombre': valores.nombre,
-														   'apellido': valores.apellido,
-														   'fechaDeNacimiento': (formatearFecha(valores.fecha_nac, 1)),
-														   'genero': (valores.checkBoxGr)?(valores.checkBoxGr.inputValue):(null)
-													   },
-													   'formulario': mainForm.id
-												   }
-											   });
-									       }
-									       else
-									       {
-										       //sino es creacion
-									    	   //si esta todo ok hacemos la solicitud
-									    	   Ajax.PostElement.request({
-												   url: baseURL + '/org/personas/crear',
-												   success: function(response, opt){
-													   mainStore.reload();
-												   },
-												   jsonData:{
-												       'post':{
-														   'org_parte_id':null,
-														   'nombre': valores.nombre,
-														   'apellido': valores.apellido,
-														   'fechaDeNacimiento': (formatearFecha(valores.fecha_nac, 1)),
-														   'genero': (valores.checkBoxGr)?(valores.checkBoxGr.inputValue):(null)
-													   },
-													   'formulario': mainForm.id
-												   }
-											   });
-									       }
-									       
-									       
+											var parteId = valores.org_parte_id;
+											
+											delete valores.org_parte_id;
+											
+											if(parteId)//si la parte ya existe
+											{
+												if(valores.org_parte_tipo_codigo == 'org')
+												{
+												}
+											}
+											else//si la parte NO existe creo la parte
+											{
+												var datos = {};
+												
+												if(valores.org_parte_tipo_codigo == 'org')//de tipo empresa
+												{
+													datos = {post:{
+														org_rol_codigo: valores.org_rol_codigo,
+														org_parte: {
+															org_parte_id: null,
+															org_parte_tipo_codigo: valores.org_parte_tipo_codigo,
+															nombre: valores.nombre,
+															Documentos:{
+																agregados: [
+																	{
+																		org_documento_tipo_codigo: valores.org_documento_tipo_codigo,
+																		valor: valores.valor
+																	}
+																]
+															}
+														}
+													},
+														'formulario': mainForm.id													
+													};
+												}
+												else if(valores.org_parte_tipo_codigo == 'per')//de tipo persona
+												{
+													datos = {post:{
+														org_rol_codigo: valores.org_rol_codigo,
+														org_parte: {
+															org_parte_id: null,
+															org_parte_tipo_codigo: valores.org_parte_tipo_codigo,
+															nombre: valores.nombre,
+															apellido: valores.apellido,
+															fechaDeNacimiento: (formatearFecha(valores.fecha_nac, 1)),
+															genero: valores.checkBoxGr.inputValue,
+															Documentos: {
+																agregados: [
+																	{
+																		org_documento_tipo_codigo: valores.org_documento_tipo_codigo,
+																		valor: valores.valor
+																	}
+																]
+															}
+														}
+													},
+														'formulario': mainForm.id
+													};
+												}
+												
+												
+												Ajax.PostElement.request({
+												   		url: baseURL + '/org/roles-de-partes/crear',
+												   		success: function(response, opt){
+												       		mainStore.reload();
+												   		},
+												   		jsonData:datos
+											   		});
+											}
+											
 									       
 								       }
 								       else
@@ -133,164 +281,144 @@ function formularioPersona(isNew, data)
 							}
 				   ]
 		       }
-		],
+				]
+			}
+		],//end of items del contenedor principal
 		listeners:{
 			'render':function(){
 				hideBloque();
 			}
-		}
-	};	
-}
+		}//end of listeners del contenedor principal
+	};//end of container
+	 
+}//end of function
 
-
-function borrarPersona(id)
-{
-	var destino = Ext.getCmp('formContainer');
-	if(destino)
-	{
-		destino.removeAll();
-	}
-	
-	var registro = mainStore.getById(id);
-   	
-   	if(registro)
-   	{
-       	Ext.Msg.show({
- 		   title:'Borrar',
- 		   msg: 'Esta seguro de querer borrar el elemento "' + registro.data.apellido_persona + ', ' +  registro.data.nombre_persona + '"?',
- 		   buttons: Ext.Msg.YESNO,
- 		   fn: function(a,b){
-                if(a == 'yes')
-                {
-                	Ajax.PostElement.request({
-					   url: baseURL + '/org/parte/borrar',
-					   success: function(response, opt){
-					       mainStore.reload();
-					   },
-					   jsonData:{
-					       'delete':[id],
-						   'formulario':null
-					   }
-				   });
-                }
- 	       },
- 		   icon: Ext.MessageBox.QUESTION
- 		});
-   	}
-}
-
-
-function formularioVerPersona(data)
+function formularioPersona(isNew, data)
 {
 	return {
-		xtype: 'form',
-		title: 'Ver Persona',
-		cls: 'ladoDerecho',
-		bodyCssClass: 'formularioGeneral',
+		xtype: 'container',
 		layout: 'form',
 		autoHeight: true,
-		defaults:{xtype: 'displayfield'},
 		items:[
-		       {
+				{
 			       xtype: 'hidden',
 			       name: 'org_parte_id',
-			       value: data.org_parte_id
+			       value: (isNew)?(null):(data.org_parte_id)
 		       },
 		       {
 			       fieldLabel: 'Apellido',
 			       name: 'apellido',
-			       value: data.apellido_persona
+			       value: (isNew)?(null):(data.apellido_persona),
+			       xtype: 'textfield',
+			       allowBlank: false
 		       },
 		       {
 			       fieldLabel: 'Nombre',
 			       name: 'nombre',
-			       value: data.nombre_persona
+			       value: (isNew)?(null):(data.nombre_persona),
+			       xtype: 'textfield',
+			       allowBlank: false
 		       },
 		       {
-		    	   fieldLabel: 'Fecha Nac.',
-			       name: 'fecha',
-			       value: data.fecha_nacimiento
+		           xtype: 'fieldset',
+		           title: 'Documento',
+		           labelWidth: 75,
+		           items:[
+		           			{
+		           				xtype: 'textfield',
+		           				name: 'valor',
+		           				value: (isNew)?(null):(data.valor),
+		           				allowBlank: false,
+		           				fieldLabel: 'Numero'
+		           			},
+		           			{
+		           				xtype: 'combo',
+		           				forceSelection: true,
+		           				mode: 'local',
+		           				value: (isNew)?(null):(data.org_documento_tipo_codigo),
+		           				typeAhead: true,
+		           				displayField: 'nombre',
+		           				valueField: 'org_documento_tipo_codigo',
+		           				store: orgDocumentoTipoStore,
+		           				allowBlank: false,
+		           				hiddenName: 'org_documento_tipo_codigo',
+		           				fieldLabel: 'Tipo'
+		           			}
+		           ]
 		       },
 		       {
-		    	   fieldLabel: 'Genero',
-			       name: 'genero',
-			       value: ((data.genero_persona == 'H')?('Hombre'):('Mujer'))
+			       fieldLabel: 'Fecha Nac.',
+			       name: 'fecha_nac',
+			       format: 'd/m/Y',
+			       value: (isNew)?(null):(data.fecha_nacimiento),
+			       xtype: 'datefield'
 		       },
 		       {
-			       xtype: 'container',
-			       layout: 'column',
-			       defaults:{style: {margin: '5px'}},
-			       items:[
-							{
-								xtype: 'button',
-								text: 'Cerrar Detalle',
-								handler: function(b,e){
-									var mainForm = b.ownerCt.ownerCt;
-							        var padre = mainForm.ownerCt;
-							        padre.remove(mainForm);
-								}
-							}
-				   ]
+			       fieldLabel: 'Genero',
+			       xtype: 'radiogroup',
+			       name: 'checkBoxGr',
+			       allowBlank: false,
+			       columns: 2,
+			       items: [
+			               {boxLabel: 'Hombre', name: 'genero_persona', inputValue: 'H', checked: (isNew)?(false):( (data.genero_persona == 'H')?(true):(false) )},
+			               {boxLabel: 'Mujer', name: 'genero_persona', inputValue: 'M', checked: (isNew)?(false):( (data.genero_persona == 'M')?(true):(false) )}
+			       ]
 		       }
-		],
-		listeners:{
-			'render':function(){
-				hideBloque();
-			}
-		}
-	};
+		       
+		]
+	};	
 }
 
-
-function verPersona(id)
+function formularioEmpresa(isNew, data)
 {
-	var registro = mainStore.getById(id);
-   	
-   	if(registro)
-   	{
-   		var destino = Ext.getCmp('formContainer');
-		if(destino)
-		{
-			destino.removeAll();
-
-			Ajax.PostElement.request({
-				   url: baseURL + '/org/parte/get',
-				   method: 'GET',
-				   success: function(response, opt){
-							var data = Ext.decode(response.responseText);
-							var addedEl = destino.add(formularioVerPersona(data));
-							destino.doLayout();
-							addedEl.body.highlight();
-						
-				   },
-				   params:{
-				       'id':id,
-					   'formulario':null
-				   }
-			   });
-		}
-		
-   		
-   	}
+	return {
+		xtype: 'container',
+		layout: 'form',
+		autoHeight: true,
+		items:[
+				{
+			       xtype: 'hidden',
+			       name: 'org_parte_id',
+			       value: (isNew)?(null):(data.data)
+		       },
+		       {
+			       fieldLabel: 'Nombre',
+			       name: 'nombre',
+			       value: (isNew)?(null):(data.nombre),
+			       xtype: 'textfield',
+			       allowBlank: false
+		       },
+		       {
+		           xtype: 'fieldset',
+		           title: 'Documento',
+		           labelWidth: 75,
+		           items:[
+		           			{
+		           				xtype: 'textfield',
+		           				name: 'valor',
+		           				value: (isNew)?(null):(data.valor),
+		           				allowBlank: false,
+		           				fieldLabel: 'Numero'
+		           			},
+		           			{
+		           				xtype: 'combo',
+		           				forceSelection: true,
+		           				mode: 'local',
+		           				value: (isNew)?(null):(data.org_documento_tipo_codigo),
+		           				typeAhead: true,
+		           				displayField: 'nombre',
+		           				valueField: 'org_documento_tipo_codigo',
+		           				store: orgDocumentoTipoStore,
+		           				allowBlank: false,
+		           				hiddenName: 'org_documento_tipo_codigo',
+		           				fieldLabel: 'Tipo'
+		           			}
+		           ]
+		       }
+		]
+	};	
 }
 
-function editarPersona(id)
-{
-	
-	var registro = mainStore.getById(id);
-	
-	if(registro)
-	{
-		var destino = Ext.getCmp('formContainer');
-		if(destino)
-		{
-			destino.removeAll();
-			var addedEl = destino.add(formularioPersona(false, registro.data));
-			destino.doLayout();
-			addedEl.body.highlight();
-		}
-	}
-}
 
 var mainStore = new Ext.data.JsonStore({
 	// store configs
@@ -309,6 +437,66 @@ var mainStore = new Ext.data.JsonStore({
 	autoLoad:true,
 	idProperty: 'org_parte_rol_id',
 	fields: ['org_parte_rol_id','org_rol_nombre','org_parte_tipo_nombre','org_parte_id','nombre','apellido','fechaDeNacimiento','genero']
+});
+
+var orgDocumentoTipoStore = new Ext.data.JsonStore({
+	// store configs
+	url: baseURL + '/org/combos/org-documento-tipo',
+	// reader configs
+	autoLoad:true,
+	root: 'records',
+	idProperty: 'org_documento_tipo_codigo',
+	fields: ['org_documento_tipo_codigo','nombre','descripcion']
+});
+
+var orgRolStore = new Ext.data.JsonStore({
+	// store configs
+	url: baseURL + '/org/combos/org-rol',
+	// reader configs
+	autoLoad:true,
+	root: 'records',
+	idProperty: 'org_rol_codigo',
+	fields: ['org_rol_codigo','descripcion','nombre']
+});
+
+var orgRolParteStore = new Ext.data.JsonStore({
+	// store configs
+	url: baseURL + '/org/empresas/index',
+	// reader configs
+	//autoLoad:true,
+	root: 'records',
+	idProperty: 'org_parte_id',
+	fields: ['org_parte_id','org_parte_tipo_codigo','nombre_persona','apellido_persona','nombre_organizacion','org_parte_tipo_nombre','documentos',
+		{name: 'mostrar', convert: function(v,data){
+			var doc = '';
+			
+			if(data.documentos && data.documentos.length > 0)
+			{
+				for(var x=0; x<data.documentos.length; x++)
+				{
+					doc += (((x == 0)?(''):(' / ')) + data.documentos[x].org_documento_tipo_codigo + ':' + data.documentos[x].valor);
+				}
+			}
+			
+			if(data.org_parte_tipo_codigo == 'per')
+			{
+				return 'Per: ' + data.apellido_persona + ', ' + data.nombre_persona + ' - ' + doc;
+			}
+			else if(data.org_parte_tipo_codigo == 'org')
+			{
+				return 'Emp: ' + data.nombre_organizacion + ' - ' + doc;
+			}
+		}}]
+});
+
+var orgParteTipoStore = new Ext.data.JsonStore({
+	// store configs
+	url: baseURL + '/org/combos/org-parte-tipo',
+	// reader configs
+	autoLoad:true,
+	root: 'records',
+	idProperty: 'org_parte_tipo_codigo',
+	fields: ['org_parte_tipo_codigo','descripcion','nombre']
 });
 
 viewContainer.bodyPanel = [{
@@ -351,16 +539,22 @@ viewContainer.bodyPanel = [{
 					       	       			               },
 					       	       			               {
 						       	       			               xtype: 'textfield',
+						       	       			               width: 75,
 						       	       			               name: 'nombre'
 					       	       			               },
 					       	       			         		{
 						       	       			               xtype: 'displayfield',
 						       	       			               style:{margin: '0 5px'},
-						       	       			         	   value: 'Tipo (Per | Emp): '
+						       	       			         	   value: 'Tipo: '
 					       	       			               },
 					       	       			         		{
-						       	       			               xtype: 'textfield',
-						       	       			         		width: 50,
+						       	       			               xtype: 'combo',
+						       	       			         		width: 75,
+						       	       			         	   displayField: 'nombre',
+						       	       			         	   valueField: 'org_parte_tipo_codigo',
+						       	       			         	   forceSelection: true,
+						       	       			         	   mode: 'local',
+						       	       			         	   store: orgParteTipoStore,
 						       	       			               name: 'org_parte_tipo_codigo'
 					       	       			               },
 					       	       			         		{
@@ -369,8 +563,13 @@ viewContainer.bodyPanel = [{
 						       	       			         	   value: 'Rol: '
 					       	       			               },
 					       	       			         		{
-						       	       			               xtype: 'textfield',
-						       	       			         		width: 50,
+						       	       			               xtype: 'combo',
+						       	       			         		width: 75,
+						       	       			         	   displayField: 'nombre',
+						       	       			         	   valueField: 'org_rol_codigo',
+						       	       			         	   forceSelection: true,
+						       	       			         	   mode: 'local',
+						       	       			         	   store: orgRolStore,
 						       	       			               name: 'org_rol_codigo'
 					       	       			               },'->',
 					       	       			         		{
@@ -459,11 +658,11 @@ viewContainer.bodyPanel = [{
 				               						store: mainStore,
 				               						cm: new Ext.grid.ColumnModel([
 														{ header: "Nombre", dataIndex: 'org_parte_tipo_nombre', width: 160, renderer: function(v,meta,record){
-															if(v == 'Organizacion')
+															if(v == 'Empresa')
 															{
 																return record.data.nombre;
 															}
-															else if(v == 'Personas')
+															else if(v == 'Persona')
 															{
 																return record.data.apellido + ', ' + record.data.nombre;
 															}
@@ -513,7 +712,7 @@ viewContainer.bodyPanel = [{
 														if(destino)
 														{
 															destino.removeAll();
-															var addedEl = destino.add(formularioPersona(true, null));
+															var addedEl = destino.add(formularioGenerico(true, null, false));
 															destino.doLayout();
 															addedEl.body.highlight();
 														}

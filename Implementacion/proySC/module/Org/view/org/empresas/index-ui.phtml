@@ -31,6 +31,31 @@ function formularioEmpresa(isNew, id, nombre)
 			       allowBlank: false
 		       },
 		       {
+		           xtype: 'fieldset',
+		           title: 'Documento',
+		           labelWidth: 75,
+		           items:[
+		           			{
+		           				xtype: 'textfield',
+		           				name: 'valor',
+		           				allowBlank: false,
+		           				fieldLabel: 'Numero'
+		           			},
+		           			{
+		           				xtype: 'combo',
+		           				forceSelection: true,
+		           				mode: 'local',
+		           				typeAhead: true,
+		           				displayField: 'nombre',
+		           				valueField: 'org_documento_tipo_codigo',
+		           				store: orgDocumentoTipoStore,
+		           				allowBlank: false,
+		           				name: 'org_documento_tipo_codigo',
+		           				fieldLabel: 'Tipo'
+		           			}
+		           ]
+		       },	
+		       {
 			       xtype: 'container',
 			       layout: 'column',
 			       defaults:{style: {margin: '5px'}},
@@ -74,7 +99,11 @@ function formularioEmpresa(isNew, id, nombre)
 												   jsonData:{
 												       'post':{
 														   'org_parte_id':null,
-														   'nombre': valores.nombre
+														   'nombre': valores.nombre,
+														   'Documentos':{'agregados':[{
+																'org_documento_tipo_codigo': valores.org_documento_tipo_codigo,
+																'valor': valores.valor
+															}]}
 													   },
 													   'formulario': mainForm.id
 												   }
@@ -263,7 +292,17 @@ var mainStore = new Ext.data.JsonStore({
 	},
 	autoLoad:true,
 	idProperty: 'org_parte_id',
-	fields: ['org_parte_id','org_parte_tipo_codigo','nombre_organizacion','fecha_nacimiento','foto','org_parte_tipo_nombre']
+	fields: ['org_parte_id','documentos','org_parte_tipo_codigo','nombre_organizacion','fecha_nacimiento','foto','org_parte_tipo_nombre']
+});
+
+var orgDocumentoTipoStore = new Ext.data.JsonStore({
+	// store configs
+	url: baseURL + '/org/combos/org-documento-tipo',
+	// reader configs
+	autoLoad:true,
+	root: 'records',
+	idProperty: 'org_documento_tipo_codigo',
+	fields: ['org_documento_tipo_codigo','nombre','descripcion']
 });
 
 viewContainer.bodyPanel = [{
@@ -357,11 +396,20 @@ viewContainer.bodyPanel = [{
 				               						store: mainStore,
 				               						cm: new Ext.grid.ColumnModel([
 														{ header: "Nombre", dataIndex: 'nombre_organizacion', width: 160},
-														{ header: "Fecha", align: 'center', dataIndex: 'fecha_nacimiento', width: 150, renderer: function(v,meta,record){
-															if(!v)
-																return '-';
-
-															return v;
+														{ header: "Documento(s)", dataIndex: 'documentos', width: 150, renderer: function(v,meta,record){
+															if(v && v.length)
+															{
+																var texto = '';
+																
+																for(var x=0; x<v.length; x++)
+																{
+																	texto += (v[x].valor + ' / ' + v[x].org_documento_tipo_codigo + '<br>');
+																}
+																
+																return texto;
+															}
+															
+															return '-';
 														}},
 														{ header: "Tipo", dataIndex: 'org_parte_tipo_nombre',  width: 100},
 														{ header: "Ver", dataIndex: null,  width: 32, align: 'center', renderer: function(v,meta,record){

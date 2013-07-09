@@ -38,6 +38,31 @@ function formularioPersona(isNew, data)
 			       allowBlank: false
 		       },
 		       {
+		           xtype: 'fieldset',
+		           title: 'Documento',
+		           labelWidth: 75,
+		           items:[
+		           			{
+		           				xtype: 'textfield',
+		           				name: 'valor',
+		           				allowBlank: false,
+		           				fieldLabel: 'Numero'
+		           			},
+		           			{
+		           				xtype: 'combo',
+		           				forceSelection: true,
+		           				mode: 'local',
+		           				typeAhead: true,
+		           				displayField: 'nombre',
+		           				valueField: 'org_documento_tipo_codigo',
+		           				store: orgDocumentoTipoStore,
+		           				allowBlank: false,
+		           				name: 'org_documento_tipo_codigo',
+		           				fieldLabel: 'Tipo'
+		           			}
+		           ]
+		       },	
+		       {
 			       fieldLabel: 'Fecha Nac.',
 			       name: 'fecha_nac',
 			       format: 'd/m/Y',
@@ -106,7 +131,11 @@ function formularioPersona(isNew, data)
 														   'nombre': valores.nombre,
 														   'apellido': valores.apellido,
 														   'fechaDeNacimiento': (formatearFecha(valores.fecha_nac, 1)),
-														   'genero': (valores.checkBoxGr)?(valores.checkBoxGr.inputValue):(null)
+														   'genero': (valores.checkBoxGr)?(valores.checkBoxGr.inputValue):(null),
+														   'Documentos':{'agregados':[{
+																'org_documento_tipo_codigo': valores.org_documento_tipo_codigo,
+																'valor': valores.valor
+															}]}
 													   },
 													   'formulario': mainForm.id
 												   }
@@ -308,7 +337,17 @@ var mainStore = new Ext.data.JsonStore({
 	},
 	autoLoad:true,
 	idProperty: 'org_parte_id',
-	fields: ['org_parte_id','org_parte_tipo_codigo','nombre_persona','apellido_persona','genero_persona','fecha_nacimiento','foto','org_parte_tipo_nombre']
+	fields: ['org_parte_id','org_parte_tipo_codigo','documentos','nombre_persona','apellido_persona','genero_persona','fecha_nacimiento','foto','org_parte_tipo_nombre']
+});
+
+var orgDocumentoTipoStore = new Ext.data.JsonStore({
+	// store configs
+	url: baseURL + '/org/combos/org-documento-tipo',
+	// reader configs
+	autoLoad:true,
+	root: 'records',
+	idProperty: 'org_documento_tipo_codigo',
+	fields: ['org_documento_tipo_codigo','nombre','descripcion']
 });
 
 viewContainer.bodyPanel = [{
@@ -403,6 +442,21 @@ viewContainer.bodyPanel = [{
 				               						cm: new Ext.grid.ColumnModel([
 														{ header: "Apellido", dataIndex: 'apellido_persona', width: 160},
 														{ header: "Nombre", dataIndex: 'nombre_persona', width: 120},
+														{ header: "Documento(s)", dataIndex: 'documentos', width: 150, renderer: function(v,meta,record){
+															if(v && v.length)
+															{
+																var texto = '';
+																
+																for(var x=0; x<v.length; x++)
+																{
+																	texto += (v[x].valor + ' / ' + v[x].org_documento_tipo_codigo + '<br>');
+																}
+																
+																return texto;
+															}
+															
+															return '-';
+														}},
 														{header: 'Gen.', dataIndex: 'genero_persona'},
 														{ header: "Fecha", align: 'center', dataIndex: 'fecha_nacimiento', width: 150, renderer: function(v,meta,record){
 															if(!v)

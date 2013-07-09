@@ -1,0 +1,40 @@
+.compraContainer .bloqueFactura{
+	margin: 5px;
+	padding: 5px;
+	border: 1px solid black;
+}
+
+.compraContainer .azul{
+	background-color: rgb(101, 153, 255);
+}
+
+
+.compraContainer .crema{
+	background-color: rgb(255, 250, 85);
+}
+
+.compraContainer .titulo{
+	text-align: center;
+	color: black;
+	font-weight: bold;
+	font-size: 15px;
+	line-height: 20px;
+	font-family: Tahoma;
+}
+
+.searchIcon {
+	background-image: url("../../img/icons/fact/search.gif");
+	background-repeat: no-repeat;
+	background-position: right center;
+	padding-right: 20px;
+}
+
+.cart {
+	background-image: url("../../img/icons/fact/cart.png");
+	height: 32px;
+	width: 32px;
+	margin: 0 auto;
+	background-repeat: no-repeat;
+	background-position: center center;
+	cursor: pointer;
+}

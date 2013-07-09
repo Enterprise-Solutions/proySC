@@ -10,6 +10,7 @@
         <link rel="stylesheet" href="<?=$this->basePath();?>/css/layout/grid.css"/>
         <link rel="stylesheet" href="<?=$this->basePath();?>/css/layout/contenedor.css"/>
         <link rel="stylesheet" href="<?=$this->basePath();?>/css/layout/messageBox.css"/>
+        <link rel="stylesheet" href="<?=$this->basePath();?>/css/layout/compra.css"/>
 		<script type="text/javascript" src="<?php echo $this->basePath(); ?>/extjs/adapter/ext/ext-base.js"></script>
 		<script type="text/javascript" src="<?php echo $this->basePath(); ?>/extjs/ext-all.js"></script>
 		<script type="text/javascript" src="<?=$this->basePath()?>/extjs/src/locale/ext-lang-es.js">  </script> 
@@ -86,6 +87,19 @@
 														]
                 								    }
         								        },'-',
+        								        {
+            								        text: 'Facturaci&oacute;n',
+            								        split: true,
+            								        menu:{
+            								        	defaults:{handler: buttonClick},
+														items:[
+														       {text: 'Crear Venta', codigo: 'venta', modulo: 'fact'},
+														       {text: 'Mantener Ventas', codigo: 'ventas', modulo: 'fact'},
+														       {text: 'Crear Compra', codigo: 'compra', modulo: 'fact'},
+														       {text: 'Mantener Compras', codigo: 'compras', modulo: 'fact'}
+														]
+                								    }
+        								        },
         								        {
             								        text: 'Salir',
             								        handler: function(b,e){
