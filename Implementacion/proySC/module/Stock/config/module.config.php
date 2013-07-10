@@ -37,6 +37,9 @@ return array(
         'invokables' => array(
             'Stock\Controller\Articulo' => 'Stock\Controller\ArticuloController',
             'Stock\Controller\Combos'   => 'Stock\Controller\CombosController',
+        	'Stock\Controller\Marca'   => 'Stock\Controller\MarcaController',
+        	'Stock\Controller\Categoria'   => 'Stock\Controller\CategoriaController',
+        	'Stock\Controller\GarantiaTipo'   => 'Stock\Controller\GarantiaTipoController',
         ),
     ),
     'view_manager' => array(

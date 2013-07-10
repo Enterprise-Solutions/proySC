@@ -8,13 +8,16 @@
 	background-color: rgb(101, 153, 255);
 }
 
+.compraContainer .azulOscuro{
+	background-color: rgb(25, 69, 156);
+}
 
 .compraContainer .crema{
 	background-color: rgb(255, 250, 85);
 }
 
 .compraContainer .titulo{
-	text-align: center;
+	text-align: left;
 	color: black;
 	font-weight: bold;
 	font-size: 15px;

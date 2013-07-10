@@ -60,13 +60,40 @@ function formularioArticulo(isNew, data, readOnly)
 			        hiddenName: 'stock_marca_id',
 			       	width: 130,
 			       	valueField: 'stock_marca_id',
+			       	forceSelection: true,
 			       	displayField:'marca',
 			       	value: (isNew)?(null):(data.stock_marca_id),
 			       	xtype: 'combo',
 			       	disabled:readOnly,
 			       	store: stockMarcaStore,
 			       	typeAhead:true,mode:'local',
-			       	allowBlank: false
+			       	allowBlank: false,
+			       	listeners:{
+			       		'render':function(thisEl){
+			       			console.log('thisEl',thisEl);
+			       			//contenedor
+			       			var itemContainer = thisEl.itemCt.dom.childNodes[1].firstChild.id;
+			       			console.log('itemContainer',itemContainer);
+			       			var thisElId = thisEl.id;
+			       			
+			       			//en el de arriba tengo que insertar mi boton
+			       			var contenedor = Ext.get(itemContainer);
+			       			
+			       			console.log('contenedor',contenedor);
+			       			
+			       			//var destino = contenedor.dom.childNodes[1];
+			       			
+			       			//var auxiliar = Ext.get(destino.id);
+			       			
+			       			var nuevoEl = document.createElement('button');
+			       			nuevoEl.innerHTML = '+';
+			       			nuevoEl.setAttribute('style','margin-left:25px;');
+			       			
+			       			console.log('nuevoEl',nuevoEl);
+			       			
+			       			contenedor.appendChild(nuevoEl, 'after');
+			       		}
+			       	}
 		       },
 		       {
 			       	fieldLabel: 'Categoria',
@@ -74,6 +101,7 @@ function formularioArticulo(isNew, data, readOnly)
 			       	width: 130,
 			       	valueField: 'stock_categoria_id',
 			       	displayField:'categoria',
+			       	forceSelection: true,
 			       	disabled:readOnly,
 			       	value: (isNew)?(null):(data.stock_categoria_id),
 			       	xtype: 'combo',
@@ -132,6 +160,7 @@ function formularioArticulo(isNew, data, readOnly)
 			       							hiddenName: 'cont_moneda_id',
 			       							width: 90,
 			       							valueField: 'cont_moneda_id',
+			       							forceSelection: true,
 			       							displayField:'moneda',
 			       							value: (isNew)?(null):(data.cont_moneda_id),
 			       							xtype: 'combo',
@@ -163,6 +192,7 @@ function formularioArticulo(isNew, data, readOnly)
 			       							xtype: 'numberfield',
 			       							allowBlank: false,
 			       							allowNegative:false,
+			       							forceSelection: true,
 			       							disabled:readOnly,
 			       							allowDecimals: false
 		       							}
@@ -193,8 +223,9 @@ function formularioArticulo(isNew, data, readOnly)
 		       {
 			       fieldLabel: '%IVA',
 			       hiddenName: 'porcentaje_impuesto',
-			       value: (isNew)?(null):(data.porcentaje_impuesto),
+			       value: (isNew)?(10):(data.porcentaje_impuesto),
 			       xtype: 'combo',
+			       forceSelection: true,
 			       triggerAction: 'all',
 			       store: stockImpuestoStore,
 			       displayField: 'valor',
@@ -217,7 +248,7 @@ function formularioArticulo(isNew, data, readOnly)
 		       {
 			       fieldLabel: 'Estado',
 			       hiddenName: 'estado',
-			       value: (isNew)?(null):(data.estado),
+			       value: (isNew)?('A'):(data.estado),
 			       xtype: 'combo',
 			       store: stockEstadoStore,
 			       displayField: 'valor',
@@ -229,18 +260,18 @@ function formularioArticulo(isNew, data, readOnly)
 			       allowBlank: false
 		       },
 		       {
-			       fieldLabel: 'Es Servicio?',
-			       hiddenName: 'es_servicio',
-			       value: (isNew)?(null):(data.tipo),
+			       fieldLabel: 'Tipo',
+			       hiddenName: 'tipo',
+			       value: (isNew)?('P'):(data.tipo),
 			       xtype: 'combo',
-			       store: genericoSiNoStore,
+			       store: genericoProductoStore,
 			       displayField: 'valor',
 			       valueField: 'id',
 			       disabled:readOnly,
 			       mode: 'local',
+			       forceSelection: true,
 			       triggerAction: 'all',
 			       width: 75,
-			       value: 'N',
 			       allowBlank: false
 		       },
 		       {
@@ -313,8 +344,10 @@ function formularioArticulo(isNew, data, readOnly)
 		       }
 		],
 		listeners:{
-			'render':function(){
+			'render':function(thisEl){
 				hideBloque();
+				var loco = thisEl.find('hiddenName','stock_marca_id');
+				console.log(loco, loco.tpl);
 			}
 		}
 	};	
@@ -436,6 +469,9 @@ var stockCategoriaStore = new Ext.data.JsonStore({
 	// reader configs
 	autoLoad:true,
 	root: 'records',
+	baseParams: {
+		'p[limit]': 'all'
+	},
 	idProperty: 'stock_categoria_id',
 	fields: ['stock_categoria_id','categoria']
 });
@@ -444,6 +480,9 @@ var stockMarcaStore = new Ext.data.JsonStore({
 	// store configs
 	url: baseURL + '/stock/combos/marca',
 	// reader configs
+	baseParams: {
+		'p[limit]': 'all'
+	},
 	root: 'records',
 	autoLoad:true,
 	idProperty: 'stock_marca_id',
@@ -460,12 +499,12 @@ var stockImpuestoStore = new Ext.data.ArrayStore({
     ]
 });
 
-var genericoSiNoStore = new Ext.data.ArrayStore({
+var genericoProductoStore = new Ext.data.ArrayStore({
 	idIndex: 0,  
     fields: ['id','valor'],
     data: [
-    	['N','No'],
-    	['S','Si']
+    	['P','Producto'],
+    	['S','Servicio']
     ]
 });
 
@@ -486,6 +525,9 @@ var stockMonedaStore = new Ext.data.JsonStore({
 	// reader configs
 	root: 'records',
 	autoLoad:true,
+	baseParams: {
+		'p[limit]': 'all'
+	},
 	idProperty: 'cont_moneda_id',
 	fields: ['cont_moneda_id','moneda']
 });
@@ -495,6 +537,9 @@ var stockGarantiaTipoStore = new Ext.data.JsonStore({
 	url: baseURL + '/stock/combos/garantia-tipo',
 	// reader configs
 	root: 'records',
+	baseParams: {
+		'p[limit]': 'all'
+	},
 	autoLoad:true,
 	idProperty: 'stock_garantia_tipo_id',
 	fields: ['stock_garantia_tipo_id','garantia_tipo']
@@ -776,20 +821,9 @@ viewContainer.bodyPanel = [{
 	cls: 'quickAccessBottom',
 	items:[
 			{
-				cls: 'dataBottom',
-				html: 'Agregar Organizacion',
-				xtype: 'container'
-			},
-			{
-				cls: 'dataBottom',
-				html: 'Agregar Otra Cosa',
-				xtype: 'container'
-			},
-			{
-				cls: 'dataBottom',
-				html: 'Ir Para Otro Lado',
-				xtype: 'container'
-			}				
+				xtype: 'button',
+				text: 'Agregar Marca'
+			}			
 	]
 }];
 </script>

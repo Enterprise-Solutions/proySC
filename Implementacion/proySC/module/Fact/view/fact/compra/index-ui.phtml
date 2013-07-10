@@ -484,6 +484,15 @@ var stockEstadoStore = new Ext.data.ArrayStore({
     ]
 });
 
+var stockEstadoFacturaStore = new Ext.data.ArrayStore({
+	idIndex: 0,  
+    fields: ['id','valor'],
+    data: [
+    	['P','Pagado'],
+    	['A','Anulado']
+    ]
+});
+
 var stockMonedaStore = new Ext.data.JsonStore({
 	// store configs
 	url: baseURL + '/stock/combos/moneda',
@@ -518,7 +527,8 @@ viewContainer.bodyPanel = [{
 				layout: 'anchor',
 				items:[
 						{
-							xtype: 'container',
+							xtype: 'form',
+							labelAlign: 'right',
 							layout: 'anchor',
 							items:[
 									{
@@ -535,272 +545,404 @@ viewContainer.bodyPanel = [{
 				       	       			width: 1024,
 				       	       			defaults:{cls: 'bloqueFactura azul', xtype: 'container', columnWidth: .33, height: 75},
 				       	       			items: [
-				       	       					/*{
-				       	       						layout: 'form',
+				       	       					{
+				       	       						layout: 'column',
+				       	       						height: 35,
+				       	       						cls: 'bloqueFactura crema',
 				       	       						items:[
 				       	       								{
-				       	       									xtype: 'numberfield',
-				       	       									fieldLabel: 'Id.',
-				       	       									disabled: true,
-				       	       									value: 12345678
-				       	       								}
-				       	       						]
-				       	       					},
-				       	       					{
-				       	       						columnWidth: .34,
-				       	       						cls: 'bloqueFactura crema'
-				       	       					},
-				       	       					{
-				       	       						layout: 'form',
-				       	       						items:[
-				       	       								{
-				       	       									xtype: 'displayfield',
-				       	       									value: 'Agregar Nuevo'
-				       	       								},
-				       	       								{
-				       	       									xtype: 'button',
-				       	       									text: 'Cliente'
-				       	       								},
-				       	       								{
-				       	       									xtype: 'button',
-				       	       									text: 'Articulo'
-				       	       								}
-				       	       						]
-				       	       					},*/
-				       	       					{
-				       	       						layout: 'form',
-				       	       						height: 150,
-				       	       						items:[
-				       	       								{
-				       	       									xtype: 'displayfield',
-				       	       									hideLabel: true,
-				       	       									cls: 'titulo',
-				       	       									value: 'Datos Compra'
-				       	       								},
-				       	       								{
-			       												fieldLabel: 'Tipo Operacion',
-			        											xtype: 'textfield',
-			        											value: 'Compra',
-			        											disabled: true
-		       												},
-				       	       								{
-			       												fieldLabel: 'Fecha',
-			        											xtype: 'datefield',
-			        											value: '08/07/2013'
-		       												},
-				       	       								{
-			       												fieldLabel: 'Moneda',
-			       												hiddenName: 'cont_moneda_id',
-			       												width: 90,
-			       												valueField: 'cont_moneda_id',
-			       												displayField:'moneda',
-			       												xtype: 'combo',
-			       												store: stockMonedaStore,
-			       												typeAhead:true,mode:'local',
-			       												allowBlank: false
-		       												},
-		       												{
-		       													fieldLabel: 'Nro. Factura',
-			        											xtype: 'textfield',
-			        											value: '001-002-0010994'
-		       												}
-				       	       						]
-				       	       					},
-				       	       					{
-				       	       						columnWidth: .34,
-				       	       						layout: 'form',
-				       	       						height: 150,
-				       	       						cls: 'spinner',
-				       	       						items:[
-				       	       						]
-				       	       					},
-				       	       					{
-				       	       						layout: 'form',
-				       	       						height: 150,
-				       	       						items:[
-				       	       								{
-				       	       									xtype: 'displayfield',
-				       	       									value: 'Accesos Rapidos',
-				       	       									cls: 'titulo',
-				       	       									hideLabel: true
+				       	       									xtype: 'container',
+				       	       									layout: 'form',
+				       	       									labelWidth: 75,
+				       	       									width: 120,
+				       	       									items:[
+				       	       											{
+				       	       												xtype: 'textfield',
+				       	       												width: 35,
+				       	       												fieldLabel: 'Factura Nro.',
+				       	       												value: '001'
+				       	       											}
+				       	       									]
 				       	       								},
 				       	       								{
 				       	       									xtype: 'container',
-				       	       									defaults:{style: 'margin: 5px;'},
-				       	       									layout: 'column',
+				       	       									layout: 'form',
+				       	       									width: 40,
 				       	       									items:[
 				       	       											{
-				       	       												xtype: 'container',
-				       	       												columnWidth: 1,
-				       	       												items:[
-				       	       														{
-				       	       															xtype: 'button',
-				       	       															style: {margin: '0 auto'},
-				       	       															iconCls: 'addIcon',
-				       	       															text: 'Crear Articulo'
-				       	       														}
-				       	       												]
-				       	       											},
+				       	       												xtype: 'textfield',
+				       	       												hideLabel: true,
+				       	       												width: 35,
+				       	       												value: '002'
+				       	       											}
+				       	       									]
+				       	       								},
+				       	       								{
+				       	       									xtype: 'container',
+				       	       									layout: 'form',
+				       	       									width: 120,
+				       	       									items:[
 				       	       											{
-				       	       												xtype: 'container',
-				       	       												columnWidth: 1,
-				       	       												items:[
-				       	       														{
-				       	       															xtype: 'button',
-				       	       															style: {margin: '0 auto'},
-				       	       															iconCls: 'addIcon',
-				       	       															text: 'Crear Proveedor'
-				       	       														}
-				       	       												]
-				       	       											},
-				       	       											{
-				       	       												xtype: 'container',
-				       	       												columnWidth: 1,
-				       	       												items:[
-				       	       														{
-				       	       															xtype: 'button',
-				       	       															style: {margin: '0 auto'},
-				       	       															iconCls: 'addIcon',
-				       	       															text: 'Crear Moneda'
-				       	       														}
-				       	       												]
+				       	       												xtype: 'textfield',
+				       	       												hideLabel: true,
+				       	       												width: 100,
+				       	       												value: '0079771'
 				       	       											}
 				       	       									]
 				       	       								}
 				       	       						]
 				       	       					},
 				       	       					{
-				       	       						layout: 'form',
-				       	       						height: 200,
-				       	       						items:[
-				       	       								{
-				       	       									xtype: 'displayfield',
-				       	       									hideLabel: true,
-				       	       									cls: 'titulo',
-				       	       									value: 'Agregar Articulo'
-				       	       								},
-				       	       								{
-				       	       									xtype: 'textfield',
-				       	       									width: 180,
-				       	       									cls: 'searchIcon',
-				       	       									fieldLabel: 'Codigo / Nombre',
-				       	       									value: '1289212 - Galaxy Ace 2'
-				       	       								},
-				       	       								{
-				       	       									xtype: 'textfield',
-				       	       									width: 150,
-				       	       									fieldLabel: 'Precio Unit.',
-				       	       									value: '850000'
-				       	       								},
-				       	       								{
-				       	       									xtype: 'textfield',
-				       	       									width: 75,
-				       	       									fieldLabel: 'Moneda',
-				       	       									value: 'Gs.'
-				       	       								},
-				       	       								{
-				       	       									xtype: 'textfield',
-				       	       									width: 150,
-				       	       									fieldLabel: 'Cantidad',
-				       	       									value: '10'
-				       	       								},
-				       	       								{
-				       	       									xtype: 'textfield',
-				       	       									width: 150,
-				       	       									fieldLabel: 'IVA',
-				       	       									value: '10%'
-				       	       								},
-				       	       								{
-				       	       									xtype: 'button',
-				       	       									iconCls: 'cart',
-				       	       									text: 'Agregar Articulo'
-				       	       								}
-				       	       						]
-				       	       					},
-				       	       					{
 				       	       						columnWidth: .34,
-				       	       						cls: 'bloqueFactura crema',
-				       	       						layout: 'form',
-				       	       						height: 150,
-				       	       						items:[
-				       	       								{
-				       	       									xtype: 'displayfield',
-				       	       									hideLabel: true,
-				       	       									cls: 'titulo',
-				       	       									value: 'Proveedor'
-				       	       								},
-				       	       								{
-				       	       									xtype: 'textfield',
-				       	       									width: 200,
-				       	       									cls: 'searchIcon',
-				       	       									fieldLabel: 'RUC / Nombre',
-				       	       									value: 'Omar Esgaib / 1278321-1'
-				       	       								},
-				       	       								{
-				       	       									xtype: 'textfield',
-				       	       									fieldLabel: 'Documento',
-				       	       									disabled: true,
-				       	       									value: '1278321-1'
-				       	       								},
-				       	       								{
-				       	       									xtype: 'textfield',
-				       	       									fieldLabel: 'Nombre o Raz. Social',
-				       	       									disabled: true,
-				       	       									value: 'Omar Esgaib'
-				       	       								}
-				       	       						]
+				       	       						height: 35,
+				       	       						style: {border:'none'},
+				       	       						cls: 'bloqueFactura'
 				       	       					},
 				       	       					{
-				       	       						layout: 'form',
-				       	       						height: 200,
+				       	       						cls: 'bloqueFactura',
+				       	       						style: {border:'none'},
+				       	       						height: 35
+				       	       					},
+				       	       					{
+				       	       						xtype: 'container',
+				       	       						layout: 'column',
+				       	       						cls: '',
+				       	       						autoHeight:true,
+				       	       						defaults:{xtype: 'container'},
+				       	       						columnWidth: .67,
 				       	       						items:[
 				       	       								{
-				       	       									xtype: 'displayfield',
-				       	       									value: 'Total Compra',
-				       	       									cls: 'titulo',
-				       	       									hideLabel: true
+				       	       									layout: 'form',
+				       	       									cls: 'bloqueFactura azul',
+				       	       									columnWidth: .5,
+				       	       									height: 150,
+				       	       									items:[
+				       	       											{
+				       	       												xtype: 'displayfield',
+				       	       												hideLabel: true,
+				       	       												cls: 'titulo',
+				       	       												value: 'Datos Compra'
+				       	       											},
+				       	       											{
+			       															fieldLabel: 'Tipo Operacion',
+			        														xtype: 'textfield',
+			        														value: 'Compra',
+			        														disabled: true
+		       															},
+		       															{
+			       															fieldLabel: 'Estado',
+			       															hiddenName: 'cont_moneda_id',
+			       															width: 90,
+			       															value: 'P',
+			       															valueField: 'id',
+			       															displayField:'valor',
+			       															xtype: 'combo',
+			       															store: stockEstadoFacturaStore,
+			       															typeAhead:true,
+			       															mode:'local',
+			       															allowBlank: false
+		       															},
+				       	       											{
+			       															fieldLabel: 'Fecha',
+			        														xtype: 'datefield',
+			        														value: '08/07/2013'
+		       															},
+				       	       											{
+			       															fieldLabel: 'Moneda',
+			       															hiddenName: 'cont_moneda_id',
+			       															width: 90,
+			       															valueField: 'cont_moneda_id',
+			       															displayField:'moneda',
+			       															xtype: 'combo',
+			       															store: stockMonedaStore,
+			       															typeAhead:true,mode:'local',
+			       															allowBlank: false
+		       															}
+				       	       									]
 				       	       								},
 				       	       								{
-				       	       									xtype: 'numberfield',
-				       	       									width: 200,
-				       	       									disabled: true,
-				       	       									fieldLabel: 'Total Pagado',
-				       	       									value: '234234232'
+				       	       									columnWidth: .5,
+				       	       									layout: 'form',
+				       	       									cls: 'bloqueFactura azul',
+				       	       									height: 150,
+				       	       									items:[
+				       	       											{
+				       	       												xtype: 'displayfield',
+				       	       												hideLabel: true,
+				       	       												cls: 'titulo',
+				       	       												value: 'Proveedor'
+				       	       											},
+				       	       											{
+				       	       												xtype: 'textfield',
+				       	       												width: 200,
+				       	       												cls: 'searchIcon',
+				       	       												fieldLabel: 'RUC / Nombre',
+				       	       												value: 'Omar Esgaib / 1278321-1'
+				       	       											},
+				       	       											{
+				       	       												xtype: 'textfield',
+				       	       												fieldLabel: 'Documento',
+				       	       												disabled: true,
+				       	       												value: '1278321-1'
+				       	       											},
+				       	       											{
+				       	       												xtype: 'textfield',
+				       	       												fieldLabel: 'Nombre o Raz. Social',
+				       	       												disabled: true,
+				       	       												value: 'Omar Esgaib'
+				       	       											},
+				       	       											{
+				       	       												xtype: 'container',
+				       	       												layout: 'column',
+				       	       												defaults:{style:{margin: '0 5px'}},
+				       	       												items:[
+				       	       														{
+				       	       															xtype: 'button',
+				       	       															text: 'Ver Detalles'
+				       	       														},
+				       	       														{
+				       	       															xtype: 'button',
+				       	       															iconCls: 'addIcon',
+				       	       															text: 'Agregar Proveedor'
+				       	       														}
+				       	       												]
+				       	       											}
+				       	       									]
 				       	       								},
 				       	       								{
-				       	       									xtype: 'textfield',
-				       	       									width: 75,
-				       	       									disabled: true,
-				       	       									fieldLabel: 'Moneda',
-				       	       									value: 'Gs'
+				       	       									layout: 'form',
+				       	       									height: 170,
+				       	       									cls: 'bloqueFactura azul',
+				       	       									columnWidth: 1,
+				       	       									items:[
+				       	       											{
+				       	       												xtype: 'displayfield',
+				       	       												hideLabel: true,
+				       	       												cls: 'titulo',
+				       	       												value: 'Articulo'
+				       	       											},
+				       	       											{
+				       	       												xtype: 'textfield',
+				       	       												width: 475,
+				       	       												cls: 'searchIcon',
+				       	       												fieldLabel: 'Codigo / Nombre',
+				       	       												value: '1289212 - Galaxy Ace 2'
+				       	       											},
+				       	       											{
+				       	       												xtype: 'textfield',
+				       	       												width: 475,
+				       	       												cls: 'searchIcon',
+				       	       												fieldLabel: 'Cod. Ref. Prov',
+				       	       												value: '1289212|1289212AA|1289212BC'
+				       	       											},
+				       	       											{
+				       	       												xtype: 'container',
+				       	       												layout: 'column',
+				       	       												items:[
+				       	       														{
+				       	       															xtype: 'container',
+				       	       															layout: 'form',
+				       	       															columnWidth: .35,
+				       	       															items:[
+				       	       																	{
+				       	       																		xtype: 'numberfield',
+				       	       																		width: 50,
+				       	       																		fieldLabel: 'Cantidad',
+				       	       																		value: '10'
+				       	       																	},
+				       	       																	{
+				       	       																		xtype: 'textfield',
+				       	       																		width: 90,
+				       	       																		fieldLabel: 'Costo Unit.',
+				       	       																		value: '850000'
+				       	       																	},
+				       	       																	{
+			       																					fieldLabel: '%IVA',
+			       																					hiddenName: 'porcentaje_impuesto',
+			       																					value: '10',
+			       																					xtype: 'combo',
+			       																					triggerAction: 'all',
+			       																					store: stockImpuestoStore,
+			      																					 displayField: 'valor',
+			       																					valueField: 'id',
+			       																					mode: 'local',
+			       																					width: 75,
+			       																					allowBlank: false
+		       																					}
+				       	       															]
+				       	       														},
+				       	       														{
+				       	       															xtype: 'container',
+				       	       															layout: 'form',
+				       	       															columnWidth: .30,
+				       	       															items:[
+				       	       																	{
+				       	       																		xtype: 'container',
+				       	       																		html: '&nbsp;'
+				       	       																	}
+				       	       															]
+				       	       														},
+				       	       														{
+				       	       															xtype: 'container',
+				       	       															layout: 'column',
+				       	       															columnWidth: .35,
+				       	       															items:[
+				       	       																	{
+				       	       																		xtype: 'container',
+				       	       																		width: 80,
+				       	       																		layout: 'form',
+				       	       																		defaults:{style:{margin:'3px 0'}},
+				       	       																		items:[
+				       	       																				{
+				       	       																					xtype: 'button',
+				       	       																					width: 75,
+				       	       																					iconCls: '',
+				       	       																					text: 'Detalles'
+				       	       																				},
+				       	       																				{
+				       	       																					xtype: 'button',
+				       	       																					width: 75,
+				       	       																					iconCls: '',
+				       	       																					text: 'Stock'
+				       	       																				},
+				       	       																				{
+				       	       																					xtype: 'button',
+				       	       																					width: 75,
+				       	       																					iconCls: 'addIcon',
+				       	       																					text: 'Articulo'
+				       	       																				}
+				       	       																		]
+				       	       																	},
+				       	       																	{
+				       	       																		xtype: 'container',
+				       	       																		columnWidth: 1,
+				       	       																		defaults:{style:{margin:'3px 0'}},
+				       	       																		layout: 'form',
+				       	       																		items:[
+				       	       																				{
+				       	       																					xtype: 'button',
+				       	       																					iconCls: 'cart',
+				       	       																					width: 75,
+				       	       																					height: 70,
+				       	       																					text: 'Agregar'
+				       	       																				}
+				       	       																		]
+				       	       																	}
+				       	       															]
+				       	       														}
+				       	       												]
+				       	       											}
+				       	       									]
+				       	       								}
+				       	       							]
+				       	       					},	
+				       	       					{
+				       	       						xtype: 'container',
+				       	       						layout: 'anchor',
+				       	       						cls: '',
+				       	       						defaults:{xtype: 'container'},
+				       	       						autoHeight:true,
+				       	       						columnWidth: .33,
+				       	       						style:{color:'white', fontWeight:'bold'},
+				       	       						items:[
+				       	       								{
+				       	       									layout: 'form',
+				       	       									cls: 'bloqueFactura azulOscuro',
+				       	       									height: 215,
+				       	       									items:[
+				       	       											{
+				       	       												xtype: 'displayfield',
+				       	       												value: 'Total Compra',
+				       	       												style:{color:'white'},
+				       	       												cls: 'titulo',
+				       	       												hideLabel: true
+				       	       											},
+				       	       											{
+				       	       												xtype: 'container',
+				       	       												defaults:{xtype: 'textfield', disabled: true},
+				       	       												layout: 'form',
+				       	       												items:[
+				       	       														{
+				       	       															fieldLabel: '<span style="text-decoration:underline; ">Valor Total Trans.</span>',
+				       	       															value: '74.00'
+				       	       														},
+				       	       														{
+				       	       															fieldLabel: 'Moneda',
+				       	       															value: 'US$'
+				       	       														},
+				       	       														{
+				       	       															fieldLabel: 'IVA 10%',
+				       	       															value: '6.72'
+				       	       														},
+				       	       														{
+				       	       															fieldLabel: 'IVA 5%',
+				       	       															value: '0'
+				       	       														},
+				       	       														{
+				       	       															fieldLabel: 'IVA Exenta',
+				       	       															value: '0'
+				       	       														},
+				       	       														{
+				       	       															fieldLabel: 'Total IVA',
+				       	       															value: '6.72'
+				       	       														}
+				       	       												]
+				       	       											}
+				       	       									]
 				       	       								},
 				       	       								{
-				       	       									xtype: 'textfield',
-				       	       									width: 75,
-				       	       									disabled: true,
-				       	       									fieldLabel: 'IVA 10%',
-				       	       									value: '12345'
-				       	       								},
-				       	       								{
-				       	       									xtype: 'textfield',
-				       	       									width: 75,
-				       	       									disabled: true,
-				       	       									fieldLabel: 'IVA 5%',
-				       	       									value: '0'
-				       	       								},
-				       	       								{
-				       	       									xtype: 'textfield',
-				       	       									width: 75,
-				       	       									disabled: true,
-				       	       									fieldLabel: 'IVA Exenta',
-				       	       									value: '0'
-				       	       								},
-				       	       								{
-				       	       									xtype: 'textfield',
-				       	       									width: 75,
-				       	       									disabled: true,
-				       	       									fieldLabel: 'Total IVA',
-				       	       									value: '12345'
+				       	       									layout: 'column',
+				       	       									cls: '',
+				       	       									height: 110,
+				       	       									items:[
+				       	       											{
+				       	       												xtype: 'container',
+				       	       												layout: 'form',
+				       	       												width: 130,
+				       	       												items:[
+				       	       														{
+				       	       															xtype: 'container',
+				       	       															html: '&nbsp;'
+				       	       														}
+				       	       												]
+				       	       											},
+				       	       											{
+				       	       												xtype: 'container',
+				       	       												layout: 'form',
+				       	       												width: 100,
+				       	       												items:[
+				       	       														{
+					       	       			        									xtype: 'button',
+					       	       			        									width: 85,
+					       	       			        									style:{margin: '5px 0'},
+					       	       			        									iconCls: 'addIcon',
+					       	       			        									text: 'Reset'
+																					},
+																					{
+					       	       			        									xtype: 'button',
+					       	       			        									width: 85,
+					       	       			        									style:{margin: '5px 0'},
+					       	       			        									iconCls: 'addIcon',
+					       	       			        									text: 'Cancelar'
+																					}
+				       	       												]
+				       	       											},
+				       	       											{
+				       	       												xtype: 'container',
+				       	       												layout: 'form',
+				       	       												width: 100,
+				       	       												items:[
+				       	       														{
+					       	       			        									xtype: 'button',
+					       	       			        									height: 50,
+					       	       			        									style:{margin: '5px 0'},
+					       	       			        									width: 95,
+					       	       			        									iconCls: 'addIcon',
+					       	       			        									text: 'Guardar'
+																					}
+				       	       												]		
+				       	       											}
+				       	       									]
 				       	       								}
 				       	       						]
 				       	       					},
@@ -824,7 +966,7 @@ viewContainer.bodyPanel = [{
 				               							}},
 				               							{ header: "Cant.", fixed: true, dataIndex: 'cant',  width: 80},
 														{ header: "Descrip.", dataIndex: 'descrip', width: 160},
-														{ header: "Precio Unit.", dataIndex: 'precio_unit',  width: 100},
+														{ header: "Costo Unit.", dataIndex: 'precio_unit',  width: 100},
 														{ header: "Exenta", dataIndex: 'exenta',  width: 100},
 														{ header: "5%", dataIndex: 'cinco',  width: 100},
 														{ header: "10%", dataIndex: 'diez',  width: 100}
@@ -837,39 +979,6 @@ viewContainer.bodyPanel = [{
 				       	       			layout: 'toolbar',
 				       	       			cls: 'pagingContainer',
 				       	       			items:[
-				       	       					'->',
-				       	       			        {
-					       	       			        xtype: 'button',
-					       	       			        iconCls: 'addIcon',
-					       	       			        text: 'Guardar',
-													handler: function(b,e){
-														//buscamos destino
-														var destino = Ext.getCmp('formContainer');
-														if(destino)
-														{
-															destino.removeAll();
-															var addedEl = destino.add(formularioArticulo(true, null, false));
-															destino.doLayout();
-															addedEl.body.highlight();
-														}
-													}
-				       	       			        },
-				       	       			        {
-					       	       			        xtype: 'button',
-					       	       			        iconCls: 'addIcon',
-					       	       			        text: 'Reset',
-													handler: function(b,e){
-														//buscamos destino
-														var destino = Ext.getCmp('formContainer');
-														if(destino)
-														{
-															destino.removeAll();
-															var addedEl = destino.add(formularioArticulo(true, null, false));
-															destino.doLayout();
-															addedEl.body.highlight();
-														}
-													}
-				       	       			        }
 				       	       			]
 				       	   			}
 							]

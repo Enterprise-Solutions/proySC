@@ -32,16 +32,60 @@ function formularioMonedaConversion(isNew, data, isReadOnly)
 					mode: 'local',
 					typeAhead:true,
 					disabled: isReadOnly,
+					forceSelection: true,
 					allowBlank: false,
 					valueField: 'cont_moneda_id',
 					hiddenName: 'cont_moneda_origen_id',
 					value: (isNew)?(null):(data.cont_moneda_origen_id),
-					width: 150
+					width: 150,
+					listeners:{
+						'change': function(thisField, newValue, oldValue)
+						{
+							//verificamos que ambos elementos del combo esten completados
+			               var padre = thisField.ownerCt;
+			               var comboOrigen = thisField;
+			               var comboDestino = padre.find('hiddenName','cont_moneda_destino_id');
+			               var factor = padre.find('name','factor');
+			               var ejemplo = padre.find('name','ejemplo');
+			               
+							if(comboOrigen && comboDestino.length > 0 && factor.length > 0 && ejemplo.length > 0)
+							{
+								comboDestino = comboDestino[0];
+								factor = factor[0];
+								ejemplo = ejemplo[0];
+								
+								
+								if(comboOrigen.value && comboDestino.value && factor.value)//si los dos tienen valores
+								{
+									ejemplo.setValue('1 ' + comboOrigen.lastSelectionText + ' = ' + factor.value + ' ' + comboDestino.lastSelectionText);
+								}
+							}
+						},
+						'select':function(thisCombo, record, index)
+						{
+							var valorSel = record.data.cont_moneda_id;
+							
+							//buscamos valor del otro combo
+							var padre = thisCombo.ownerCt;
+							var otroCombo = padre.find('hiddenName','cont_moneda_destino_id');
+							
+							if(otroCombo.length > 0)
+							{
+								otroCombo = otroCombo[0];
+								if(otroCombo.value == valorSel)
+								{
+									Ext.Msg.alert('Aviso','Moneda Origen no puede ser igual a Moneda Destino');
+									thisCombo.setValue(null);
+								}
+							}
+						}
+					}
 			   },
 		       {
 					xtype: 'combo',
 					fieldLabel: 'Destino',
 					mode: 'local',
+					forceSelection: true,
 					allowBlank: false,
 					store: contMonedaStore,
 					displayField: 'mostrar',
@@ -50,7 +94,49 @@ function formularioMonedaConversion(isNew, data, isReadOnly)
 					disabled: isReadOnly,
 					valueField: 'cont_moneda_id',
 					value: (isNew)?(null):(data.cont_moneda_destino_id),
-					hiddenName: 'cont_moneda_destino_id'
+					hiddenName: 'cont_moneda_destino_id',
+					listeners:{
+						'change': function(thisField, newValue, oldValue)
+						{
+							//verificamos que ambos elementos del combo esten completados
+			               var padre = thisField.ownerCt;
+			               var comboOrigen = padre.find('hiddenName','cont_moneda_origen_id');
+			               var comboDestino = thisField;
+			               var factor = padre.find('name','factor');
+			               var ejemplo = padre.find('name','ejemplo');
+			               
+							if(comboOrigen.length > 0 && comboDestino && factor.length > 0 && ejemplo.length > 0)
+							{
+								comboOrigen = comboOrigen[0];
+								factor = factor[0];
+								ejemplo = ejemplo[0];
+								
+								
+								if(comboOrigen.value && comboDestino.value && factor.value)//si los dos tienen valores
+								{
+									ejemplo.setValue('1 ' + comboOrigen.lastSelectionText + ' = ' + factor.value + ' ' + comboDestino.lastSelectionText);
+								}
+							}
+						},
+						'select':function(thisCombo, record, index)
+						{
+							var valorSel = record.data.cont_moneda_id;
+							
+							//buscamos valor del otro combo
+							var padre = thisCombo.ownerCt;
+							var otroCombo = padre.find('hiddenName','cont_moneda_origen_id');
+							
+							if(otroCombo.length > 0)
+							{
+								otroCombo = otroCombo[0];
+								if(otroCombo.value == valorSel)
+								{
+									Ext.Msg.alert('Aviso','Moneda Destino no puede ser igual a Moneda Origen');
+									thisCombo.setValue(null);
+								}
+							}
+						}
+					}
 			   },
 		       {
 			       fieldLabel: 'Factor',
@@ -62,7 +148,48 @@ function formularioMonedaConversion(isNew, data, isReadOnly)
 			       allowBlank: false,
 			       allowNegative: false,
 			       allowDecimals: true,
-			       decimalPrecision: 10
+			       decimalPrecision: 10,
+			       listeners:{
+			           'blur':function(thisField){
+			           
+			           	   if(!thisField.value)
+			           	   {
+			           	       var padre = thisField.ownerCt;
+			           	       var ejemplo = padre.find('hiddenName','ejemplo');
+			           	       if(ejemplo.length > 0)
+			           	       {
+			           	           ejemplo = ejemplo[0];
+			           	           ejemplo.value();
+			           	       }
+			           	   }
+			           	   
+			           	   
+			               //verificamos que ambos elementos del combo esten completados
+			               var padre = thisField.ownerCt;
+			               var comboOrigen = padre.find('hiddenName','cont_moneda_origen_id');
+			               var comboDestino = padre.find('hiddenName','cont_moneda_destino_id');
+			               var ejemplo = padre.find('name','ejemplo');
+			               
+			               
+							if(comboOrigen.length > 0 && comboDestino.length > 0 && ejemplo.length > 0)
+							{
+								comboOrigen = comboOrigen[0];
+								comboDestino = comboDestino[0];
+								ejemplo = ejemplo[0];
+								
+								if(comboOrigen.value && comboDestino.value)//si los dos tienen valores
+								{
+									ejemplo.setValue('1 ' + comboOrigen.lastSelectionText + ' = ' + thisField.value + ' ' + comboDestino.lastSelectionText);
+								}
+							}
+			               
+			           }
+			       }
+		       },
+		       {
+		           xtype: 'displayfield',
+		           fieldLabel: 'Ejemplo',
+		           name: 'ejemplo'
 		       },
 		       {
 			       xtype: 'container',
@@ -82,7 +209,8 @@ function formularioMonedaConversion(isNew, data, isReadOnly)
 									       var valores = basicForm.getFieldValues();
 									       
 									    	var myId = valores.cont_moneda_conversion_id;
-									    	delete valores.cont_moneda_conversion_id;       
+									    	delete valores.cont_moneda_conversion_id;     
+									    	delete valores.ejemplo;  
 								
 									       if(myId)//si existe es edicion
 									       {
@@ -335,7 +463,7 @@ viewContainer.bodyPanel = [{
 														{ header: "Destino", dataIndex: 'moneda_destino',  width: 120},
 														{ header: "Factor (Ori * Des)", dataIndex: 'factor',  width: 120},
 														{ header: "Ejemplo Ori -> Des", dataIndex: 'descripcion',  width: 150, renderer: function(v,meta,record){
-															return '1 ' + record.data.simbolo_origen + ' x ' + record.data.factor + ' = ' + record.data.factor + ' ' + record.data.simbolo_destino; 
+															return '1 ' + record.data.simbolo_origen + ' = ' + record.data.factor + ' ' + record.data.simbolo_destino; 
 														}},
 														/*{ header: "Ejemplo Des -> Ori", dataIndex: 'descripcion',  width: 150, renderer: function(v,meta,record){
 															return '1 ' + record.data.simbolo_destino + ' / ' + record.data.factor + ' = ' + (1 / record.data.factor) + ' ' + record.data.simbolo_origen;
