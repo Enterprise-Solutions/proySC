@@ -6,6 +6,5 @@ use EnterpriseSolutions\Controller\BaseController;
 
 class VentaController extends BaseController
 {
- 
-
+	
 }

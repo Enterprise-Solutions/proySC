@@ -110,6 +110,17 @@ class Articulo
     protected $existencia;
     
     /**
+     * @ORM\Column(type="integer")
+     */
+    protected $existencia_minima;
+    
+    /**
+     * @ORM\Column(type="string")
+     * @ORM\Column(length=80)
+     */
+    protected $rcap;
+    
+    /**
      * @ORM\Column(type="string")
      * @ORM\Column(length=80)
      */
@@ -127,13 +138,18 @@ class Articulo
     
     public function setDefaultValues()
     {
+        $this->porcentaje_impuesto = 10;
+        $this->precio_venta = 0;
         $this->existencia = 0;
+        $this->existencia_minima = 0;
     }
     
     public function fromArray($data)
     {
         foreach ($data as $property => $value) {
-            $this->$property = $value;
+            if ($value) {
+                $this->$property = $value;
+            }
         }
     }
 }

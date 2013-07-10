@@ -28,8 +28,8 @@ class ServiceManager
     public function create($data)
     {
         $this->articulo = new Articulo();
-        $this->articulo->fromArray($data);
         $this->articulo->setDefaultValues();
+        $this->articulo->fromArray($data);
         
         $validator = new ArticuloValidator();
         if (!$validator->isValid($this->articulo)) {

@@ -8,6 +8,7 @@ class Articulo extends Validator
 {
     protected function dataValidation($articulo)
     {
+        $this->validateContMoneda($articulo);
         $this->validateNombre($articulo);
         $this->validateCodigo($articulo);
         $this->validateTiempoGarantia($articulo);
@@ -18,13 +19,23 @@ class Articulo extends Validator
         $this->validatePrecioVenta($articulo);
         $this->validateDescuentoMaximo($articulo);
         $this->validateExistencia($articulo);
+        $this->validateExistenciaMinima($articulo);
+        $this->validateRcap($articulo);
+    }
+    
+    protected function validateContMoneda($articulo)
+    {
+        $contMonedaValidator = new ValidatorChain();
+        $contMonedaValidator->addValidator($this->getNotEmptyValidator('cont_moneda_id'));
+        
+        $this->addValidator($contMonedaValidator, $articulo->cont_moneda_id);
     }
     
     protected function validateNombre($articulo)
     {
         $nombreValidator = new ValidatorChain();
         $nombreValidator->addValidator($this->getNotEmptyValidator('nombre'))
-                        ->addValidator($this->getStringLengthValidator('nombre', array('max' => 40)));
+                        ->addValidator($this->getStringLengthValidator('nombre', array('max' => 120)));
         
         $this->addValidator($nombreValidator, $articulo->nombre);
     }
@@ -53,7 +64,7 @@ class Articulo extends Validator
         }
         
         $modeloValidator = new ValidatorChain();
-        $modeloValidator->addValidator($this->getStringLengthValidator('modelo', array('max' => 100)));
+        $modeloValidator->addValidator($this->getStringLengthValidator('modelo', array('max' => 120)));
         
         $this->addValidator($modeloValidator, $articulo->modelo);
     }
@@ -65,7 +76,7 @@ class Articulo extends Validator
         }
         
         $estadoValidator = new ValidatorChain();
-        $estadoValidator->addValidator($this->getInArrayValidator('estado', array('A')));
+        $estadoValidator->addValidator($this->getInArrayValidator('estado', array('A', 'O')));
         
         $this->addValidator($estadoValidator, $articulo->estado);
     }
@@ -81,24 +92,23 @@ class Articulo extends Validator
     
     protected function validatePorcentajeImpuesto($articulo)
     {
-        if (is_null($articulo->porcentaje_impuesto)) {
-            return;
-        }
-        
         $impuestoValidaor = new ValidatorChain();
-        $impuestoValidaor->addValidator($this->getFloatValidator('porcentaje_impuesto'));
+        $impuestoValidaor->addValidator($this->getNotEmptyValidator('porcentaje_impuesto'))
+                         ->addValidator($this->getFloatValidator('porcentaje_impuesto'));
         
         $this->addValidator($impuestoValidaor, $articulo->porcentaje_impuesto);
     }
     
     /**
      * @todo Agregar validador de monedas
+     * Dependiendo de si la moneda permita o no decimales hay que controlar el valor recibido
      */
     protected function validatePrecioVenta($articulo)
     {
-        if (is_null($articulo->precio_venta)) {
-            return;
-        }
+        $precioValidator = new ValidatorChain();
+        $precioValidator->addValidator($this->getNotEmptyValidator('precio_venta'));
+        
+        $this->addValidator($precioValidator, $articulo->precio_venta);
     }
     
     protected function validateDescuentoMaximo($articulo)
@@ -121,10 +131,37 @@ class Articulo extends Validator
             }
         } else {
             $existenciaValidator = new ValidatorChain();
-            $existenciaValidator->addValidator($this->getDigitValidator('existencia'))
+            $existenciaValidator->addValidator($this->getNotEmptyValidator('existencia'))
                                 ->addValidator($this->getIntValidator('existencia'));
             
             $this->addValidator($existenciaValidator, $articulo->existencia);
         }
+    }
+    
+    protected function validateExistenciaMinima($articulo)
+    {
+        if ($articulo->tipo == 'S') {
+        	if (!is_null($articulo->existencia_minima)) {
+        		$this->addErrorsValidation("Un articulo de tipo servicio no puede tener existencia minima.");
+        	};
+        } else {
+            $existenciaMinValidator = new ValidatorChain();
+            $existenciaMinValidator->addValidator($this->getNotEmptyValidator('existencia_minima'))
+                                   ->addValidator($this->getIntValidator('existencia_minima'));
+            
+            $this->addValidator($existenciaMinValidator, $articulo->existencia_minima);
+        }
+    }
+    
+    protected function validateRcap($articulo)
+    {
+        if (is_null($articulo->rcap)) {
+        	return;
+        }
+        
+        $rcapValidator = new ValidatorChain();
+        $rcapValidator->addValidator($this->getStringLengthValidator('rcap', array('max' => 80)));
+        
+        $this->addValidator($rcapValidator, $articulo->rcap);
     }
 }

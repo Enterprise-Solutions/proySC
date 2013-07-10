@@ -5,7 +5,7 @@ namespace Fact;
 return array(
     'router' => array(
         'routes' => array(
-            'Fact' => array(
+            'fact' => array(
                 'type' => 'Literal',
                 'options' => array(
                     'route' => '/fact',
@@ -35,9 +35,8 @@ return array(
     ),
     'controllers' => array(
         'invokables' => array(
-            'Fact\Controller\Venta' => 'Fact\Controller\VentaController',
-        	'Fact\Controller\Compra' => 'Fact\Controller\CompraController'
-            //'Stock\Controller\Combos'   => 'Stock\Controller\CombosController',
+            'Fact\Controller\Venta'  => 'Fact\Controller\VentaController',
+        	'Fact\Controller\Compra' => 'Fact\Controller\CompraController',
         ),
     ),
     'view_manager' => array(
