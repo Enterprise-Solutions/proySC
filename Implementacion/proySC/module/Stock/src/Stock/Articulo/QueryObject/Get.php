@@ -10,7 +10,9 @@ class Get extends DbSelect
     {
         $this->_select
              ->from(array('sa' => 'stock_articulo'))
-             ->columns(array('stock_articulo_id', 'nombre', 'codigo', 'descripcion', 'modelo', 'precio_venta', 'tiempo_garantia', 'porcentaje_impuesto', 'descuento_maximo', 'estado', 'tipo', 'ncm'))
+             ->columns(array('stock_articulo_id', 'nombre', 'codigo', 'descripcion', 'modelo',
+                 'precio_venta', 'tiempo_garantia', 'porcentaje_impuesto', 'descuento_maximo',
+                 'estado', 'tipo', 'ncm', 'rcap', 'existencia_minima', 'imagen'))
              
              ->join(array('sm' => 'stock_marca'), 'sa.stock_marca_id = sm.stock_marca_id', array('stock_marca_id', 'marca' => 'nombre'))
              ->join(array('sc' => 'stock_categoria'), 'sa.stock_categoria_id = sc.stock_categoria_id', array('stock_categoria_id', 'categoria' => 'nombre'))
