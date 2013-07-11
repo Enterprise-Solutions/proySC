@@ -140,6 +140,7 @@ class Articulo
     	'porcentaje_impuesto' => '10',
         'precio_venta'        => '0',
         'estado'              => 'A',
+        'rcap'                => '',
         'existencia'          => 0,
         'existencia_minima'   => 0,
     );

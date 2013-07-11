@@ -10,7 +10,7 @@ class Select extends DbSelect
     {
         $this->_select
              ->from(array('sa' => 'stock_articulo'))
-             ->columns(array('stock_articulo_id', 'nombre', 'codigo', 'precio_venta', 'existencia'))
+             ->columns(array('stock_articulo_id', 'nombre', 'codigo', 'precio_venta', 'existencia', 'rcap'))
              
              ->join(array('sm' => 'stock_marca'), 'sa.stock_marca_id = sm.stock_marca_id', array('marca' => 'nombre'))
              ->join(array('sc' => 'stock_categoria'), 'sa.stock_categoria_id = sc.stock_categoria_id', array('categoria' => 'nombre'))
@@ -33,6 +33,14 @@ class Select extends DbSelect
         }
     }
     
+    public function addSearchByRcap($rcap = null)
+    {
+        if ($rcap) {
+        	$this->_select
+        	     ->where("sa.rcap ILIKE '%$rcap%'");
+        }
+    }
+    
     public function addSearchByMarca($marca = null)
     {
         if ($marca) {
@@ -46,6 +54,14 @@ class Select extends DbSelect
         if ($categoria) {
             $this->_select
                  ->where("sc.stock_categoria_id = $categoria");
+        }
+    }
+    
+    public function addSearchByCadena($cadena = null)
+    {
+        if ($cadena) {
+            $this->_select
+                 ->where("sa.nombre || ' ' || sa.codigo || ' ' || sa.rcap) ILIKE ''%$cadena%");
         }
     }
 }
