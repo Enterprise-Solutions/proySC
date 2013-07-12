@@ -1,357 +1,10 @@
-
+<!-- primero stores siempre -->
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/genericoProductoStore.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/stockMonedaStore.js"></script>
+<!-- despues lo demas -->
+<script type="text/javascript" src="<?=$this->basePath();?>/js/forms/stockArticulo.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/common/hideBloque.js"></script>
 <script type="text/javascript">
-function hideBloque()
-{
-	var cajaMensaje = Ext.getCmp('messageBox');
-	if(cajaMensaje){
-		cajaMensaje.addClass('oculto');
-	}	
-}
-
-function formularioArticulo(isNew, data, readOnly)
-{
-	console.log(isNew, data, readOnly);
-	return {
-		xtype: 'form',
-		title: (readOnly)?('Ver Articulo'):((isNew)?('Crear Articulo'):('Editar Articulo')),
-		cls: 'ladoDerecho',
-		bodyCssClass: 'formularioGeneral',
-		layout: 'form',
-		//defaults:{(readOnly)?(xtype:'displayfield'):(xtype:'textfield')},
-		autoHeight: true,
-		items:[
-		       {
-			       xtype: 'hidden',
-			       name: 'stock_articulo_id',
-			       value: (isNew)?(null):(data.stock_articulo_id)
-		       },
-		       {
-			       fieldLabel: 'Nombre',
-			       name: 'nombre',
-			       width: 150,
-			       maxLength: 40,
-			       value: (isNew)?(null):(data.nombre),
-			       xtype: 'textfield',
-			       disabled:readOnly,
-			       allowBlank: false
-		       },
-		       {
-			       fieldLabel: 'Codigo',
-			       name: 'codigo',
-			       width: 115,
-			       maxLength: 40,
-			       value: (isNew)?(null):(data.codigo),
-			       xtype: 'textfield',
-			       disabled:readOnly,
-			       allowBlank: false
-		       },
-		       {
-			       fieldLabel: 'Modelo',
-			       name: 'modelo',
-			       maxLength: 100,
-			       width: 150,
-			       value: (isNew)?(null):(data.modelo),
-			       xtype: 'textfield',
-			       disabled:readOnly,
-			       allowBlank: false
-		       },
-		       {
-			       	fieldLabel: 'Marca',
-			        hiddenName: 'stock_marca_id',
-			       	width: 130,
-			       	valueField: 'stock_marca_id',
-			       	forceSelection: true,
-			       	displayField:'marca',
-			       	value: (isNew)?(null):(data.stock_marca_id),
-			       	xtype: 'combo',
-			       	disabled:readOnly,
-			       	store: stockMarcaStore,
-			       	typeAhead:true,mode:'local',
-			       	allowBlank: false,
-			       	listeners:{
-			       		'render':function(thisEl){
-			       			console.log('thisEl',thisEl);
-			       			//contenedor
-			       			var itemContainer = thisEl.itemCt.dom.childNodes[1].firstChild.id;
-			       			console.log('itemContainer',itemContainer);
-			       			var thisElId = thisEl.id;
-			       			
-			       			//en el de arriba tengo que insertar mi boton
-			       			var contenedor = Ext.get(itemContainer);
-			       			
-			       			console.log('contenedor',contenedor);
-			       			
-			       			//var destino = contenedor.dom.childNodes[1];
-			       			
-			       			//var auxiliar = Ext.get(destino.id);
-			       			
-			       			var nuevoEl = document.createElement('button');
-			       			nuevoEl.innerHTML = '+';
-			       			nuevoEl.setAttribute('style','margin-left:25px;');
-			       			
-			       			console.log('nuevoEl',nuevoEl);
-			       			
-			       			contenedor.appendChild(nuevoEl, 'after');
-			       		}
-			       	}
-		       },
-		       {
-			       	fieldLabel: 'Categoria',
-			        hiddenName: 'stock_categoria_id',
-			       	width: 130,
-			       	valueField: 'stock_categoria_id',
-			       	displayField:'categoria',
-			       	forceSelection: true,
-			       	disabled:readOnly,
-			       	value: (isNew)?(null):(data.stock_categoria_id),
-			       	xtype: 'combo',
-			       	store: stockCategoriaStore,
-			       	typeAhead:true,mode:'local',
-			       	allowBlank: false
-		       },
-		       {
-			       fieldLabel: 'NCM',
-			       name: 'ncm',
-			       maxLength: 100,
-			       width: 150,
-			       value: (isNew)?(null):(data.ncm),
-			       xtype: 'textfield',
-			       disabled:readOnly
-		       },
-		       {
-			       fieldLabel: 'Descrip.',
-			       name: 'descripcion',
-			       disabled:readOnly,
-			       width: '80%',
-			       value: (isNew)?(null):(data.descripcion),
-			       xtype: 'textarea'
-		       },
-		       {
-		           xtype: 'fieldset',
-		           title: 'Precio Venta',
-		           layout: 'column',
-		           defaults:{xtype:'container'},
-		           items:[
-		           			{
-		           				width: 200,
-		           				layout: 'form',
-		           				labelWidth: 100,
-		           				items:[
-		       							{
-			       							fieldLabel: 'Precio Venta',
-			       							name: 'precio_venta',
-			       							width: 80,
-			       							disabled:readOnly,
-			       							value: (isNew)?(null):(data.precio_venta),
-			       							xtype: 'numberfield',
-			      							allowBlank: false,
-			      							allowDecimals:true,
-			      							allowNegative: false
-		       							}
-		           				]
-		           			},
-		           			{
-		           				width: 150,
-		           				layout: 'form',
-		           				labelWidth: 60,
-		           				items:[
-		           						{
-			       							hideLabel:true,
-			       							hiddenName: 'cont_moneda_id',
-			       							width: 90,
-			       							valueField: 'cont_moneda_id',
-			       							forceSelection: true,
-			       							displayField:'moneda',
-			       							value: (isNew)?(null):(data.cont_moneda_id),
-			       							xtype: 'combo',
-			       							disabled:readOnly,
-			       							store: stockMonedaStore,
-			       							typeAhead:true,mode:'local',
-			       							allowBlank: false
-		       							}
-		           				]
-		           			}
-		           ]
-		       },
-		       {
-		           xtype: 'fieldset',
-		           title: 'Garantia',
-		           layout: 'column',
-		           defaults:{xtype:'container'},
-		           items:[
-		           			{
-		           				width: 150,
-		           				layout: 'form',
-		           				labelWidth: 80,
-		           				items:[
-		           						{
-			       							fieldLabel: 'Tiempo Gar.',
-			       							name: 'tiempo_garantia',
-			       							width: 50,
-			       							value: (isNew)?(null):(data.tiempo_garantia),
-			       							xtype: 'numberfield',
-			       							allowBlank: false,
-			       							allowNegative:false,
-			       							forceSelection: true,
-			       							disabled:readOnly,
-			       							allowDecimals: false
-		       							}
-		           				]
-		           			},
-		           			{
-		           				width: 150,
-		           				layout: 'form',
-		           				labelWidth: 60,
-		           				items:[
-		           						{
-			       							hideLabel:true,
-			       							hiddenName: 'stock_garantia_tipo_id',
-			       							width: 90,
-			       							valueField: 'stock_garantia_tipo_id',
-			       							displayField:'garantia_tipo',
-			       							value: (isNew)?(null):(data.stock_garantia_tipo_id),
-			       							xtype: 'combo',
-			       							disabled:readOnly,
-			       							store: stockGarantiaTipoStore,
-			       							typeAhead:true,mode:'local',
-			       							allowBlank: false
-		       							}
-		           				]
-		           			}
-		           ]
-		       },
-		       {
-			       fieldLabel: '%IVA',
-			       hiddenName: 'porcentaje_impuesto',
-			       value: (isNew)?(10):(data.porcentaje_impuesto),
-			       xtype: 'combo',
-			       forceSelection: true,
-			       triggerAction: 'all',
-			       store: stockImpuestoStore,
-			       displayField: 'valor',
-			       disabled:readOnly,
-			       valueField: 'id',
-			       mode: 'local',
-			       width: 100,
-			       allowBlank: false
-		       },
-		       {
-			       fieldLabel: '% Max. Desc.',
-			       name: 'descuento_maximo',
-			       value: (isNew)?(null):(data.descuento_maximo),
-			       xtype: 'numberfield',
-			       disabled:readOnly,
-			       width: 45,
-			       allowNegative: false,
-			       allowBlank: false
-		       },
-		       {
-			       fieldLabel: 'Estado',
-			       hiddenName: 'estado',
-			       value: (isNew)?('A'):(data.estado),
-			       xtype: 'combo',
-			       store: stockEstadoStore,
-			       displayField: 'valor',
-			       valueField: 'id',
-			       disabled:readOnly,
-			       mode: 'local',
-			       triggerAction: 'all',
-			       width: 100,
-			       allowBlank: false
-		       },
-		       {
-			       fieldLabel: 'Tipo',
-			       hiddenName: 'tipo',
-			       value: (isNew)?('P'):(data.tipo),
-			       xtype: 'combo',
-			       store: genericoProductoStore,
-			       displayField: 'valor',
-			       valueField: 'id',
-			       disabled:readOnly,
-			       mode: 'local',
-			       forceSelection: true,
-			       triggerAction: 'all',
-			       width: 75,
-			       allowBlank: false
-		       },
-		       {
-			       xtype: 'container',
-			       layout: 'column',
-			       defaults:{style: {margin: '5px'}},
-			       items:[
-							{
-							    xtype: 'button',
-							    text: 'Guardar',
-							    handler: function(b,e){
-								       //verificar si esta todo ok
-								       var mainForm = b.ownerCt.ownerCt;
-								       basicForm = mainForm.getForm();
-								       if(basicForm.isValid())
-								       {
-									       var valores = basicForm.getFieldValues();
-									       
-							
-									       if(valores.stock_articulo_id)//si existe es edicion
-									       {
-									    	   Ajax.PostElement.request({
-												   url: baseURL + '/stock/articulo/put',
-												   success: function(response, opt){
-												       mainStore.reload();
-												   },
-												   jsonData:{
-												       'put': valores,
-													   'formulario': mainForm.id
-												   }
-											   });
-									       }
-									       else
-									       {
-									           delete valores.stock_articulo_id;
-									           
-										       //sino es creacion
-									    	   //si esta todo ok hacemos la solicitud
-									    	   Ajax.PostElement.request({
-												   url: baseURL + '/stock/articulo/post',
-												   success: function(response, opt){
-													   mainStore.reload();
-												   },
-												   jsonData:{
-												       'post': valores,
-													   'formulario': mainForm.id
-												   }
-											   });
-									       }
-									       
-									       
-									       
-								       }
-								       else
-									   {
-										   Ext.Msg.alert('Aviso','Hay campos inv&aacute;lidos');
-									   }       
-								   }
-							},
-							{
-								xtype: 'button',
-								text: 'Cancelar',
-								handler: function(b,e){
-									var mainForm = b.ownerCt.ownerCt;
-							        var padre = mainForm.ownerCt;
-							        padre.remove(mainForm);
-								}
-							}
-				   ]
-		       }
-		],
-		listeners:{
-			'render':function(thisEl){
-				hideBloque();
-				var loco = thisEl.find('hiddenName','stock_marca_id');
-				console.log(loco, loco.tpl);
-			}
-		}
-	};	
-}
 
 function verArticulo(id)
 {
@@ -371,7 +24,7 @@ function verArticulo(id)
 				success: function(response, opt){
 					//mainStore.reload();
 					var data = Ext.decode(response.responseText);
-					var addedEl = destino.add(formularioArticulo(false, data, true));
+					var addedEl = destino.add(formularioStockArticulo(false, data, true, false));
 					destino.doLayout();
 					addedEl.body.highlight();
 				},
@@ -401,7 +54,7 @@ function editarArticulo(id)
 				success: function(response, opt){
 					//mainStore.reload();
 					var data = Ext.decode(response.responseText);
-					var addedEl = destino.add(formularioArticulo(false, data, false));
+					var addedEl = destino.add(formularioStockArticulo(false, data, false, false));
 					destino.doLayout();
 					addedEl.body.highlight();
 				},
@@ -499,14 +152,6 @@ var stockImpuestoStore = new Ext.data.ArrayStore({
     ]
 });
 
-var genericoProductoStore = new Ext.data.ArrayStore({
-	idIndex: 0,  
-    fields: ['id','valor'],
-    data: [
-    	['P','Producto'],
-    	['S','Servicio']
-    ]
-});
 
 var stockEstadoStore = new Ext.data.ArrayStore({
 	idIndex: 0,  
@@ -519,18 +164,6 @@ var stockEstadoStore = new Ext.data.ArrayStore({
     ]
 });
 
-var stockMonedaStore = new Ext.data.JsonStore({
-	// store configs
-	url: baseURL + '/stock/combos/moneda',
-	// reader configs
-	root: 'records',
-	autoLoad:true,
-	baseParams: {
-		'p[limit]': 'all'
-	},
-	idProperty: 'cont_moneda_id',
-	fields: ['cont_moneda_id','moneda']
-});
 
 var stockGarantiaTipoStore = new Ext.data.JsonStore({
 	// store configs
@@ -759,7 +392,7 @@ viewContainer.bodyPanel = [{
 														if(destino)
 														{
 															destino.removeAll();
-															var addedEl = destino.add(formularioArticulo(true, null, false));
+															var addedEl = destino.add(formularioStockArticulo(true, null, false, false));
 															destino.doLayout();
 															addedEl.body.highlight();
 														}

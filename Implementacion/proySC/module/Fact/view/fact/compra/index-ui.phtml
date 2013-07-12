@@ -1,382 +1,114 @@
+<!-- primero stores siempre -->
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/genericoProductoStore.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/genericoSiNoStore.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/stockImpuestoStore.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/stockCategoriaStore.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/stockMarcaStore.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/stockMonedaStore.js"></script>
+<!-- despues lo demas -->
+<script type="text/javascript" src="<?=$this->basePath();?>/js/common/ventanaModal.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/forms/stockArticulo.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/common/hideBloque.js"></script>
 <script type="text/javascript">
-function hideBloque()
-{
-	var cajaMensaje = Ext.getCmp('messageBox');
-	if(cajaMensaje){
-		cajaMensaje.addClass('oculto');
-	}	
-}
 
-function formularioArticulo(isNew, data, readOnly)
-{
-	return {
-		xtype: 'form',
-		title: (readOnly)?('Ver Articulo'):((isNew)?('Crear Articulo'):('Editar Articulo')),
-		cls: 'ladoDerecho',
-		bodyCssClass: 'formularioGeneral',
-		layout: 'form',
-		//defaults:{(readOnly)?(xtype:'displayfield'):(xtype:'textfield')},
-		autoHeight: true,
-		items:[
-		       {
-			       xtype: 'hidden',
-			       name: 'stock_articulo_id',
-			       value: (isNew)?(null):(data.stock_articulo_id)
-		       },
-		       {
-			       fieldLabel: 'Nombre',
-			       name: 'nombre',
-			       width: 150,
-			       maxLength: 40,
-			       value: (isNew)?(null):(data.nombre),
-			       xtype: 'textfield',
-			       disabled:readOnly,
-			       allowBlank: false
-		       },
-		       {
-			       fieldLabel: 'Codigo',
-			       name: 'codigo',
-			       width: 115,
-			       maxLength: 40,
-			       value: (isNew)?(null):(data.codigo),
-			       xtype: 'textfield',
-			       disabled:readOnly,
-			       allowBlank: false
-		       },
-		       {
-			       fieldLabel: 'Modelo',
-			       name: 'modelo',
-			       maxLength: 100,
-			       width: 150,
-			       value: (isNew)?(null):(data.modelo),
-			       xtype: 'textfield',
-			       disabled:readOnly,
-			       allowBlank: false
-		       },
-		       {
-			       	fieldLabel: 'Marca',
-			        hiddenName: 'stock_marca_id',
-			       	width: 130,
-			       	valueField: 'stock_marca_id',
-			       	displayField:'marca',
-			       	value: (isNew)?(null):(data.stock_marca_id),
-			       	xtype: 'combo',
-			       	disabled:readOnly,
-			       	store: stockMarcaStore,
-			       	typeAhead:true,mode:'local',
-			       	allowBlank: false
-		       },
-		       {
-			       	fieldLabel: 'Categoria',
-			        hiddenName: 'stock_categoria_id',
-			       	width: 130,
-			       	valueField: 'stock_categoria_id',
-			       	displayField:'categoria',
-			       	disabled:readOnly,
-			       	value: (isNew)?(null):(data.stock_categoria_id),
-			       	xtype: 'combo',
-			       	store: stockCategoriaStore,
-			       	typeAhead:true,mode:'local',
-			       	allowBlank: false
-		       },
-		       {
-			       fieldLabel: 'NCM',
-			       name: 'ncm',
-			       maxLength: 100,
-			       width: 150,
-			       value: (isNew)?(null):(data.ncm),
-			       xtype: 'textfield',
-			       disabled:readOnly
-		       },
-		       {
-			       fieldLabel: 'Descrip.',
-			       name: 'descripcion',
-			       disabled:readOnly,
-			       width: '80%',
-			       value: (isNew)?(null):(data.descripcion),
-			       xtype: 'textarea'
-		       },
-		       {
-		           xtype: 'fieldset',
-		           title: 'Precio Venta',
-		           layout: 'column',
-		           defaults:{xtype:'container'},
-		           items:[
-		           			{
-		           				width: 200,
-		           				layout: 'form',
-		           				labelWidth: 100,
-		           				items:[
-		       							{
-			       							fieldLabel: 'Precio Venta',
-			       							name: 'precio_venta',
-			       							width: 80,
-			       							disabled:readOnly,
-			       							value: (isNew)?(null):(data.precio_venta),
-			       							xtype: 'numberfield',
-			      							allowBlank: false,
-			      							allowDecimals:true,
-			      							allowNegative: false
-		       							}
-		           				]
-		           			},
-		           			{
-		           				width: 150,
-		           				layout: 'form',
-		           				labelWidth: 60,
-		           				items:[
-		           						{
-			       							hideLabel:true,
-			       							hiddenName: 'cont_moneda_id',
-			       							width: 90,
-			       							valueField: 'cont_moneda_id',
-			       							displayField:'moneda',
-			       							value: (isNew)?(null):(data.cont_moneda_id),
-			       							xtype: 'combo',
-			       							disabled:readOnly,
-			       							store: stockMonedaStore,
-			       							typeAhead:true,mode:'local',
-			       							allowBlank: false
-		       							}
-		           				]
-		           			}
-		           ]
-		       },
-		       {
-		           xtype: 'fieldset',
-		           title: 'Garantia',
-		           layout: 'column',
-		           defaults:{xtype:'container'},
-		           items:[
-		           			{
-		           				width: 150,
-		           				layout: 'form',
-		           				labelWidth: 80,
-		           				items:[
-		           						{
-			       							fieldLabel: 'Tiempo Gar.',
-			       							name: 'tiempo_garantia',
-			       							width: 50,
-			       							value: (isNew)?(null):(data.tiempo_garantia),
-			       							xtype: 'numberfield',
-			       							allowBlank: false,
-			       							allowNegative:false,
-			       							disabled:readOnly,
-			       							allowDecimals: false
-		       							}
-		           				]
-		           			},
-		           			{
-		           				width: 150,
-		           				layout: 'form',
-		           				labelWidth: 60,
-		           				items:[
-		           						{
-			       							hideLabel:true,
-			       							hiddenName: 'stock_garantia_tipo_id',
-			       							width: 90,
-			       							valueField: 'stock_garantia_tipo_id',
-			       							displayField:'garantia_tipo',
-			       							value: (isNew)?(null):(data.stock_garantia_tipo_id),
-			       							xtype: 'combo',
-			       							disabled:readOnly,
-			       							store: stockGarantiaTipoStore,
-			       							typeAhead:true,mode:'local',
-			       							allowBlank: false
-		       							}
-		           				]
-		           			}
-		           ]
-		       },
-		       {
-			       fieldLabel: '%IVA',
-			       hiddenName: 'porcentaje_impuesto',
-			       value: (isNew)?(null):(data.porcentaje_impuesto),
-			       xtype: 'combo',
-			       triggerAction: 'all',
-			       store: stockImpuestoStore,
-			       displayField: 'valor',
-			       disabled:readOnly,
-			       valueField: 'id',
-			       mode: 'local',
-			       width: 100,
-			       allowBlank: false
-		       },
-		       {
-			       fieldLabel: '% Max. Desc.',
-			       name: 'descuento_maximo',
-			       value: (isNew)?(null):(data.descuento_maximo),
-			       xtype: 'numberfield',
-			       disabled:readOnly,
-			       width: 45,
-			       allowNegative: false,
-			       allowBlank: false
-		       },
-		       {
-			       fieldLabel: 'Estado',
-			       hiddenName: 'estado',
-			       value: (isNew)?(null):(data.estado),
-			       xtype: 'combo',
-			       store: stockEstadoStore,
-			       displayField: 'valor',
-			       valueField: 'id',
-			       disabled:readOnly,
-			       mode: 'local',
-			       triggerAction: 'all',
-			       width: 100,
-			       allowBlank: false
-		       },
-		       {
-			       fieldLabel: 'Es Servicio?',
-			       hiddenName: 'es_servicio',
-			       value: (isNew)?(null):(data.tipo),
-			       xtype: 'combo',
-			       store: genericoSiNoStore,
-			       displayField: 'valor',
-			       valueField: 'id',
-			       disabled:readOnly,
-			       mode: 'local',
-			       triggerAction: 'all',
-			       width: 75,
-			       value: 'N',
-			       allowBlank: false
-		       },
-		       {
-			       xtype: 'container',
-			       layout: 'column',
-			       defaults:{style: {margin: '5px'}},
-			       items:[
-							{
-							    xtype: 'button',
-							    text: 'Guardar',
-							    handler: function(b,e){
-								       //verificar si esta todo ok
-								       var mainForm = b.ownerCt.ownerCt;
-								       basicForm = mainForm.getForm();
-								       if(basicForm.isValid())
-								       {
-									       var valores = basicForm.getFieldValues();
-									       
-							
-									       if(valores.stock_articulo_id)//si existe es edicion
-									       {
-									    	   Ajax.PostElement.request({
-												   url: baseURL + '/stock/articulo/put',
-												   success: function(response, opt){
-												       mainStore.reload();
-												   },
-												   jsonData:{
-												       'put': valores,
-													   'formulario': mainForm.id
-												   }
-											   });
-									       }
-									       else
-									       {
-									           delete valores.stock_articulo_id;
-									           
-										       //sino es creacion
-									    	   //si esta todo ok hacemos la solicitud
-									    	   Ajax.PostElement.request({
-												   url: baseURL + '/stock/articulo/post',
-												   success: function(response, opt){
-													   mainStore.reload();
-												   },
-												   jsonData:{
-												       'post': valores,
-													   'formulario': mainForm.id
-												   }
-											   });
-									       }
-									       
-									       
-									       
-								       }
-								       else
-									   {
-										   Ext.Msg.alert('Aviso','Hay campos inv&aacute;lidos');
-									   }       
-								   }
-							},
-							{
-								xtype: 'button',
-								text: 'Cancelar',
-								handler: function(b,e){
-									var mainForm = b.ownerCt.ownerCt;
-							        var padre = mainForm.ownerCt;
-							        padre.remove(mainForm);
-								}
-							}
-				   ]
-		       }
-		],
-		listeners:{
-			'render':function(){
-				hideBloque();
-			}
-		}
-	};	
-}
 
-function verArticulo(id)
+verDetallesProveedor = function(b,e)
 {
-	
-	//var registro = mainStore.getById(id);
-	
-	//if(registro)
-	//{
-		var destino = Ext.getCmp('formContainer');
-		if(destino)
+	//obtenemos los campos del formulario
+	var formulario = Ext.getCmp('mainForm');
+	if(formulario)
+	{
+		var basicForm = formulario.getForm();
+		var valores = basicForm.getFieldValues();
+		
+		if(valores.org_parte_id_buscar)
 		{
-			destino.removeAll();
-			//hacemos solicitud
+			Ext.Msg.alert('Aviso','En Impl.');
+		}
+		else
+			Ext.Msg.alert('Aviso','Debe seleccionar un proveedor');
+	}
+};
 
+agregarProveedor = function(b,e)
+{
+	//obtenemos los campos del formulario
+	var formulario = Ext.getCmp('mainForm');
+	if(formulario)
+	{
+		var basicForm = formulario.getForm();
+		
+		var campo = basicForm.findField('org_parte_id_buscar');
+		campo.clearValue();
+		
+		campo = basicForm.findField('displayNombre');
+		campo.setValue(null);
+		
+		campo = basicForm.findField('displayDocumento');
+		campo.setValue(null);
+		
+	}
+};
+
+agregarArticuloHandler = function(b,e)
+{
+	var formulario = Ext.getCmp('mainForm');
+	if(formulario)
+	{
+		var basicForm = formulario.getForm();
+		
+		var campo1 = basicForm.findField('stock_articulo_id_codigo');
+		var campo2 = basicForm.findField('stock_articulo_id_rcap');
+		//solo podemos ver si tenemos articulo seleccionado
+		if(campo1)
+			campo1.setValue(null);
+		if(campo2)
+			campo2.setValue(null);
+				
+			//creamos ventana modal
+			//anhadimos formulario pero antes obtenemos registro
+			
+		ventanaModal.add(formularioStockArticulo(true, null, false, true));
+		ventanaModal.doLayout();
+		ventanaModal.show();
+			
+	}
+};
+
+verDetallesArticuloHandler = function(b,e)
+{
+
+	var formulario = Ext.getCmp('mainForm');
+	if(formulario)
+	{
+		var basicForm = formulario.getForm();
+		var valores = basicForm.getFieldValues();
+		
+		//solo podemos ver si tenemos articulo seleccionado
+		if(valores.stock_articulo_id_codigo && valores.stock_articulo_id_rcap)
+		{
+			//creamos ventana modal
+			//anhadimos formulario pero antes obtenemos registro
+			
 			Ajax.PostElement.request({
 				url: baseURL + '/stock/articulo/get',
 				success: function(response, opt){
-					//mainStore.reload();
 					var data = Ext.decode(response.responseText);
-					var addedEl = destino.add(formularioArticulo(false, data, true));
-					destino.doLayout();
-					addedEl.body.highlight();
+					ventanaModal.add(formularioStockArticulo(false, data, false, true));
+					ventanaModal.doLayout();
+					ventanaModal.show();
 				},
-				params:{id:id}
+				params:{id: valores.stock_articulo_id_codigo}
 			});		
-				
 			
 		}
-	//}
-}
-
-function editarArticulo(id)
-{
-	
-	//var registro = mainStore.getById(id);
-	
-	//if(registro)
-	//{
-		var destino = Ext.getCmp('formContainer');
-		if(destino)
+		else
 		{
-			destino.removeAll();
-			//hacemos solicitud
-
-			Ajax.PostElement.request({
-				url: baseURL + '/stock/articulo/get',
-				success: function(response, opt){
-					//mainStore.reload();
-					var data = Ext.decode(response.responseText);
-					var addedEl = destino.add(formularioArticulo(false, data, false));
-					destino.doLayout();
-					addedEl.body.highlight();
-				},
-				params:{id:id}
-			});		
-				
-			
+			Ext.Msg.alert('Aviso','Seleccione un articulo para poder visualizar sus detalles');
 		}
-	//}
-}
+	}
+};
+
 
 function borrarArticulo(id)
 {
@@ -422,56 +154,39 @@ var mainStore = new Ext.data.JsonStore({
 		'p[page]': 0
 	},
 	//autoLoad:true,
-	idProperty: 'stock_articulo_id',
-	fields: ['stock_articulo_id','cant','descrip','precio_unit','exenta','cinco','diez'],
-	data: [
-		{'stock_articulo_id': 1,'cant': 5,'descrip': 'Celular Sony','precio_unit':'100000 Gs','exenta':'-','cinco':'-','diez':'500000 Gs'},
-		{'stock_articulo_id': 2,'cant': 5,'descrip': 'Celular Sony','precio_unit':'100000 Gs','exenta':'-','cinco':'-','diez':'500000 Gs'},
-		{'stock_articulo_id': 3,'cant': 5,'descrip': 'Celular Sony','precio_unit':'100000 Gs','exenta':'-','cinco':'-','diez':'500000 Gs'},
-		{'stock_articulo_id': 4,'cant': 5,'descrip': 'Celular Sony','precio_unit':'100000 Gs','exenta':'-','cinco':'-','diez':'500000 Gs'},
-		{'stock_articulo_id': 5,'cant': 5,'descrip': 'Celular Sony','precio_unit':'100000 Gs','exenta':'-','cinco':'-','diez':'500000 Gs'},
-		{'stock_articulo_id': 6,'cant': 5,'descrip': 'Celular Sony','precio_unit':'100000 Gs','exenta':'-','cinco':'-','diez':'500000 Gs'}
-	]
+	idProperty: 'fact_compra_detalle_id',
+	fields: ['fact_compra_detalle_id','fact_compra_id','stock_articulo_id','cantidad','costo_unit','nombre','impuesto']
 });
 
-var stockCategoriaStore = new Ext.data.JsonStore({
+var orgRolParteStore = new Ext.data.JsonStore({
 	// store configs
-	url: baseURL + '/stock/combos/categoria',
-	// reader configs
-	autoLoad:true,
-	root: 'records',
-	idProperty: 'stock_categoria_id',
-	fields: ['stock_categoria_id','categoria']
-});
-
-var stockMarcaStore = new Ext.data.JsonStore({
-	// store configs
-	url: baseURL + '/stock/combos/marca',
+	totalProperty: 'numResults',
+	url: baseURL + '/org/roles-de-partes/index',
 	// reader configs
 	root: 'records',
-	autoLoad:true,
-	idProperty: 'stock_marca_id',
-	fields: ['stock_marca_id','marca']
+	paramNames: {
+		start: 'p[page]',
+		limit: 'p[limit]'
+	},
+	baseParams: {
+		'p[limit]': 'all',
+		'p[page]': 0,
+		's[org_rol_codigo]':'proveedor'
+	},
+	//autoLoad:true,
+	idProperty: 'org_parte_rol_id',
+	fields: ['org_parte_rol_id',{name:'mostrar', convert:function(v,data){
+		if(data.org_parte_tipo_nombre == 'Empresa')
+		{
+			return data.nombre;
+		}
+		else if(data.org_parte_tipo_nombre == 'Persona')
+		{
+			return data.apellido + ', ' + data.nombre;
+		}
+	}},'org_rol_nombre','org_parte_tipo_nombre','org_parte_id','nombre','apellido','fechaDeNacimiento','genero']
 });
 
-var stockImpuestoStore = new Ext.data.ArrayStore({
-	idIndex: 0,  
-    fields: ['id','valor'],
-    data: [
-    	[0,'Exento'],
-    	[5,'5%'],
-    	[10,'10%']
-    ]
-});
-
-var genericoSiNoStore = new Ext.data.ArrayStore({
-	idIndex: 0,  
-    fields: ['id','valor'],
-    data: [
-    	['N','No'],
-    	['S','Si']
-    ]
-});
 
 var stockEstadoStore = new Ext.data.ArrayStore({
 	idIndex: 0,  
@@ -493,15 +208,6 @@ var stockEstadoFacturaStore = new Ext.data.ArrayStore({
     ]
 });
 
-var stockMonedaStore = new Ext.data.JsonStore({
-	// store configs
-	url: baseURL + '/stock/combos/moneda',
-	// reader configs
-	root: 'records',
-	autoLoad:true,
-	idProperty: 'cont_moneda_id',
-	fields: ['cont_moneda_id','moneda']
-});
 
 var stockGarantiaTipoStore = new Ext.data.JsonStore({
 	// store configs
@@ -511,6 +217,26 @@ var stockGarantiaTipoStore = new Ext.data.JsonStore({
 	autoLoad:true,
 	idProperty: 'stock_garantia_tipo_id',
 	fields: ['stock_garantia_tipo_id','garantia_tipo']
+});
+
+var stockArticuloStore = new Ext.data.JsonStore({
+	// store configs
+	totalProperty: 'numResults',
+	url: baseURL + '/stock/articulo/index',
+	// reader configs
+	root: 'records',
+	paramNames: {
+		start: 'p[page]',
+		limit: 'p[limit]'
+	},
+	baseParams: {
+		'p[limit]': 'all',
+		'p[page]': 0
+	},
+	idProperty: 'stock_articulo_id',
+	fields: ['stock_articulo_id',{name: 'mostrar', convert:function(v,data){
+		return data.nombre + ' / ' + data.codigo;
+	}},'rcap','categoria','codigo','existencia','marca','nombre','precio_venta','moneda','simbolo']
 });
 
 
@@ -528,6 +254,7 @@ viewContainer.bodyPanel = [{
 				items:[
 						{
 							xtype: 'form',
+							id: 'mainForm',
 							labelAlign: 'right',
 							layout: 'anchor',
 							items:[
@@ -549,6 +276,7 @@ viewContainer.bodyPanel = [{
 				       	       						layout: 'column',
 				       	       						height: 35,
 				       	       						cls: 'bloqueFactura crema',
+				       	       						style:{paddingTop: '5px'},
 				       	       						items:[
 				       	       								{
 				       	       									xtype: 'container',
@@ -559,8 +287,7 @@ viewContainer.bodyPanel = [{
 				       	       											{
 				       	       												xtype: 'textfield',
 				       	       												width: 35,
-				       	       												fieldLabel: 'Factura Nro.',
-				       	       												value: '001'
+				       	       												fieldLabel: 'Factura Nro.'
 				       	       											}
 				       	       									]
 				       	       								},
@@ -572,8 +299,7 @@ viewContainer.bodyPanel = [{
 				       	       											{
 				       	       												xtype: 'textfield',
 				       	       												hideLabel: true,
-				       	       												width: 35,
-				       	       												value: '002'
+				       	       												width: 35
 				       	       											}
 				       	       									]
 				       	       								},
@@ -585,8 +311,7 @@ viewContainer.bodyPanel = [{
 				       	       											{
 				       	       												xtype: 'textfield',
 				       	       												hideLabel: true,
-				       	       												width: 100,
-				       	       												value: '0079771'
+				       	       												width: 100
 				       	       											}
 				       	       									]
 				       	       								}
@@ -615,7 +340,7 @@ viewContainer.bodyPanel = [{
 				       	       									layout: 'form',
 				       	       									cls: 'bloqueFactura azul',
 				       	       									columnWidth: .5,
-				       	       									height: 150,
+				       	       									height: 200,
 				       	       									items:[
 				       	       											{
 				       	       												xtype: 'displayfield',
@@ -644,18 +369,134 @@ viewContainer.bodyPanel = [{
 		       															},
 				       	       											{
 			       															fieldLabel: 'Fecha',
+			       															name: 'fecha',
+			       															allowBlank: false,
 			        														xtype: 'datefield',
-			        														value: '08/07/2013'
+			        														value: new Date(),
+			        														listeners:{
+			        															'change':function(thisEl, newValue, oldValue)
+			        															{
+			        																if(!newValue)
+			        																	thisEl.setValue(oldValue);
+			        																	
+			        																var padre = thisEl.ownerCt;
+			        																var f1, f2, diasDif;
+			        																var valorFecha = thisEl.value.split('/');
+			        																f1 = new Date(valorFecha[1] + '/' + valorFecha[0] + '/' + valorFecha[2]);
+			        																
+			        																
+			        																var dias = padre.find('name','dias');
+			        																if(dias.length>0)
+			        																{
+			        																	dias = dias[0];
+			        																	diasDif = dias.value;
+			        																}
+			        																
+			        																
+			        																var fecha_vencimiento = padre.find('name','fecha_vencimiento');
+			        																if(fecha_vencimiento.length>0)
+			        																{
+			        																	fecha_vencimiento = fecha_vencimiento[0];
+			        																	var valorVenc = thisEl.value;
+			        																	if(valorVenc)
+			        																	{
+			        																		valorVenc = valorVenc.split('/');
+			        																		f2 = new Date(valorVenc[1] + '/' + valorVenc[0] + '/' + valorVenc[2]);	
+			        																		
+			        																		
+			        																		f2.setDate(parseInt(f1.getDate()) + parseInt(diasDif));
+			        																		
+			        																		fecha_vencimiento.setValue(f2);
+			        																	}
+			        																}
+			        															}
+			        														}
+		       															},
+		       															{
+		       																fieldLabel: 'Agregar D&iacute;as',
+			        														xtype: 'numberfield',
+			        														width: 75,
+			        														allowBlank: false,
+			        														allowNegative: false,
+			        														allowDecimals: false,
+			        														name: 'dias',
+			        														value: 0,
+			        														listeners:{
+			        															'change':function(thisEl, newValue, oldValue)
+			        															{
+			        																if(!newValue)
+			        																	thisEl.setValue(oldValue);
+			        																	
+			        																var f1, f2;
+			        																
+			        																var padre = thisEl.ownerCt;
+			        																var fecha = padre.find('name','fecha');
+			        																if(fecha.length>0)
+			        																{
+			        																	fecha = fecha[0];
+			        																	var valorFecha = fecha.value;
+			        																	
+			        																	if(valorFecha)
+			        																	{
+			        																		valorFecha = valorFecha.split('/');
+			        																		f1 = new Date(valorFecha[1] + '/' + valorFecha[0] + '/' + valorFecha[2]);	
+			        																	}
+			        																	else
+			        																	{
+			        																		Ext.Msg.alert('Aviso','Compra sin Fecha');
+			        																		return;
+			        																	}
+			        																}
+			        																
+			        																var fecha_vencimiento = padre.find('name','fecha_vencimiento');
+			        																if(fecha_vencimiento.length>0)
+			        																{
+			        																	fecha_vencimiento = fecha_vencimiento[0];
+			        																	var valorVenc = fecha.value;
+			        																	if(valorVenc)
+			        																	{
+			        																		valorVenc = valorVenc.split('/');
+			        																		f2 = new Date(valorVenc[1] + '/' + valorVenc[0] + '/' + valorVenc[2]);	
+			        																		
+			        																		f2.setDate(f1.getDate() + newValue);
+			        																		
+			        																		fecha_vencimiento.setValue(f2);
+			        																	}
+			        																}
+			        																
+			        																
+			        															}
+			        														}
+		       															},
+		       															{
+		       																fieldLabel: 'Fecha Venc.',
+			        														xtype: 'datefield',
+			        														disabled: true,
+			        														name: 'fecha_vencimiento',
+			        														listeners:{
+			        															'render':function(thisEl)
+			        															{
+			        																var padre = thisEl.ownerCt;
+			        																var fecha = padre.find('name','fecha');
+			        																if(fecha.length>0)
+			        																{
+			        																	fecha = fecha[0];
+			        																	thisEl.value = fecha.value;
+			        																}
+			        															}
+			        														}
 		       															},
 				       	       											{
 			       															fieldLabel: 'Moneda',
 			       															hiddenName: 'cont_moneda_id',
 			       															width: 90,
+			       															forceSelection:true,
 			       															valueField: 'cont_moneda_id',
-			       															displayField:'moneda',
+			       															displayField:'simbolo',
 			       															xtype: 'combo',
 			       															store: stockMonedaStore,
-			       															typeAhead:true,mode:'local',
+			       															typeAhead:true,
+			       															mode:'local',
 			       															allowBlank: false
 		       															}
 				       	       									]
@@ -664,7 +505,7 @@ viewContainer.bodyPanel = [{
 				       	       									columnWidth: .5,
 				       	       									layout: 'form',
 				       	       									cls: 'bloqueFactura azul',
-				       	       									height: 150,
+				       	       									height: 200,
 				       	       									items:[
 				       	       											{
 				       	       												xtype: 'displayfield',
@@ -673,23 +514,84 @@ viewContainer.bodyPanel = [{
 				       	       												value: 'Proveedor'
 				       	       											},
 				       	       											{
-				       	       												xtype: 'textfield',
-				       	       												width: 200,
-				       	       												cls: 'searchIcon',
-				       	       												fieldLabel: 'RUC / Nombre',
-				       	       												value: 'Omar Esgaib / 1278321-1'
+				       	       												xtype: 'combo',
+																			fieldLabel: 'RUC / Nombre',
+																			cls: 'searchIcon',
+																			hideTrigger: true,
+																			width: 200,
+																			allowBlank: false,
+																			minChars: 2,
+																			cls: 'searchIcon',
+																			displayField: 'mostrar',
+																			valueField: 'org_parte_rol_id',
+																			forceSelection: true,
+																			mode: 'remote',
+																			triggerAction: 'all',
+																			listWidth: 350,
+																			queryDelay: 1000,
+																			queryParam: 's[nombre]',
+																			store: orgRolParteStore,
+																			hiddenName: 'org_parte_id_buscar',
+																			listeners:{
+																				'select':function(thisField, record, index)
+																				{
+																					
+																					//si selecciono algo tengo que poner en los campos dependientes
+																					//busco ambos campos
+																					var padre = thisField.ownerCt;
+																					var displayNombre = padre.find('name','displayNombre');
+																					var displayDocumento = padre.find('name','displayDocumento');
+																					
+																					if(displayNombre.length>0)
+																					{
+																						displayNombre = displayNombre[0];
+																						
+																						displayNombre.setValue(record.data.mostrar);
+																					}
+																					
+																					if(displayDocumento.length>0)
+																					{
+																						displayDocumento = displayDocumento[0];
+																						
+																					}
+																					
+																					
+																				},
+																				'change':function(thisField, newValue, oldValue)
+																				{
+																					if(!newValue)
+																					{
+																						var padre = thisField.ownerCt;
+																						var displayNombre = padre.find('name','displayNombre');
+																						var displayDocumento = padre.find('name','displayDocumento');
+																					
+																						if(displayNombre.length>0)
+																						{
+																							displayNombre = displayNombre[0];
+																							displayNombre.setValue(null);
+																						}
+																					
+																						if(displayDocumento.length>0)
+																						{
+																							displayDocumento = displayDocumento[0];
+																							displayDocumento.setValue(null);
+																						}
+																					}
+																				}
+																			}
+																			
 				       	       											},
 				       	       											{
 				       	       												xtype: 'textfield',
 				       	       												fieldLabel: 'Documento',
-				       	       												disabled: true,
-				       	       												value: '1278321-1'
+				       	       												name: 'displayDocumento',
+				       	       												disabled: true
 				       	       											},
 				       	       											{
 				       	       												xtype: 'textfield',
 				       	       												fieldLabel: 'Nombre o Raz. Social',
-				       	       												disabled: true,
-				       	       												value: 'Omar Esgaib'
+				       	       												name: 'displayNombre',
+				       	       												disabled: true
 				       	       											},
 				       	       											{
 				       	       												xtype: 'container',
@@ -698,12 +600,14 @@ viewContainer.bodyPanel = [{
 				       	       												items:[
 				       	       														{
 				       	       															xtype: 'button',
+				       	       															handler: verDetallesProveedor,
 				       	       															text: 'Ver Detalles'
 				       	       														},
 				       	       														{
 				       	       															xtype: 'button',
 				       	       															iconCls: 'addIcon',
-				       	       															text: 'Agregar Proveedor'
+				       	       															text: 'Agregar Proveedor',
+				       	       															handler: agregarProveedor
 				       	       														}
 				       	       												]
 				       	       											}
@@ -711,7 +615,7 @@ viewContainer.bodyPanel = [{
 				       	       								},
 				       	       								{
 				       	       									layout: 'form',
-				       	       									height: 170,
+				       	       									height: 180,
 				       	       									cls: 'bloqueFactura azul',
 				       	       									columnWidth: 1,
 				       	       									items:[
@@ -722,18 +626,132 @@ viewContainer.bodyPanel = [{
 				       	       												value: 'Articulo'
 				       	       											},
 				       	       											{
-				       	       												xtype: 'textfield',
-				       	       												width: 475,
-				       	       												cls: 'searchIcon',
-				       	       												fieldLabel: 'Codigo / Nombre',
-				       	       												value: '1289212 - Galaxy Ace 2'
+				       	       												xtype: 'combo',
+																			fieldLabel: 'Codigo / Nombre',
+																			cls: 'searchIcon',
+																			hideTrigger: true,
+																			width: 475,
+																			allowBlank: false,
+																			minChars: 2,
+																			cls: 'searchIcon',
+																			displayField: 'mostrar',
+																			valueField: 'stock_articulo_id',
+																			forceSelection: true,
+																			mode: 'remote',
+																			triggerAction: 'all',
+																			listWidth: 500,
+																			queryDelay: 1000,
+																			queryParam: 's[articulo]',
+																			store: stockArticuloStore,
+																			hiddenName: 'stock_articulo_id_codigo',
+																			listeners:{
+																				'beforequery':function(objectQuery)
+																				{
+																					objectQuery.combo.getStore().setBaseParam('s[rcap]',null);
+																				},
+																				'beforeselect':function(thisCombo, record, index)
+																				{
+																					//reseteo el otro campo
+																					var padre = thisCombo.ownerCt;
+																					var otroCombo = padre.find('hiddenName','stock_articulo_id_rcap');
+																					if(otroCombo.length>0)
+																					{
+																						otroCombo = otroCombo[0];
+																						otroCombo.setValue(null);
+																					}
+																				},
+																				'select':function(thisField, record, index)
+																				{
+																					//reseteo el otro campo
+																					var padre = thisField.ownerCt;
+																					var otroCombo = padre.find('hiddenName','stock_articulo_id_rcap');
+																					if(otroCombo.length>0)
+																					{
+																						otroCombo = otroCombo[0];
+																						otroCombo.setValue(record.data.stock_articulo_id);
+																					}
+																					
+																					
+																					var cantidad = padre.find('name','cantidad');
+																					if(cantidad.length>0)
+																					{
+																						cantidad = cantidad[0];
+																						cantidad.focus(true,true);
+																					}
+																				},
+																				'change':function(thisField, newValue, oldValue)
+																				{
+																					if(!thisField.isValid())
+																					{
+																						thisField.focus(true,true);
+																					}
+																				}
+																			}
+																			
 				       	       											},
 				       	       											{
-				       	       												xtype: 'textfield',
-				       	       												width: 475,
-				       	       												cls: 'searchIcon',
-				       	       												fieldLabel: 'Cod. Ref. Prov',
-				       	       												value: '1289212|1289212AA|1289212BC'
+				       	       												xtype: 'combo',
+																			fieldLabel: 'Cod. Ref. Prov',
+																			cls: 'searchIcon',
+																			hideTrigger: true,
+																			width: 475,
+																			allowBlank: false,
+																			minChars: 2,
+																			cls: 'searchIcon',
+																			displayField: 'rcap',
+																			valueField: 'stock_articulo_id',
+																			forceSelection: true,
+																			mode: 'remote',
+																			triggerAction: 'all',
+																			listWidth: 500,
+																			queryDelay: 1000,
+																			queryParam: 's[rcap]',
+																			store: stockArticuloStore,
+																			hiddenName: 'stock_articulo_id_rcap',
+																			listeners:{
+																				'beforequery':function(objectQuery)
+																				{
+																					objectQuery.combo.getStore().setBaseParam('s[articulo]',null);
+																				},
+																				'beforeselect':function(thisCombo, record, index)
+																				{
+																					//reseteo el otro campo
+																					var padre = thisCombo.ownerCt;
+																					var otroCombo = padre.find('hiddenName','stock_articulo_id_codigo');
+																					if(otroCombo.length>0)
+																					{
+																						otroCombo = otroCombo[0];
+																						otroCombo.setValue(null);
+																					}
+																				},
+																				'select':function(thisField, record, index)
+																				{
+																					//reseteo el otro campo
+																					var padre = thisField.ownerCt;
+																					var otroCombo = padre.find('hiddenName','stock_articulo_id_codigo');
+																					if(otroCombo.length>0)
+																					{
+																						otroCombo = otroCombo[0];
+																						otroCombo.setValue(record.data.stock_articulo_id);
+																					}
+																					
+																					var cantidad = padre.find('name','cantidad');
+																					if(cantidad.length>0)
+																					{
+																						cantidad = cantidad[0];
+																						cantidad.focus(true,true);
+																					}
+																					
+																				},
+																				'change':function(thisField, newValue, oldValue)
+																				{
+																					if(!thisField.isValid())
+																					{
+																						thisField.focus(true,true);
+																					}
+																				}
+																			}
+																			
 				       	       											},
 				       	       											{
 				       	       												xtype: 'container',
@@ -742,44 +760,59 @@ viewContainer.bodyPanel = [{
 				       	       														{
 				       	       															xtype: 'container',
 				       	       															layout: 'form',
-				       	       															columnWidth: .35,
+				       	       															columnWidth: .29,
 				       	       															items:[
 				       	       																	{
 				       	       																		xtype: 'numberfield',
 				       	       																		width: 50,
-				       	       																		fieldLabel: 'Cantidad',
-				       	       																		value: '10'
+				       	       																		allowBlank: false,
+				       	       																		allowNegative: false,
+				       	       																		allowDecimals: false,
+				       	       																		name: 'cantidad',
+				       	       																		fieldLabel: 'Cantidad'
 				       	       																	},
 				       	       																	{
-				       	       																		xtype: 'textfield',
+				       	       																		xtype: 'numberfield',
 				       	       																		width: 90,
-				       	       																		fieldLabel: 'Costo Unit.',
-				       	       																		value: '850000'
-				       	       																	},
-				       	       																	{
-			       																					fieldLabel: '%IVA',
-			       																					hiddenName: 'porcentaje_impuesto',
-			       																					value: '10',
-			       																					xtype: 'combo',
-			       																					triggerAction: 'all',
-			       																					store: stockImpuestoStore,
-			      																					 displayField: 'valor',
-			       																					valueField: 'id',
-			       																					mode: 'local',
-			       																					width: 75,
-			       																					allowBlank: false
-		       																					}
+				       	       																		allowBlank: false,
+				       	       																		allowNegative: false,
+				       	       																		name: 'costo_unit',
+				       	       																		fieldLabel: 'Costo Unit.'
+				       	       																	}
 				       	       															]
 				       	       														},
 				       	       														{
 				       	       															xtype: 'container',
 				       	       															layout: 'form',
-				       	       															columnWidth: .30,
+				       	       															columnWidth: .36,
+				       	       															style:{marginTop:'5px'},
 				       	       															items:[
 				       	       																	{
-				       	       																		xtype: 'container',
-				       	       																		html: '&nbsp;'
-				       	       																	}
+				       	       																		xtype: 'displayfield',
+				       	       																		hideLabel: true,
+				       	       																		value: '&nbsp;'
+				       	       																	},
+				       	       																	{
+				       	       																		xtype: 'numberfield',
+				       	       																		width: 80,
+				       	       																		disabled:true,
+				       	       																		name: 'costo_ref',
+				       	       																		fieldLabel: 'Costo Ref.'
+				       	       																	},
+				       	       																	{
+			       																					fieldLabel: '%IVA',
+			       																					hiddenName: 'porcentaje_impuesto',
+			       																					disabled:true,
+			       																					forceSelection: true,
+			       																					xtype: 'combo',
+			       																					triggerAction: 'all',
+			       																					store: stockImpuestoStore,
+			      																					displayField: 'valor',
+			       																					valueField: 'id',
+			       																					mode: 'local',
+			       																					width: 75,
+			       																					allowBlank: false
+		       																					}
 				       	       															]
 				       	       														},
 				       	       														{
@@ -797,18 +830,23 @@ viewContainer.bodyPanel = [{
 				       	       																					xtype: 'button',
 				       	       																					width: 75,
 				       	       																					iconCls: '',
+				       	       																					handler: verDetallesArticuloHandler,
 				       	       																					text: 'Detalles'
 				       	       																				},
 				       	       																				{
 				       	       																					xtype: 'button',
 				       	       																					width: 75,
 				       	       																					iconCls: '',
+				       	       																					handler: function(b,e){
+				       	       																						Ext.Msg.alert('Aviso','En Impl.');
+				       	       																					},
 				       	       																					text: 'Stock'
 				       	       																				},
 				       	       																				{
 				       	       																					xtype: 'button',
 				       	       																					width: 75,
 				       	       																					iconCls: 'addIcon',
+				       	       																					handler: agregarArticuloHandler,
 				       	       																					text: 'Articulo'
 				       	       																				}
 				       	       																		]
@@ -824,6 +862,9 @@ viewContainer.bodyPanel = [{
 				       	       																					iconCls: 'cart',
 				       	       																					width: 75,
 				       	       																					height: 70,
+				       	       																					handler: function(b,e){
+				       	       																						Ext.Msg.alert('Aviso','En Impl.');
+				       	       																					},
 				       	       																					text: 'Agregar'
 				       	       																				}
 				       	       																		]
@@ -847,13 +888,14 @@ viewContainer.bodyPanel = [{
 				       	       						items:[
 				       	       								{
 				       	       									layout: 'form',
+				       	       									labelWidth: 130,
 				       	       									cls: 'bloqueFactura azulOscuro',
 				       	       									height: 215,
 				       	       									items:[
 				       	       											{
 				       	       												xtype: 'displayfield',
 				       	       												value: 'Total Compra',
-				       	       												style:{color:'white'},
+				       	       												style:{backgroundColor:'#00CCFF', color: 'black'},
 				       	       												cls: 'titulo',
 				       	       												hideLabel: true
 				       	       											},
@@ -863,28 +905,22 @@ viewContainer.bodyPanel = [{
 				       	       												layout: 'form',
 				       	       												items:[
 				       	       														{
-				       	       															fieldLabel: '<span style="text-decoration:underline; ">Valor Total Trans.</span>',
-				       	       															value: '74.00'
+				       	       															fieldLabel: '<span style="text-decoration:underline; ">Valor Total Trans.</span>'
 				       	       														},
 				       	       														{
-				       	       															fieldLabel: 'Moneda',
-				       	       															value: 'US$'
+				       	       															fieldLabel: 'Moneda'
 				       	       														},
 				       	       														{
-				       	       															fieldLabel: 'IVA 10%',
-				       	       															value: '6.72'
+				       	       															fieldLabel: 'IVA 10%'
 				       	       														},
 				       	       														{
-				       	       															fieldLabel: 'IVA 5%',
-				       	       															value: '0'
+				       	       															fieldLabel: 'IVA 5%'
 				       	       														},
 				       	       														{
-				       	       															fieldLabel: 'IVA Exenta',
-				       	       															value: '0'
+				       	       															fieldLabel: 'IVA Exenta'
 				       	       														},
 				       	       														{
-				       	       															fieldLabel: 'Total IVA',
-				       	       															value: '6.72'
+				       	       															fieldLabel: 'Total IVA'
 				       	       														}
 				       	       												]
 				       	       											}
@@ -916,11 +952,17 @@ viewContainer.bodyPanel = [{
 					       	       			        									width: 85,
 					       	       			        									style:{margin: '5px 0'},
 					       	       			        									iconCls: 'addIcon',
+					       	       			        									handler: function(b,e){
+				       	       																Ext.Msg.alert('Aviso','En Impl.');
+				       	       															},
 					       	       			        									text: 'Reset'
 																					},
 																					{
 					       	       			        									xtype: 'button',
 					       	       			        									width: 85,
+					       	       			        									handler: function(b,e){
+				       	       																Ext.Msg.alert('Aviso','En Impl.');
+				       	       															},
 					       	       			        									style:{margin: '5px 0'},
 					       	       			        									iconCls: 'addIcon',
 					       	       			        									text: 'Cancelar'

@@ -133,17 +133,17 @@ function formularioGenerico(isNew, data, readOnly)
 								name: 'org_rol_codigo'
 							},
 							{
-					xtype: 'combo',
-					fieldLabel: 'Tipo',
-					allowBlank: false,
-					width: 125,
-					displayField: 'nombre',
-					valueField: 'org_parte_tipo_codigo',
-					forceSelection: true,
-					mode: 'local',
-					store: orgParteTipoStore,
-					name: 'org_parte_tipo_codigo',
-					listeners:{
+								xtype: 'combo',
+								fieldLabel: 'Tipo',
+								allowBlank: false,
+								width: 125,
+								displayField: 'nombre',
+								valueField: 'org_parte_tipo_codigo',
+								forceSelection: true,
+								mode: 'local',
+								store: orgParteTipoStore,
+								name: 'org_parte_tipo_codigo',
+								listeners:{
 						'select':function(thisCombo, record, index)
 						{
 							var padre = thisCombo.ownerCt;
