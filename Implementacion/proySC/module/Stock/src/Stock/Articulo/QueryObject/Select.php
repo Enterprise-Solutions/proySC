@@ -17,6 +17,14 @@ class Select extends DbSelect
              ->join(array('cm' => 'cont_moneda'), 'sa.cont_moneda_id = cm.cont_moneda_id', array('moneda' => 'nombre', 'simbolo'));
     }
     
+    public function addSearchById($id = null)
+    {
+    	if ($id) {
+    		$this->_select
+    		->where("sa.stock_articulo_id = $id");
+    	}
+    }
+    
     public function addSearchByArticulo($articulo = null)
     {
         if ($articulo && is_string($articulo)) {
