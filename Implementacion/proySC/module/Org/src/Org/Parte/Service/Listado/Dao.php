@@ -29,7 +29,7 @@ class Dao extends EsDao
 						foreach($keyValueTokens as $token){
 							//$tokens = explode(':', $keyValueToken);
 							list($key,$value) = explode(':', $token);
-							$documento[$key] = $value;
+							$documento[$key] = ($key == 'org_documento_id')?(integer)$value:$value;
 						}
 						return $documento; 
 					}, 

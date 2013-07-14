@@ -20,12 +20,22 @@ class RolesDeParte
 	public function agregar($orgRolCodigo)
 	{
 		$rol = $this->_repository->getRol($orgRolCodigo);
-		$this->_validarRolNoRepetido($rol)
-		     ->_validarRolPermitido($rol);
+		/*$this->_validarRolNoRepetido($rol)
+		     ->_validarRolPermitido($rol);*/
 		
-		$rolDeParte = new RolDeParte();
+		$rolDeParte = $this->_repository->findRolDeParte($rol->getCodigo(),$this->_parte->getId());
+		if($rolDeParte && $rolDeParte->esActivo()){
+			Thrower::throwValidationException("La parte ya tiene el rol {$rol->nombre}!");
+		}
+		if(!$rolDeParte){
+			$rolDeParte = new RolDeParte();
+			$rolDeParte->setParte($this->_parte);
+			$rolDeParte->setRol($rol);
+		}
+		$rolDeParte->activar();
+		/*$rolDeParte = new RolDeParte();
 		$rolDeParte->setParte($this->_parte);
-		$rolDeParte->setRol($rol);
+		$rolDeParte->setRol($rol);*/
 		//$this->_repository->persistir($rolDeParte);
 		return $rolDeParte;
 	}

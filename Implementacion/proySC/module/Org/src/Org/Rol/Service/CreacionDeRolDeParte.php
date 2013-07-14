@@ -38,7 +38,7 @@ class CreacionDeRolDeParte
 		$parte = $this->_crearOEditarParte($orgParte);
 		$rolesDeParte = new RolesDeParte($parte, $this->_rolRepository);
 		$rolDeParte = $rolesDeParte->agregar($orgRolCodigo);
-		
+		//$rolDeParte->activar();
 		$this->_rolRepository
 			 ->persistir($rolDeParte);
 		$this->_setRespuesta($rolDeParte);

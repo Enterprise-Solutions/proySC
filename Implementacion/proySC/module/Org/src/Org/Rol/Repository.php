@@ -28,6 +28,14 @@ class Repository
 		return $rolDeParte;
 	}
 	
+	public function findRolesDePartes($orgParteRolIds)
+	{
+		$rolesDePartes = $this->_em
+							  ->getRepository('Org\Rol\RolDeParte')
+							  ->findBy(array('id' => $orgParteRolIds));
+		return $rolesDePartes;
+	}
+	
 	public function persistir($rolDeParte)
 	{
 		$this->_em->persist($rolDeParte);

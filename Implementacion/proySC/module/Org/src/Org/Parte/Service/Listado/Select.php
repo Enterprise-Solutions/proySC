@@ -15,7 +15,7 @@ class Select extends DbSelect
 			 	'org_parte_tipo_codigo',
 			 	'nombre_organizacion',
 			 	'nombre_persona','apellido_persona','fecha_nacimiento','genero_persona',
-			 	'documentos' => new Expression("string_agg('org_documento_id:'||od.org_documento_id::text||','||'valor:'||od.valor||','||'org_documento_tipo_codigo:'||od.org_documento_tipo_codigo,';')")
+			 	'documentos' => new Expression("string_agg('org_documento_id:'||od.org_documento_id||','||'valor:'||od.valor||','||'org_documento_tipo_codigo:'||od.org_documento_tipo_codigo,';')")
 			 	))
 			 ->join(
 			 	array('opt' => 'org_parte_tipo'),

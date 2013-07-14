@@ -31,6 +31,11 @@ class RolDeParte
 	protected $orgParteId;
 	
 	/**
+	 * @Orm\Column(name="estado")
+	 */
+	protected $estado;
+	
+	/**
 	 * @var Org\Parte\Parte
 	 * 
      * @Orm\ManyToOne(targetEntity="Org\Parte\Parte")
@@ -44,6 +49,24 @@ class RolDeParte
      * @Orm\JoinColumn(name="org_rol_codigo", referencedColumnName="org_rol_codigo")
 	 */
 	protected $rol;
+	
+	public function activar()
+	{
+		$this->estado = 'A';
+	}
+	
+	public function esActivo()
+	{
+		if($this->estado == 'A'){
+			return true;
+		}
+		return false;
+	}
+	
+	public function desactivar()
+	{
+		$this->estado = 'N';
+	}
 	
 	public function setParte(Parte $parte)
 	{
@@ -71,6 +94,6 @@ class RolDeParte
 	
 	public function toArray()
 	{
-		return array('org_parte_rol_id' => $this->id,'org_parte_id' => $this->parte->getId(),'org_rol' => $this->rol->getCodigo());
+		return array('org_parte_rol_id' => $this->id,'org_parte_id' => $this->parte->getId(),'org_rol' => $this->rol->getCodigo(),$this->estado);
 	}
 }
