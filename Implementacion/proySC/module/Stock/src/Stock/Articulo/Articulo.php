@@ -3,6 +3,7 @@
 namespace Stock\Articulo;
 
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * Articulo
@@ -136,6 +137,12 @@ class Articulo
      */
     protected $stock_garantia_tipo_id;
     
+    /**
+     * Detalles del Articulo
+     * @ORM\OneToMany(targetEntity="Stock\Detalle\Detalle", mappedBy="articulo")
+     */
+    protected $detalle;
+    
     protected $defaultValues = array(
     	'porcentaje_impuesto' => '10',
         'precio_venta'        => '0',
@@ -144,6 +151,11 @@ class Articulo
         'existencia'          => 0,
         'existencia_minima'   => 0,
     );
+    
+    public function __construct()
+    {
+        $this->detalle = new ArrayCollection();
+    }
     
     public function __get($property)
     {
@@ -156,6 +168,11 @@ class Articulo
     public function getId()
     {
         return $this->stock_articulo_id;
+    }
+    
+    public function getDetalle()
+    {
+        return $this->detalle;
     }
     
     /**
@@ -179,5 +196,10 @@ class Articulo
         foreach ($data as $property => $value) {
             $this->$property = $value;
         }
+    }
+    
+    public function addExistencia()
+    {
+        $this->existencia++;
     }
 }
