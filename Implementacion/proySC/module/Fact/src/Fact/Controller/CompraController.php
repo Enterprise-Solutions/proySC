@@ -6,6 +6,7 @@ use EnterpriseSolutions\Controller\BaseController;
 use Fact\Compras\ServiceManager;
 
 use Fact\Ingreso\Service\Crear as CrearIngresoService;
+use Fact\Ingreso\Service\Editar as EditarIngresoService;
 
 class CompraController extends BaseController
 {
@@ -58,7 +59,14 @@ class CompraController extends BaseController
      */
     public function putAction()
     {
+        $em = $this->getEntityManager();
+        $data = $this->SubmitParams()->getParam('put');
         
+        $service = new EditarIngresoService($em);
+        $service->ejecutar($data);
+        $this->getEntityManager()->flush();
+        
+        return $this->toJson($service->getRespuesta());
     }
     
     /**

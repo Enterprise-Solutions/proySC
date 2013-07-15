@@ -4,6 +4,8 @@ namespace Fact\Ingreso;
 
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
+use Zend\InputFilter\Factory as InputFilterFactory;
+use EnterpriseSolutions\Exceptions\Thrower;
 use Fact\Detalle\Ingreso as IngresoDetalle;
 
 /**
@@ -94,6 +96,94 @@ class Ingreso
         'total_ingreso'             => 0,
     );
     
+    /**
+     * Input Filter
+     * @param array $data
+     * @return Ambigous <\Zend\InputFilter\InputFilterInterface, \Zend\InputFilter\CollectionInputFilter, unknown, object>
+     */
+    protected function getInputFilter($data)
+    {
+        $inputFilterFactory = new InputFilterFactory();
+        $spec = array(
+            'cont_moneda_id' => array(
+                'name'     => 'cont_moneda_id',
+                'required' => true,
+            ),
+            'codigo' => array(
+                'name'       => 'codigo',
+                'required'   => false,
+                'filters'    => array(
+                    array('name' => 'StripTags'),
+                ),
+                'validators' => array(
+                    array('name' => 'StringLength', 'options' => array('max' => 80)),
+                ),
+            ),
+            'doc_nro' => array(
+                'name'       => 'doc_nro',
+                'required'   => true,
+                'filters'    => array(
+                    array('name' => 'StripTags'),
+                ),
+                'validators' => array(
+                    array('name' => 'NotEmpty'),
+                    array('name' => 'StringLength', 'options' => array('max' => 100)),
+                ),
+            ),
+            'doc_fecha' => array(
+                'name'       => 'doc_fecha',
+                'required'   => true,
+                'filters'    => array(
+                    array('name' => 'StripTags'),
+                ),
+                'validators' => array(
+                    array('name' => 'NotEmpty'),
+                    array('name' => 'Date', 'options' => array('format' => 'd-m-Y', 'locale' => 'py')),
+                ),
+            ),
+            'doc_tipo' => array(
+                'name'       => 'doc_tipo',
+                'required'   => true,
+                'filters'    => array(
+                    array('name' => 'StringToUpper'),
+                    array('name' => 'StringTrim'),
+                ),
+                'validators' => array(
+                    array('name' => 'NotEmpty'),
+                    array('name' => 'Regex', 'options' => array('pattern' => "/^(F|T|R)$/", 'message' => 'El valor debe ser F (Factura), T (Traslado), R (Remision)')),
+                )
+            ),
+            'condicion' => array(
+                'name'       => 'condicion',
+                'required'   => true,
+                'filters'    => array(
+                    array('name' => 'StringToUpper'),
+                    array('name' => 'StringTrim'),
+                ),
+                'validators' => array(
+                    array('name' => 'NotEmpty'),
+                    array('name' => 'Regex', 'options' => array('pattern' => "/^(C|D)$/", 'message' => 'El valor debe ser C (Contado) o D (Credito)')),
+                )
+            ),
+            'estado' => array(
+                'name'       => 'estado',
+                'required'   => true,
+                'filters'    => array(
+                    array('name' => 'StringToUpper'),
+                    array('name' => 'StringTrim'),
+                ),
+                'validators' => array(
+                    array('name' => 'NotEmpty'),
+                    array('name' => 'Regex', 'options' => array('pattern' => "/^(P)$/", 'message' => 'El valor debe ser P (Pagado)')),
+                )
+            ),
+        );
+        
+        $inputFilter = $inputFilterFactory->createInputFilter($spec);
+        $inputFilter->setData($data);
+        return $inputFilter;
+    }
+    
     public function __construct()
     {
         $this->detalle = new ArrayCollection();
@@ -109,8 +199,6 @@ class Ingreso
                 $this->$property = $value;
             }
         }
-        
-        $this->doc_fecha = date('Y-m-d');
     }
     
     public function getId()
@@ -150,6 +238,12 @@ class Ingreso
      */
     public function fromArray($data)
     {
+        $inputFilter = $this->getInputFilter($data);
+        if (!$inputFilter->isValid()) {
+            Thrower::throwValidationException('Error de Validacion', $inputFilter->getMessages());
+        }
+        $data = $inputFilter->getValues();
+        
         foreach ($data as $property => $value) {
             $this->$property = $value;
         }
