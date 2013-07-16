@@ -11,7 +11,7 @@ use EnterpriseSolutions\Exceptions\Thrower;
  * @author guido
  * 
  * @ORM\Entity
- * @ORM\Table(name="fact_compra_detalle")
+ * @ORM\Table(name="fact_ingreso_detalle")
  */
 class Ingreso
 {
@@ -20,12 +20,12 @@ class Ingreso
      * @ORM\GeneratedValue(strategy="AUTO")
      * @ORM\Column(type="integer")
      */
-    protected $fact_compra_detalle_id;
+    protected $fact_ingreso_detalle_id;
     
     /**
      * @ORM\Column(type="integer")
      */
-    protected $fact_compra_id;
+    protected $fact_ingreso_id;
     
     /**
      * @ORM\Column(type="integer")
@@ -49,7 +49,7 @@ class Ingreso
     
     /**
      * @ORM\ManyToOne(targetEntity="Fact\Ingreso\Ingreso", inversedBy="detalle")
-     * @ORM\JoinColumn(name="fact_compra_id", referencedColumnName="fact_ingreso_id")
+     * @ORM\JoinColumn(name="fact_ingreso_id", referencedColumnName="fact_ingreso_id")
      */
     protected $ingreso;
     
