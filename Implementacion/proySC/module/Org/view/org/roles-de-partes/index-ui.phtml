@@ -1,5 +1,11 @@
-
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/orgDocumentoTipoStore.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/orgParteTipoStore.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/orgRolesDePartesStore.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/orgRolStore.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/orgParteStore.js"></script>
 <script type="text/javascript">
+var mainStore = orgRolesDePartesStore;
+
 function hideBloque()
 {
 	var cajaMensaje = Ext.getCmp('messageBox');
@@ -38,7 +44,7 @@ function formularioGenerico(isNew, data, readOnly)
 								listWidth: 350,
 								queryDelay: 1500,
 								queryParam: 's[nombre]',
-								store: orgRolParteStore,
+								store: orgParteStore,
 								hiddenName: 'org_parte_id_buscar'
 							},
 							{
@@ -420,84 +426,7 @@ function formularioEmpresa(isNew, data)
 }
 
 
-var mainStore = new Ext.data.JsonStore({
-	// store configs
-	totalProperty: 'numResults',
-	url: baseURL + '/org/roles-de-partes/index',
-	// reader configs
-	root: 'records',
-	paramNames: {
-		start: 'p[page]',
-		limit: 'p[limit]'
-	},
-	baseParams: {
-		'p[limit]': 10,
-		'p[page]': 0
-	},
-	autoLoad:true,
-	idProperty: 'org_parte_rol_id',
-	fields: ['org_parte_rol_id','org_rol_nombre','org_parte_tipo_nombre','org_parte_id','nombre','apellido','fechaDeNacimiento','genero']
-});
 
-var orgDocumentoTipoStore = new Ext.data.JsonStore({
-	// store configs
-	url: baseURL + '/org/combos/org-documento-tipo',
-	// reader configs
-	autoLoad:true,
-	root: 'records',
-	idProperty: 'org_documento_tipo_codigo',
-	fields: ['org_documento_tipo_codigo','nombre','descripcion']
-});
-
-var orgRolStore = new Ext.data.JsonStore({
-	// store configs
-	url: baseURL + '/org/combos/org-rol',
-	// reader configs
-	autoLoad:true,
-	root: 'records',
-	idProperty: 'org_rol_codigo',
-	fields: ['org_rol_codigo','descripcion','nombre']
-});
-
-var orgRolParteStore = new Ext.data.JsonStore({
-	// store configs
-	url: baseURL + '/org/empresas/index',
-	// reader configs
-	//autoLoad:true,
-	root: 'records',
-	idProperty: 'org_parte_id',
-	fields: ['org_parte_id','org_parte_tipo_codigo','nombre_persona','apellido_persona','nombre_organizacion','org_parte_tipo_nombre','documentos',
-		{name: 'mostrar', convert: function(v,data){
-			var doc = '';
-			
-			if(data.documentos && data.documentos.length > 0)
-			{
-				for(var x=0; x<data.documentos.length; x++)
-				{
-					doc += (((x == 0)?(''):(' / ')) + data.documentos[x].org_documento_tipo_codigo + ':' + data.documentos[x].valor);
-				}
-			}
-			
-			if(data.org_parte_tipo_codigo == 'per')
-			{
-				return 'Per: ' + data.apellido_persona + ', ' + data.nombre_persona + ' - ' + doc;
-			}
-			else if(data.org_parte_tipo_codigo == 'org')
-			{
-				return 'Emp: ' + data.nombre_organizacion + ' - ' + doc;
-			}
-		}}]
-});
-
-var orgParteTipoStore = new Ext.data.JsonStore({
-	// store configs
-	url: baseURL + '/org/combos/org-parte-tipo',
-	// reader configs
-	autoLoad:true,
-	root: 'records',
-	idProperty: 'org_parte_tipo_codigo',
-	fields: ['org_parte_tipo_codigo','descripcion','nombre']
-});
 
 viewContainer.bodyPanel = [{
 	layout: 'fit',
@@ -534,8 +463,8 @@ viewContainer.bodyPanel = [{
 					       	       			               {
 						       	       			               xtype: 'displayfield',
 						       	       			               style:{margin: '0 5px'},
-						       	       			         		width: 50,
-						       	       			         	   value: 'Nombre: '
+						       	       			         	   width: 75,
+						       	       			         	   value: 'Nombre / Doc.: '
 					       	       			               },
 					       	       			               {
 						       	       			               xtype: 'textfield',
@@ -673,25 +602,29 @@ viewContainer.bodyPanel = [{
 														}},
 														{ header: "Tipo", dataIndex: 'org_parte_tipo_nombre', width: 120},
 														{header: 'Rol', dataIndex: 'org_rol_nombre', width: 100},
-														{header: 'Gen.', dataIndex: 'genero', align: 'center', renderer: function(v,meta,record){
-															if(v)
-																return v;
+														{header: 'Documento(s)', dataIndex: 'documentos', renderer: function(v,meta,record){
+															if(v && v.length)
+															{
+																var docs = '';
+																
+																for(var x=0; x<v.length;x++)
+																{
+																	docs += (((x==0)?(''):('<br>')) +  v[x].org_documento_tipo_codigo + ': ' +  v[x].valor);
+																		
+																}
+																return docs;
+																
+															}
 															return '-';
 														}},
-														{ header: "Fecha", align: 'center', dataIndex: 'fechaDeNacimiento', width: 150, renderer: function(v,meta,record){
-															if(!v)
-																return '-';
-
-															return v;
-														}},
 														{ header: "Ver", dataIndex: null, fixed:true, width: 40, align: 'center', renderer: function(v,meta,record){
-															return '<div class="viewIcon" onclick="verPersona(' + record.data.org_parte_id + ')"></div>';
+															return '<div class="viewIcon" ></div>';
 														}},
 														{ header: "Editar", dataIndex: null,  fixed:true, width: 40, align: 'center', renderer: function(v,meta,record){
-															return '<div class="editIcon" onclick="editarPersona(' + record.data.org_parte_id + ')"></div>';
+															return '<div class="editIcon" ></div>';
 														}},
 														{ header: "Borrar", dataIndex: null,  fixed:true, width: 40, align: 'center', renderer: function(v,meta,record){
-															return '<div class="deleteIcon" onclick="borrarPersona(' + record.data.org_parte_id + ')"></div>';
+															return '<div class="deleteIcon" ></div>';
 														}}
 														])
 				           						}

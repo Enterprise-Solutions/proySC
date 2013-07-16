@@ -64,7 +64,7 @@ function formularioStockArticulo(isNew, data, readOnly, isOnModalWindow, cb)
 			       	allowBlank: false,
 			       	listeners:{
 			       		'render':function(thisEl){
-			       			if(readOnly)
+			       			if(readOnly || isOnModalWindow)
 			       				return;
 			       				
 			       			//contenedor
@@ -99,6 +99,9 @@ function formularioStockArticulo(isNew, data, readOnly, isOnModalWindow, cb)
 			       	allowBlank: false,
 			       	listeners:{
 			       		'render':function(thisEl){
+			       			if(readOnly || isOnModalWindow)
+			       				return;
+			       			
 			       			console.log('thisEl',thisEl);
 			       			//contenedor
 			       			var itemContainer = thisEl.itemCt.dom.childNodes[1].firstChild.id;

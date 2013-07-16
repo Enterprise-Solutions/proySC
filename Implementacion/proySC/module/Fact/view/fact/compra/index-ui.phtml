@@ -1,16 +1,127 @@
 <!-- primero stores siempre -->
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/factCompraDetalleStore.js"></script>
 <script type="text/javascript" src="<?=$this->basePath();?>/js/stores/genericoProductoStore.js"></script>
 <script type="text/javascript" src="<?=$this->basePath();?>/js/stores/genericoSiNoStore.js"></script>
 <script type="text/javascript" src="<?=$this->basePath();?>/js/stores/stockImpuestoStore.js"></script>
 <script type="text/javascript" src="<?=$this->basePath();?>/js/stores/stockCategoriaStore.js"></script>
 <script type="text/javascript" src="<?=$this->basePath();?>/js/stores/stockMarcaStore.js"></script>
 <script type="text/javascript" src="<?=$this->basePath();?>/js/stores/stockMonedaStore.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/orgRolesDePartesProveedorStore.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/orgParteTipoStore.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/orgParteStore.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/orgDocumentoTipoStore.js"></script>
 <!-- despues lo demas -->
 <script type="text/javascript" src="<?=$this->basePath();?>/js/common/ventanaModal.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/forms/formularioEmpresa.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/forms/formularioPersona.js"></script>
 <script type="text/javascript" src="<?=$this->basePath();?>/js/forms/stockArticulo.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/forms/orgParteProveedor.js"></script>
 <script type="text/javascript" src="<?=$this->basePath();?>/js/common/hideBloque.js"></script>
 <script type="text/javascript">
 
+var mainStore = factCompraDetalleStore;
+
+agregarArticuloCompraCallback = function(options, success, response)
+{
+	var grilla = Ext.getCmp('mainGrid');
+	var bloque = Ext.getCmp('bloqueArticulo');
+	
+	console.log('agregarArticuloCompraCallback',options, success, response);
+	if(success)
+	{
+		var datos = Ext.decode(response.responseText);
+		var datosEnviados = options.jsonData.Detalle;
+		
+		datosEnviados['nombre'] = 'Samsung Purete';
+		datosEnviados['impuesto'] = 10;
+		datosEnviados['fact_compra_detalle_id'] = Ext.id();
+		
+		console.log('datosEnviados',datosEnviados);
+		
+		//creamos registro en el main store
+		var nuevoRegistro = new mainStore.recordType(datosEnviados);
+		console.log('nuevoRegistro',nuevoRegistro);
+		mainStore.insert(0, nuevoRegistro);
+		
+		//ceramos el formulario de articulo
+		if(bloque)
+		{
+			var bloques = bloque.findByType('field',false);
+			for(var x=0; x<bloques.length; x++)
+			{
+				if(bloques[x].xtype == 'combo')
+				{
+					bloques[x].clearValue();
+					if(bloques[x].hiddenName == 'stock_articulo_id_codigo')
+						bloques[x].focus();
+				}
+				else if(bloques[x].xtype == 'numberfield')
+				{
+					bloques[x].setValue(null);
+				}
+			}
+		}
+	}
+	
+	//desenmascar grilla y container
+	if(bloque)
+	{
+		bloque.getEl().unmask();
+	}
+				
+	
+	if(grilla)
+		grilla.getEl().unmask();
+			
+};
+
+agregarArticuloCompra = function(b, e)
+{
+	//verificar formulario
+	var formulario = Ext.getCmp('mainForm');
+	if(formulario)
+	{
+		var basicForm = formulario.getForm();
+		 
+		if(basicForm.isValid())
+		{
+			var valores = basicForm.getFieldValues();
+			
+			console.log('valores',valores);
+			
+			//obtenemos los valores que me interesan
+			var datos = {
+				cantidad: valores.cantidad,
+				costo_unit: valores.costo_unit,
+				stock_articulo_id: valores.stock_articulo_id_codigo
+			};
+			
+			//hacemos request enmascarando bloque de articulo y bloque de grilla
+			//mainGrid
+			//bloqueArticulo
+			
+			var bloque = Ext.getCmp('bloqueArticulo');
+			if(bloque)
+				bloque.getEl().mask('Agregando .. ');
+				
+			var grilla = Ext.getCmp('mainGrid');
+			if(grilla)
+			{
+			 	grilla.getEl().mask('Agregando..');
+			}
+			
+			//aca hacemos la solicitud y manejamos la respuesta en CB
+			Ajax.PostElement.request({
+				url: baseURL + '/fact/compra/validate',
+				callback: agregarArticuloCompraCallback,
+				jsonData: {Detalle:datos}
+			});		
+			
+		}
+		else
+			Ext.Msg.alert('Aviso','Debe completar todos los campos');
+	}
+};
 
 verDetallesProveedor = function(b,e)
 {
@@ -23,15 +134,52 @@ verDetallesProveedor = function(b,e)
 		
 		if(valores.org_parte_id_buscar)
 		{
-			Ext.Msg.alert('Aviso','En Impl.');
+			//mi store es orgRolParteStore
+			//obtenemos record
+			var registro = orgRolParteStore.getById(valores.org_parte_id_buscar);
+			console.log(registro);
 		}
 		else
 			Ext.Msg.alert('Aviso','Debe seleccionar un proveedor');
 	}
 };
 
+
+agregarProveedorHandlerCallback = function(success, rawData)
+{
+	console.log('agregarArticuloHandlerCallback',success, rawData);
+	//obtener id
+	if(success)
+	{
+		var respuestaID = Ext.decode(rawData.responseText);
+		if(respuestaID.length > 0)
+		{
+			respuestaID = respuestaID[0];
+			
+			console.log('respuestaID',respuestaID);
+			
+			orgRolParteStore.load({
+				params:{
+					's[id]':respuestaID.org_parte_rol_id,
+					's[nombre]': null
+				},
+				callback: function(records, options, success)
+				{
+					console.log('cb agregar store proveedor',records, options, success);	
+				}
+			});
+		}
+	}
+	else
+	{
+		Ext.Msg.alert('Aviso','Ocurrio un error al agregar Proveedor');
+	}
+	
+};
+
 agregarProveedor = function(b,e)
 {
+	console.log('agregarProveedor');
 	//obtenemos los campos del formulario
 	var formulario = Ext.getCmp('mainForm');
 	if(formulario)
@@ -47,6 +195,64 @@ agregarProveedor = function(b,e)
 		campo = basicForm.findField('displayDocumento');
 		campo.setValue(null);
 		
+		//abrimos ventana de creacion
+		ventanaModal.add(formularioOrgParte(true, null, false, true, agregarProveedorHandlerCallback));
+		ventanaModal.doLayout();
+		ventanaModal.show();
+	}
+};
+
+
+agregarArticuloHandlerCallback = function(success, rawData)
+{
+	console.log('success, rawData',success, rawData);
+	if(success)
+	{
+		var respuesta = Ext.decode(rawData.responseText);
+		var id = respuesta.stock_articulo_id;
+		
+		//cargo el store con este dato
+		stockArticuloStore.load({
+			params:{
+				's[id]':id,
+				's[cadena]': null,
+				's[rcap]':null
+			},
+			callback: function(records, options, success)
+			{
+				console.log('cb',records, options, success);
+				var idBuscado = options.params['s[id]'];
+				
+				if(success)
+				{
+					var formulario = Ext.getCmp('mainForm');
+					if(formulario)
+					{
+						console.log('inside main form');
+						//seteamos en el form
+						var basicForm = formulario.getForm();
+						//obtener campo1 y setear valor
+						var campo1 = basicForm.findField('stock_articulo_id_codigo');
+						if(campo1)
+						{
+							campo1.setValue(idBuscado);
+						}
+						
+						var campo2 = basicForm.findField('stock_articulo_id_rcap');
+						if(campo2)
+						{
+							campo2.setValue(idBuscado);
+						}
+					
+					}
+				}
+				else
+				{
+					Ext.Msg.alert('Aviso','No se encontro articulo');
+				}
+			}
+		});
+			
 	}
 };
 
@@ -68,9 +274,98 @@ agregarArticuloHandler = function(b,e)
 			//creamos ventana modal
 			//anhadimos formulario pero antes obtenemos registro
 			
-		ventanaModal.add(formularioStockArticulo(true, null, false, true));
+		ventanaModal.add(formularioStockArticulo(true, null, false, true, agregarArticuloHandlerCallback));
 		ventanaModal.doLayout();
 		ventanaModal.show();
+			
+	}
+};
+
+verDetallesArticuloHandlerCallback = function(success, rawData)
+{
+	if(success)
+	{
+		var data = Ext.decode(rawData.responseText);
+		
+		stockArticuloStore.reload({
+			callback: function(records, options, success){
+				console.log('cb view', records, options, success);
+				var idBuscado = data.stock_articulo_id;
+				
+				if(success)
+				{
+					var formulario = Ext.getCmp('mainForm');
+					if(formulario)
+					{
+						console.log('inside main form');
+						//seteamos en el form
+						var basicForm = formulario.getForm();
+						//obtener campo1 y setear valor
+						var campo1 = basicForm.findField('stock_articulo_id_codigo');
+						if(campo1)
+						{
+							campo1.setValue(idBuscado);
+						}
+						
+						var campo2 = basicForm.findField('stock_articulo_id_rcap');
+						if(campo2)
+						{
+							console.log('in');
+							campo2.setValue(idBuscado);
+						}
+					
+					}
+				}
+				else
+				{
+					Ext.Msg.alert('Aviso','No se encontro articulo');
+				}
+			}
+		});
+		
+		return;
+		//cargo el store con este dato
+		stockArticuloStore.load({
+			params:{
+				's[id]':id,
+				's[cadena]': null,
+				's[rcap]':null
+			},
+			callback: function(records, options, success)
+			{
+				console.log('cb',records, options, success);
+				var idBuscado = options.params['s[id]'];
+				
+				if(success)
+				{
+					var formulario = Ext.getCmp('mainForm');
+					if(formulario)
+					{
+						console.log('inside main form');
+						//seteamos en el form
+						var basicForm = formulario.getForm();
+						//obtener campo1 y setear valor
+						var campo1 = basicForm.findField('stock_articulo_id_codigo');
+						if(campo1)
+						{
+							campo1.setValue(idBuscado);
+						}
+						
+						var campo2 = basicForm.findField('stock_articulo_id_rcap');
+						if(campo2)
+						{
+							console.log('in');
+							campo2.setValue(idBuscado);
+						}
+					
+					}
+				}
+				else
+				{
+					Ext.Msg.alert('Aviso','No se encontro articulo');
+				}
+			}
+		});
 			
 	}
 };
@@ -85,7 +380,7 @@ verDetallesArticuloHandler = function(b,e)
 		var valores = basicForm.getFieldValues();
 		
 		//solo podemos ver si tenemos articulo seleccionado
-		if(valores.stock_articulo_id_codigo && valores.stock_articulo_id_rcap)
+		if(valores.stock_articulo_id_codigo)
 		{
 			//creamos ventana modal
 			//anhadimos formulario pero antes obtenemos registro
@@ -94,7 +389,7 @@ verDetallesArticuloHandler = function(b,e)
 				url: baseURL + '/stock/articulo/get',
 				success: function(response, opt){
 					var data = Ext.decode(response.responseText);
-					ventanaModal.add(formularioStockArticulo(false, data, false, true));
+					ventanaModal.add(formularioStockArticulo(false, data, false, true, verDetallesArticuloHandlerCallback));
 					ventanaModal.doLayout();
 					ventanaModal.show();
 				},
@@ -138,54 +433,6 @@ function borrarArticulo(id)
 		}
 	}
 }
-
-var mainStore = new Ext.data.JsonStore({
-	// store configs
-	totalProperty: 'numResults',
-	//url: baseURL + '/stock/articulo/index',
-	// reader configs
-	root: '',
-	paramNames: {
-		start: 'p[page]',
-		limit: 'p[limit]'
-	},
-	baseParams: {
-		'p[limit]': 10,
-		'p[page]': 0
-	},
-	//autoLoad:true,
-	idProperty: 'fact_compra_detalle_id',
-	fields: ['fact_compra_detalle_id','fact_compra_id','stock_articulo_id','cantidad','costo_unit','nombre','impuesto']
-});
-
-var orgRolParteStore = new Ext.data.JsonStore({
-	// store configs
-	totalProperty: 'numResults',
-	url: baseURL + '/org/roles-de-partes/index',
-	// reader configs
-	root: 'records',
-	paramNames: {
-		start: 'p[page]',
-		limit: 'p[limit]'
-	},
-	baseParams: {
-		'p[limit]': 'all',
-		'p[page]': 0,
-		's[org_rol_codigo]':'proveedor'
-	},
-	//autoLoad:true,
-	idProperty: 'org_parte_rol_id',
-	fields: ['org_parte_rol_id',{name:'mostrar', convert:function(v,data){
-		if(data.org_parte_tipo_nombre == 'Empresa')
-		{
-			return data.nombre;
-		}
-		else if(data.org_parte_tipo_nombre == 'Persona')
-		{
-			return data.apellido + ', ' + data.nombre;
-		}
-	}},'org_rol_nombre','org_parte_tipo_nombre','org_parte_id','nombre','apellido','fechaDeNacimiento','genero']
-});
 
 
 var stockEstadoStore = new Ext.data.ArrayStore({
@@ -497,7 +744,13 @@ viewContainer.bodyPanel = [{
 			       															store: stockMonedaStore,
 			       															typeAhead:true,
 			       															mode:'local',
-			       															allowBlank: false
+			       															allowBlank: false,
+			       															listeners:{
+			       																'select':function(thisCmp)
+			       																{
+			       																	thisCmp.disable();
+			       																}
+			       															}
 		       															}
 				       	       									]
 				       	       								},
@@ -542,17 +795,19 @@ viewContainer.bodyPanel = [{
 																					var displayNombre = padre.find('name','displayNombre');
 																					var displayDocumento = padre.find('name','displayDocumento');
 																					
+																					console.log(displayNombre,displayDocumento,record.data)
+																					
 																					if(displayNombre.length>0)
 																					{
 																						displayNombre = displayNombre[0];
 																						
-																						displayNombre.setValue(record.data.mostrar);
+																						displayNombre.setValue(record.data.mostrarNombre);
 																					}
 																					
 																					if(displayDocumento.length>0)
 																					{
 																						displayDocumento = displayDocumento[0];
-																						
+																						displayDocumento.setValue(record.data.mostrarDocumentos);
 																					}
 																					
 																					
@@ -617,6 +872,7 @@ viewContainer.bodyPanel = [{
 				       	       									layout: 'form',
 				       	       									height: 180,
 				       	       									cls: 'bloqueFactura azul',
+				       	       									id: 'bloqueArticulo',
 				       	       									columnWidth: 1,
 				       	       									items:[
 				       	       											{
@@ -678,6 +934,13 @@ viewContainer.bodyPanel = [{
 																						cantidad = cantidad[0];
 																						cantidad.focus(true,true);
 																					}
+																					
+																					var existencia = padre.find('name','existencia');
+																					if(existencia.length>0)
+																					{
+																						existencia = existencia[0];
+																						existencia.setValue(record.data.existencia);
+																					}
 																				},
 																				'change':function(thisField, newValue, oldValue)
 																				{
@@ -695,7 +958,6 @@ viewContainer.bodyPanel = [{
 																			cls: 'searchIcon',
 																			hideTrigger: true,
 																			width: 475,
-																			allowBlank: false,
 																			minChars: 2,
 																			cls: 'searchIcon',
 																			displayField: 'rcap',
@@ -740,6 +1002,13 @@ viewContainer.bodyPanel = [{
 																					{
 																						cantidad = cantidad[0];
 																						cantidad.focus(true,true);
+																					}
+																					
+																					var existencia = padre.find('name','existencia');
+																					if(existencia.length>0)
+																					{
+																						existencia = existencia[0];
+																						existencia.setValue(record.data.existencia);
 																					}
 																					
 																				},
@@ -788,9 +1057,11 @@ viewContainer.bodyPanel = [{
 				       	       															style:{marginTop:'5px'},
 				       	       															items:[
 				       	       																	{
-				       	       																		xtype: 'displayfield',
-				       	       																		hideLabel: true,
-				       	       																		value: '&nbsp;'
+				       	       																		xtype: 'numberfield',
+				       	       																		width: 80,
+				       	       																		disabled:true,
+				       	       																		name: 'existencia',
+				       	       																		fieldLabel: 'En Stock'
 				       	       																	},
 				       	       																	{
 				       	       																		xtype: 'numberfield',
@@ -836,15 +1107,6 @@ viewContainer.bodyPanel = [{
 				       	       																				{
 				       	       																					xtype: 'button',
 				       	       																					width: 75,
-				       	       																					iconCls: '',
-				       	       																					handler: function(b,e){
-				       	       																						Ext.Msg.alert('Aviso','En Impl.');
-				       	       																					},
-				       	       																					text: 'Stock'
-				       	       																				},
-				       	       																				{
-				       	       																					xtype: 'button',
-				       	       																					width: 75,
 				       	       																					iconCls: 'addIcon',
 				       	       																					handler: agregarArticuloHandler,
 				       	       																					text: 'Articulo'
@@ -862,9 +1124,7 @@ viewContainer.bodyPanel = [{
 				       	       																					iconCls: 'cart',
 				       	       																					width: 75,
 				       	       																					height: 70,
-				       	       																					handler: function(b,e){
-				       	       																						Ext.Msg.alert('Aviso','En Impl.');
-				       	       																					},
+				       	       																					handler: agregarArticuloCompra,
 				       	       																					text: 'Agregar'
 				       	       																				}
 				       	       																		]
@@ -1006,12 +1266,27 @@ viewContainer.bodyPanel = [{
 				               							{ header: "Quitar", fixed:true, dataIndex: 'categoria',  width: 40, renderer: function(v,meta,record){
 				               								return '<div class="deleteIcon"></div>';
 				               							}},
-				               							{ header: "Cant.", fixed: true, dataIndex: 'cant',  width: 80},
-														{ header: "Descrip.", dataIndex: 'descrip', width: 160},
-														{ header: "Costo Unit.", dataIndex: 'precio_unit',  width: 100},
-														{ header: "Exenta", dataIndex: 'exenta',  width: 100},
-														{ header: "5%", dataIndex: 'cinco',  width: 100},
-														{ header: "10%", dataIndex: 'diez',  width: 100}
+				               							{ header: "Cant.", fixed: true, dataIndex: 'cantidad',  width: 80},
+														{ header: "Descrip.", dataIndex: 'nombre', width: 160},
+														{ header: "Costo Unit.", dataIndex: 'costo_unit',  width: 100},
+														{ header: "Exenta", dataIndex: null,  width: 100, renderer: function(v,meta,record){
+															if(record.data.impuesto == 0)
+																return record.data.cantidad * record.data.costo_unit;
+															else
+																return '-';
+														}},
+														{ header: "5%", dataIndex: null,  width: 100, renderer: function(v,meta,record){
+															if(record.data.impuesto == 5)
+																return record.data.cantidad * record.data.costo_unit;
+															else
+																return '-';
+														}},
+														{ header: "10%", dataIndex: null,  width: 100, renderer: function(v,meta,record){
+															if(record.data.impuesto == 10)
+																return record.data.cantidad * record.data.costo_unit;
+															else
+																return '-';
+														}}
 													])
 				           						}
 				       	       			]

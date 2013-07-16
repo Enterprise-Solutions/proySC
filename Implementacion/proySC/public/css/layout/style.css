@@ -1,4 +1,8 @@
 @CHARSET "ISO-8859-1";
+.x-btn BUTTON:focus { 
+  border: 1px dotted black;
+}
+
 /*
 body{
 	font-size: 11px;
