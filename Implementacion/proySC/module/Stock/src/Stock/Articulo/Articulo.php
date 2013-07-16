@@ -198,6 +198,11 @@ class Articulo
         }
     }
     
+    public function getNombre()
+    {
+        return $this->nombre;
+    }
+    
     public function addExistencia()
     {
         $this->existencia++;

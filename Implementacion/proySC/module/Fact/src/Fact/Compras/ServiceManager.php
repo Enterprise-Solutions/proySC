@@ -2,11 +2,13 @@
 
 namespace Fact\Compras;
 
+use Doctrine\ORM\EntityManager;
+
 class ServiceManager
 {
     /**
      * Doctrine Entity Manager
-     * @var Doctrine\Orm\EntityManager
+     * @var EntityManager
      */
     protected $em;
     
@@ -34,7 +36,11 @@ class ServiceManager
      */
     public function validateDetalle($data)
     {
-        $this->result = array('exitoso' => true);
+        $articuloId = $data['stock_articulo_id'];
+        $articulo = $this->em->find('Stock\Articulo\Articulo', $articuloId);
+        
+        $result = array('exitoso' => true, 'articulo' => $articulo->getNombre());
+        $this->result = array_merge($data, $result);
     }
     
     /**
