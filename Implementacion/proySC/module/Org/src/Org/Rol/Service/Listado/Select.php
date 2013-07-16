@@ -40,6 +40,11 @@ class Select extends DbSelect
 			 	'op.nombre_persona','op.apellido_persona','op.fecha_nacimiento','op.genero_persona','opt.nombre'));	 
 	}
 	
+	public function addSearchByOrgParteRolId($orgParteRolId)
+	{
+		$this->_select->where("orp.org_parte_rol_id = $orgParteRolId");
+	}
+	
 	public function addSearchByOrgParteTipoCodigo($codigo)
 	{
 		$this->_select->where("op.org_parte_tipo_codigo = '$codigo'");
