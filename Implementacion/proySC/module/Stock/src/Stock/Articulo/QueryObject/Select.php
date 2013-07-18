@@ -69,7 +69,7 @@ class Select extends DbSelect
     {
         if ($cadena) {
             $this->_select
-                 ->where("(sa.nombre || ' ' || sa.codigo) ILIKE ''%$cadena%");
+                 ->where("(sa.nombre || ' ' || sa.codigo) ILIKE '%$cadena%'");
         }
     }
 }
