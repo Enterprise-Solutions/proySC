@@ -3,8 +3,7 @@
 namespace Fact\Controller;
 
 use EnterpriseSolutions\Controller\BaseController;
-use Fact\Compras\ServiceManager;
-
+use Fact\Ingreso\Service\ValidarDetalle as ValidarDetalleService;
 use Fact\Ingreso\Service\Crear as CrearIngresoService;
 use Fact\Ingreso\Service\Editar as EditarIngresoService;
 
@@ -15,12 +14,12 @@ class CompraController extends BaseController
      */
     public function validateAction()
     {
-        $data = $this->SubmitParams()->getParam('Detalle');
+        $data = $this->SubmitParams()->getParams();
         
-        $serviceManager = $this->getServiceManager();
-        $serviceManager->validateDetalle($data);
+        $service = new ValidarDetalleService($this->getEntityManager());
+        $service->validar($data);
         
-        return $this->toJson($serviceManager->getResult());
+        return $this->toJson($service->getResult());
     }
     
     /**

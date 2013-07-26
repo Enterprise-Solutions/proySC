@@ -93,8 +93,7 @@ class Articulo extends Validator
     protected function validatePorcentajeImpuesto($articulo)
     {
         $impuestoValidaor = new ValidatorChain();
-        $impuestoValidaor->addValidator($this->getNotEmptyValidator('porcentaje_impuesto'))
-                         ->addValidator($this->getFloatValidator('porcentaje_impuesto'));
+        $impuestoValidaor->addValidator($this->getNotEmptyValidator('porcentaje_impuesto'));
         
         $this->addValidator($impuestoValidaor, $articulo->porcentaje_impuesto);
     }
@@ -117,10 +116,10 @@ class Articulo extends Validator
             return;
         }
         
-        $descuentoValidator = new ValidatorChain();
+        /*$descuentoValidator = new ValidatorChain();
         $descuentoValidator->addValidator($this->getFloatValidator('descuento_maximo'));
         
-        $this->addValidator($descuentoValidator, $articulo->descuento_maximo);
+        $this->addValidator($descuentoValidator, $articulo->descuento_maximo);*/
     }
     
     protected function validateExistencia($articulo)
@@ -132,7 +131,7 @@ class Articulo extends Validator
         } else {
             $existenciaValidator = new ValidatorChain();
             $existenciaValidator->addValidator($this->getNotEmptyValidator('existencia'))
-                                ->addValidator($this->getIntValidator('existencia'));
+                                ->addValidator($this->getDigitValidator('existencia'));
             
             $this->addValidator($existenciaValidator, $articulo->existencia);
         }
@@ -147,7 +146,7 @@ class Articulo extends Validator
         } else {
             $existenciaMinValidator = new ValidatorChain();
             $existenciaMinValidator->addValidator($this->getNotEmptyValidator('existencia_minima'))
-                                   ->addValidator($this->getIntValidator('existencia_minima'));
+                                   ->addValidator($this->getDigitValidator('existencia_minima'));
             
             $this->addValidator($existenciaMinValidator, $articulo->existencia_minima);
         }
