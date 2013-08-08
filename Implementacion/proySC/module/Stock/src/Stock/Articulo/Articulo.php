@@ -7,7 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * Articulo
- * @author guido
+ * @author guido  
  * 
  * @ORM\Entity
  * @ORM\Table(name="stock_articulo")
