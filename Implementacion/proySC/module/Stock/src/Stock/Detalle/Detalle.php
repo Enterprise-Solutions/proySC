@@ -60,7 +60,7 @@ class Detalle
     
     /**
      * @ORM\ManyToOne(targetEntity="Fact\Detalle\Ingreso")
-     * @ORM\JoinColumn(name="fact_compra_detalle_id", referencedColumnName="fact_compra_detalle_id")
+     * @ORM\JoinColumn(name="fact_ingreso_detalle_id", referencedColumnName="fact_ingreso_detalle_id")
      */
     protected $ingresoDetalle;
     
