@@ -3,6 +3,10 @@
 namespace Fact\Controller;
 
 use EnterpriseSolutions\Controller\BaseController;
+use EnterpriseSolutions\Db\Dao;
+
+use Fact\Ingreso\QueryObject\Select;
+
 use Fact\Ingreso\Service\ValidarDetalle as ValidarDetalleService;
 use Fact\Ingreso\Service\Crear as CrearIngresoService;
 use Fact\Ingreso\Service\Editar as EditarIngresoService;
@@ -28,6 +32,14 @@ class CompraController extends BaseController
     public function getLastCostAction()
     {
         
+    }
+    
+    public function indexAction($overwritedParams = array())
+    {
+        $select = new Select($this->getServiceLocator()->get('Zend\Db\Adapter\Adapter'));
+        $dao = new Dao($select);
+        $template = $this->_crearTemplateParaListado();
+        return $template($dao, array(), $overwritedParams);
     }
     
     /**
