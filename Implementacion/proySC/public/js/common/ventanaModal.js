@@ -14,6 +14,14 @@ if(!ventanaModal){
         listeners:{
         	'beforeadd':function(thisCont, newCmp, index){
         		thisCont.removeAll();
+        	},
+        	'render':function(thisCmp)
+        	{
+        		thisCmp.getEl().unmask();
+        	},
+        	'show':function(thisCmp)
+        	{
+        		thisCmp.getEl().unmask();
         	}
         }
     });

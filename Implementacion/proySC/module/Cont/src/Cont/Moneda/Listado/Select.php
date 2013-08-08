@@ -9,8 +9,8 @@ class Select extends DbSelect
     public function _init()
     {
         $this->_select
-             ->from(array('cm' => 'cont_moneda'))
-             ->columns(array('cont_moneda_id', 'nombre', 'nombre_plural', 'simbolo', 'descripcion','permite_decimal'));
+             ->from(array('cm' => 'cont_moneda'));
+             //->columns(array('cont_moneda_id', 'nombre', 'nombre_plural', 'simbolo', 'descripcion','permite_decimal','cnt_decimales'));
              
              //->join(array('sm' => 'stock_marca'), 'sa.stock_marca_id = sm.stock_marca_id', array('marca' => 'nombre'))
              //->join(array('sc' => 'stock_categoria'), 'sa.stock_categoria_id = sc.stock_categoria_id', array('categoria' => 'nombre'));

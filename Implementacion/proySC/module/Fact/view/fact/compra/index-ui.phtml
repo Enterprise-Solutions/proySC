@@ -5,11 +5,16 @@
 <script type="text/javascript" src="<?=$this->basePath();?>/js/stores/stockImpuestoStore.js"></script>
 <script type="text/javascript" src="<?=$this->basePath();?>/js/stores/stockCategoriaStore.js"></script>
 <script type="text/javascript" src="<?=$this->basePath();?>/js/stores/stockMarcaStore.js"></script>
-<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/stockMonedaStore.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/contMonedaStore.js"></script>
 <script type="text/javascript" src="<?=$this->basePath();?>/js/stores/orgRolesDePartesProveedorStore.js"></script>
 <script type="text/javascript" src="<?=$this->basePath();?>/js/stores/orgParteTipoStore.js"></script>
 <script type="text/javascript" src="<?=$this->basePath();?>/js/stores/orgParteStore.js"></script>
 <script type="text/javascript" src="<?=$this->basePath();?>/js/stores/orgDocumentoTipoStore.js"></script>
+
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/stockEstadoFacturaStore.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/stockEstadoStore.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/stockGarantiaTipoStore.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/stockArticuloStore.js"></script>
 <!-- despues lo demas -->
 <script type="text/javascript" src="<?=$this->basePath();?>/js/common/ventanaModal.js"></script>
 <script type="text/javascript" src="<?=$this->basePath();?>/js/forms/formularioEmpresa.js"></script>
@@ -21,6 +26,153 @@
 
 var mainStore = factCompraDetalleStore;
 
+mainStore.on('remove', function(thisStore, record, index){
+	console.log('remove', thisStore, record, index);
+});
+
+var monedaDecimales = false;
+var cantDecimalesMoneda = -1;
+
+guardarCompraHandlerCallback = function(options, success, response)
+{
+	console.log(options, success, response);
+	
+	var formulario = Ext.getCmp('mainForm');
+	if(formulario)
+		formulario.getEl().unmask();
+};
+
+guardarCompraHandler = function(b,e)
+{
+	//vemos si esta todo ok el formulari
+	var formulario = Ext.getCmp('mainForm');
+	if(formulario)
+	{
+		var basicForm = formulario.getForm();
+		
+		//obtenemos los datos
+		var valores = basicForm.getFieldValues();
+		
+		console.log('valores',valores);
+		
+		if(!basicForm.isValid())
+		{
+			Ext.Msg.alert('Aviso','Hay campos invalidos');
+			return;
+		}
+		
+		//obtenemos los datos
+		var valores = basicForm.getFieldValues();
+		
+		console.log('valores',valores);
+		
+		//verificamos que hayan registros
+		var records = mainStore.getRange();
+		
+		console.log('records',records);
+		
+		if(records.length == 0)
+		{
+			Ext.Msg.alert('Aviso','La compra no tiene productos');
+			return;
+		}
+
+		var registros = [];
+
+		for(var x=0; x<records.length;x++)
+		{
+			registros.push(records[x].data);
+		}
+		
+		//mascara
+		formulario.getEl().mask('Enviando...');
+
+		var datos = {
+			'post':{
+				'Ingreso':{
+					cont_moneda_id: valores.cont_moneda_id,
+					codigo: '--',
+					doc_nro: valores.factura_nro.join('-'),
+					doc_fecha: valores.fecha,
+					doc_tipo: 'F',
+					condicion: 'C',
+					estado: valores.estado_factura
+				},
+				'Detalle':registros
+			}
+		};
+		
+		
+		console.log('datos',datos);
+		
+		Ajax.PostElement.request({
+				url: baseURL + '/fact/compra/post',
+				callback: guardarCompraHandlerCallback,
+				jsonData: datos
+			});	
+		
+	}
+				
+};
+
+quitarArticuloCompra = function(id)
+{
+	var record = mainStore.getById(id);
+	if(record)
+		mainStore.remove(record);
+		
+		
+	var formulario = Ext.getCmp('mainForm');
+			if(formulario)
+			{
+				var basicForm = formulario.getForm();
+				
+				console.log('basicForm',basicForm);
+				
+				//definimos el total
+				var totalAdd = record.data.cantidad * record.data.costo_unit; //se suma al total
+				
+				console.log('totalAdd',totalAdd);
+				
+				var sumarIVA;
+				if(record.data.porc_impuesto == 10)
+				{
+					sumarIVA = totalAdd / 11;
+					var campo = basicForm.findField('iva_10_display');
+					if(campo)
+						campo.setValue(campo.getValue() - sumarIVA);
+				}
+				else if(record.data.porc_impuesto == 5)
+				{
+					sumarIVA = totalAdd / 21;
+					var campo = basicForm.findField('iva_5_display');
+					if(campo)
+						campo.setValue(campo.getValue() - sumarIVA);
+				}
+				else
+				{
+					sumarIVA = 0;
+					var campo = basicForm.findField('iva_exenta_display');
+					if(campo)
+						campo.setValue(campo.getValue() - sumarIVA);
+				}
+				
+				//aplicar a los campos
+				var total = basicForm.findField('valor_total_trans_display');
+				if(total)
+				{
+					console.log(total);
+					total.setValue(total.getValue() - totalAdd);
+				}
+				
+				var total_iva = basicForm.findField('total_iva_display');
+				if(total_iva)
+				{
+					total_iva.setValue(total_iva.getValue() - sumarIVA);
+				}
+			}
+};
+
 agregarArticuloCompraCallback = function(options, success, response)
 {
 	var grilla = Ext.getCmp('mainGrid');
@@ -29,38 +181,94 @@ agregarArticuloCompraCallback = function(options, success, response)
 	console.log('agregarArticuloCompraCallback',options, success, response);
 	if(success)
 	{
-		var datos = Ext.decode(response.responseText);
-		var datosEnviados = options.jsonData.Detalle;
+		//var datos = Ext.decode(response.responseText);
+		var respuesta = Ext.decode(response.responseText);
 		
-		datosEnviados['nombre'] = 'Samsung Purete';
-		datosEnviados['impuesto'] = 10;
-		datosEnviados['fact_compra_detalle_id'] = Ext.id();
-		
-		console.log('datosEnviados',datosEnviados);
-		
-		//creamos registro en el main store
-		var nuevoRegistro = new mainStore.recordType(datosEnviados);
-		console.log('nuevoRegistro',nuevoRegistro);
-		mainStore.insert(0, nuevoRegistro);
-		
-		//ceramos el formulario de articulo
-		if(bloque)
+		if(respuesta.exitoso)//se valido insercion
 		{
-			var bloques = bloque.findByType('field',false);
-			for(var x=0; x<bloques.length; x++)
+			console.log('resp',respuesta);
+			//creamos registro en el main store
+			var nuevoRegistro = new mainStore.recordType(respuesta, respuesta.stock_articulo_id);
+			console.log('nuevoRegistro',nuevoRegistro);
+			mainStore.insert(0, nuevoRegistro);
+			//una vez insertado tenemos que actualizar nuestro campos de calculos de iva y demas
+			
+			var formulario = Ext.getCmp('mainForm');
+			if(formulario)
 			{
-				if(bloques[x].xtype == 'combo')
+				var basicForm = formulario.getForm();
+				
+				console.log('basicForm',basicForm);
+				
+				//definimos el total
+				var totalAdd = nuevoRegistro.data.cantidad * nuevoRegistro.data.costo_unit; //se suma al total
+				
+				console.log('totalAdd',totalAdd);
+				
+				var sumarIVA;
+				if(nuevoRegistro.data.porc_impuesto == 10)
 				{
-					bloques[x].clearValue();
-					if(bloques[x].hiddenName == 'stock_articulo_id_codigo')
-						bloques[x].focus();
+					sumarIVA = totalAdd / 11;
+					var campo = basicForm.findField('iva_10_display');
+					if(campo)
+						campo.setValue(campo.getValue() + sumarIVA);
 				}
-				else if(bloques[x].xtype == 'numberfield')
+				else if(nuevoRegistro.data.porc_impuesto == 5)
 				{
-					bloques[x].setValue(null);
+					sumarIVA = totalAdd / 21;
+					var campo = basicForm.findField('iva_5_display');
+					if(campo)
+						campo.setValue(campo.getValue() + sumarIVA);
+				}
+				else
+				{
+					sumarIVA = 0;
+					var campo = basicForm.findField('iva_exenta_display');
+					if(campo)
+						campo.setValue(campo.getValue() + sumarIVA);
+				}
+				
+				//aplicar a los campos
+				var total = basicForm.findField('valor_total_trans_display');
+				if(total)
+				{
+					console.log(total);
+					total.setValue(total.getValue() + totalAdd);
+				}
+				
+				var total_iva = basicForm.findField('total_iva_display');
+				if(total_iva)
+				{
+					total_iva.setValue(total_iva.getValue() + sumarIVA);
+				}
+			}
+		 			
+			
+			
+			//ceramos el formulario de articulo
+			if(bloque)
+			{
+				var bloques = bloque.findByType('field',false);
+				for(var x=0; x<bloques.length; x++)
+				{
+					if(bloques[x].xtype == 'combo')
+					{
+						bloques[x].clearValue();
+						if(bloques[x].hiddenName == 'stock_articulo_id_codigo')
+							bloques[x].focus();
+					}
+					else if(bloques[x].xtype == 'numberfield')
+					{
+						bloques[x].setValue(null);
+					}
 				}
 			}
 		}
+		else//no se valido insercion
+		{
+			Ext.Msg.alert('Aviso','Hubo un error. Intentelo de nuevo.');
+		}
+		
 	}
 	
 	//desenmascar grilla y container
@@ -85,15 +293,73 @@ agregarArticuloCompra = function(b, e)
 		 
 		if(basicForm.isValid())
 		{
+			
+			//verificamos valores individuales obligatorios que son 
+			var c1 = basicForm.findField('stock_articulo_id_codigo');
+			var c2 = basicForm.findField('stock_articulo_id_rcap');
+			var c3 = basicForm.findField('cantidad');
+			var c4 = basicForm.findField('costo_unit');
+			var c5 = basicForm.findField('porcentaje_impuesto');
+			var c6 = basicForm.findField('cont_moneda_id');
+			
+			if(c1.getValue() == '')
+			{
+				Ext.Msg.alert('Aviso','Debe seleccionar un producto');
+				return;
+			}
+			
+			if(c2.getValue() == '')
+			{
+				Ext.Msg.alert('Aviso','Debe seleccionar un producto');
+				return;
+			}
+			
+			
+			if(c3.getValue() == '')
+			{
+				Ext.Msg.alert('Aviso','Debe seleccionar una cantidad');
+				return;
+			}
+			
+			if(c4.getValue() == '')
+			{
+				Ext.Msg.alert('Aviso','Debe seleccionar un costo unitario');
+				return;
+			}
+			
+			if(c5.getValue() == '')
+			{
+				Ext.Msg.alert('Aviso','El producto debe tener un porcentaje de impuesto definido');
+				return;
+			}
+
+			if(c6.getValue() == '')
+			{
+				Ext.Msg.alert('Aviso','Debe seleccionar una moneda');
+				return;
+			}
+			
 			var valores = basicForm.getFieldValues();
 			
 			console.log('valores',valores);
+			
+			//verificamos que ese articulo no este en la grilla
+			var id = valores.stock_articulo_id_codigo;
+			//buscamos
+			var record = mainStore.getById(id);
+			if(record)
+			{
+				Ext.Msg.alert('Aviso','Ese articulo ya se encuentra en la compra');
+				return;
+			}
 			
 			//obtenemos los valores que me interesan
 			var datos = {
 				cantidad: valores.cantidad,
 				costo_unit: valores.costo_unit,
-				stock_articulo_id: valores.stock_articulo_id_codigo
+				stock_articulo_id: valores.stock_articulo_id_codigo,
+				porc_impuesto: valores.porcentaje_impuesto,
+				cont_moneda_id: valores.cont_moneda_id
 			};
 			
 			//hacemos request enmascarando bloque de articulo y bloque de grilla
@@ -114,7 +380,7 @@ agregarArticuloCompra = function(b, e)
 			Ajax.PostElement.request({
 				url: baseURL + '/fact/compra/validate',
 				callback: agregarArticuloCompraCallback,
-				jsonData: {Detalle:datos}
+				jsonData: datos
 			});		
 			
 		}
@@ -160,12 +426,46 @@ agregarProveedorHandlerCallback = function(success, rawData)
 			
 			orgRolParteStore.load({
 				params:{
-					's[id]':respuestaID.org_parte_rol_id,
+					's[org_parte_rol_id]':respuestaID.org_parte_rol_id,
 					's[nombre]': null
 				},
 				callback: function(records, options, success)
 				{
-					console.log('cb agregar store proveedor',records, options, success);	
+					console.log('cb agregar store proveedor',records, options, success);
+					
+					if(records.length == 0)
+					{
+						Ext.Msg.alert('Aviso','No se encontro proveedor. Recargue la pagina');
+						return;
+					}
+					
+					var record = records[0];
+					
+					if(success)
+					{
+						//buscamos el campo org_parte_id_buscar y seteamos el valor correspondiente de proveedor
+						var formulario = Ext.getCmp('mainForm');
+						if(formulario)
+						{
+							var basicForm = formulario.getForm();
+		
+							var campo = basicForm.findField('org_parte_id_buscar');	
+							if(campo)
+								campo.setValue(record.data.org_parte_rol_id);
+								
+							campo = basicForm.findField('displayDocumento');	
+							if(campo)
+								campo.setValue(record.data.mostrarDocumentos);
+								
+							campo = basicForm.findField('displayNombre');	
+							if(campo)
+								campo.setValue(record.data.mostrarNombre);
+						}					
+					}
+					else
+					{
+						Ext.Msg.alert('Aviso','Hubo un error definiendo Proveedor');
+					}
 				}
 			});
 		}
@@ -208,6 +508,9 @@ agregarArticuloHandlerCallback = function(success, rawData)
 	console.log('success, rawData',success, rawData);
 	if(success)
 	{
+		var bloque = Ext.getCmp('bloqueArticulo');
+		if(bloque)
+			bloque.getEl().mask('Cargando...');
 		var respuesta = Ext.decode(rawData.responseText);
 		var id = respuesta.stock_articulo_id;
 		
@@ -220,29 +523,45 @@ agregarArticuloHandlerCallback = function(success, rawData)
 			},
 			callback: function(records, options, success)
 			{
-				console.log('cb',records, options, success);
-				var idBuscado = options.params['s[id]'];
+				console.log('records',records);
+				if(records.length == 0)
+				{
+					Ext.Msg.alert('Aviso','No se encontro registro. Intentelo de nuevo');
+					return;
+				}
+				
+				var record = records[0];
 				
 				if(success)
 				{
 					var formulario = Ext.getCmp('mainForm');
 					if(formulario)
 					{
-						console.log('inside main form');
+						console.log('inside main form y record', record);
 						//seteamos en el form
 						var basicForm = formulario.getForm();
 						//obtener campo1 y setear valor
 						var campo1 = basicForm.findField('stock_articulo_id_codigo');
+						console.log('campo1',campo1);
 						if(campo1)
 						{
-							campo1.setValue(idBuscado);
+							campo1.setValue(record.data.stock_articulo_id);
 						}
 						
 						var campo2 = basicForm.findField('stock_articulo_id_rcap');
+						console.log('campo2',campo2);
 						if(campo2)
 						{
-							campo2.setValue(idBuscado);
+							campo2.setValue(record.data.stock_articulo_id);
 						}
+						
+						var iva = basicForm.findField('porcentaje_impuesto');
+						if(iva)
+						{
+							iva.setValue(record.data.porcentaje_impuesto);
+						}
+						
+						
 					
 					}
 				}
@@ -250,6 +569,10 @@ agregarArticuloHandlerCallback = function(success, rawData)
 				{
 					Ext.Msg.alert('Aviso','No se encontro articulo');
 				}
+				
+				var bloque = Ext.getCmp('bloqueArticulo');
+					if(bloque)
+						bloque.getEl().unmask();
 			}
 		});
 			
@@ -283,6 +606,10 @@ agregarArticuloHandler = function(b,e)
 
 verDetallesArticuloHandlerCallback = function(success, rawData)
 {
+	var bloque = Ext.getCmp('bloqueArticulo');
+	if(bloque)
+		bloque.getEl().unmask();
+		
 	if(success)
 	{
 		var data = Ext.decode(rawData.responseText);
@@ -290,7 +617,18 @@ verDetallesArticuloHandlerCallback = function(success, rawData)
 		stockArticuloStore.reload({
 			callback: function(records, options, success){
 				console.log('cb view', records, options, success);
-				var idBuscado = data.stock_articulo_id;
+				
+				
+				if(records.length == 0)
+				{
+					Ext.Msg.alert('Aviso','No se encontro articulo. Intentelo de nuevo');
+				}
+				else
+				{
+				
+				var record = records[0];
+				
+				console.log('record en view',record);
 				
 				if(success)
 				{
@@ -300,18 +638,31 @@ verDetallesArticuloHandlerCallback = function(success, rawData)
 						console.log('inside main form');
 						//seteamos en el form
 						var basicForm = formulario.getForm();
+						
+						console.log('basicForm',basicForm);
+						
 						//obtener campo1 y setear valor
 						var campo1 = basicForm.findField('stock_articulo_id_codigo');
+						console.log('campo1',campo1);
 						if(campo1)
 						{
-							campo1.setValue(idBuscado);
+							campo1.setValue(record.data.stock_articulo_id);
 						}
 						
 						var campo2 = basicForm.findField('stock_articulo_id_rcap');
+						console.log('campo2',campo2);
 						if(campo2)
 						{
 							console.log('in');
-							campo2.setValue(idBuscado);
+							campo2.setValue(record.data.stock_articulo_id, campo2.getStore());
+						}
+						
+						var iva = basicForm.findField('porcentaje_impuesto');
+						console.log('iva', iva);
+						if(iva)
+						{
+							
+							iva.setValue(record.data.porcentaje_impuesto);
 						}
 					
 					}
@@ -319,55 +670,18 @@ verDetallesArticuloHandlerCallback = function(success, rawData)
 				else
 				{
 					Ext.Msg.alert('Aviso','No se encontro articulo');
+				}
+				
 				}
 			}
 		});
 		
-		return;
-		//cargo el store con este dato
-		stockArticuloStore.load({
-			params:{
-				's[id]':id,
-				's[cadena]': null,
-				's[rcap]':null
-			},
-			callback: function(records, options, success)
-			{
-				console.log('cb',records, options, success);
-				var idBuscado = options.params['s[id]'];
-				
-				if(success)
-				{
-					var formulario = Ext.getCmp('mainForm');
-					if(formulario)
-					{
-						console.log('inside main form');
-						//seteamos en el form
-						var basicForm = formulario.getForm();
-						//obtener campo1 y setear valor
-						var campo1 = basicForm.findField('stock_articulo_id_codigo');
-						if(campo1)
-						{
-							campo1.setValue(idBuscado);
-						}
-						
-						var campo2 = basicForm.findField('stock_articulo_id_rcap');
-						if(campo2)
-						{
-							console.log('in');
-							campo2.setValue(idBuscado);
-						}
-					
-					}
-				}
-				else
-				{
-					Ext.Msg.alert('Aviso','No se encontro articulo');
-				}
-			}
-		});
 			
 	}
+	
+	var bloque = Ext.getCmp('bloqueArticulo');
+	if(bloque)
+		bloque.getEl().unmask();
 };
 
 verDetallesArticuloHandler = function(b,e)
@@ -376,6 +690,10 @@ verDetallesArticuloHandler = function(b,e)
 	var formulario = Ext.getCmp('mainForm');
 	if(formulario)
 	{
+		var bloque = Ext.getCmp('bloqueArticulo');
+		if(bloque)
+			bloque.getEl().mask('Cargando...');
+			
 		var basicForm = formulario.getForm();
 		var valores = basicForm.getFieldValues();
 		
@@ -388,10 +706,18 @@ verDetallesArticuloHandler = function(b,e)
 			Ajax.PostElement.request({
 				url: baseURL + '/stock/articulo/get',
 				success: function(response, opt){
+					var bloque = Ext.getCmp('bloqueArticulo');
+					if(bloque)
+						bloque.getEl().unmask();
 					var data = Ext.decode(response.responseText);
 					ventanaModal.add(formularioStockArticulo(false, data, false, true, verDetallesArticuloHandlerCallback));
 					ventanaModal.doLayout();
 					ventanaModal.show();
+				},
+				failure: function(){
+					var bloque = Ext.getCmp('bloqueArticulo');
+					if(bloque)
+						bloque.getEl().unmask();
 				},
 				params:{id: valores.stock_articulo_id_codigo}
 			});		
@@ -425,7 +751,7 @@ function borrarArticulo(id)
 						success: function(response, opt){
 							mainStore.reload();
 						},
-						jsonData:{delete:{stock_articulo_id : id}}
+						jsonData:{'delete':{stock_articulo_id : id}}
 					});	
 				}
 			});
@@ -435,56 +761,7 @@ function borrarArticulo(id)
 }
 
 
-var stockEstadoStore = new Ext.data.ArrayStore({
-	idIndex: 0,  
-    fields: ['id','valor'],
-    data: [
-    	['A','Activo'],
-    	['I','Inactivo'],
-    	['D','Descontinuado'],
-    	['O','Obsoleto'],
-    ]
-});
 
-var stockEstadoFacturaStore = new Ext.data.ArrayStore({
-	idIndex: 0,  
-    fields: ['id','valor'],
-    data: [
-    	['P','Pagado'],
-    	['A','Anulado']
-    ]
-});
-
-
-var stockGarantiaTipoStore = new Ext.data.JsonStore({
-	// store configs
-	url: baseURL + '/stock/combos/garantia-tipo',
-	// reader configs
-	root: 'records',
-	autoLoad:true,
-	idProperty: 'stock_garantia_tipo_id',
-	fields: ['stock_garantia_tipo_id','garantia_tipo']
-});
-
-var stockArticuloStore = new Ext.data.JsonStore({
-	// store configs
-	totalProperty: 'numResults',
-	url: baseURL + '/stock/articulo/index',
-	// reader configs
-	root: 'records',
-	paramNames: {
-		start: 'p[page]',
-		limit: 'p[limit]'
-	},
-	baseParams: {
-		'p[limit]': 'all',
-		'p[page]': 0
-	},
-	idProperty: 'stock_articulo_id',
-	fields: ['stock_articulo_id',{name: 'mostrar', convert:function(v,data){
-		return data.nombre + ' / ' + data.codigo;
-	}},'rcap','categoria','codigo','existencia','marca','nombre','precio_venta','moneda','simbolo']
-});
 
 
 viewContainer.bodyPanel = [{
@@ -534,6 +811,8 @@ viewContainer.bodyPanel = [{
 				       	       											{
 				       	       												xtype: 'textfield',
 				       	       												width: 35,
+				       	       												allowBlank: false,
+				       	       												name: 'factura_nro',
 				       	       												fieldLabel: 'Factura Nro.'
 				       	       											}
 				       	       									]
@@ -546,6 +825,8 @@ viewContainer.bodyPanel = [{
 				       	       											{
 				       	       												xtype: 'textfield',
 				       	       												hideLabel: true,
+				       	       												name: 'factura_nro',
+				       	       												allowBlank: false,
 				       	       												width: 35
 				       	       											}
 				       	       									]
@@ -557,6 +838,8 @@ viewContainer.bodyPanel = [{
 				       	       									items:[
 				       	       											{
 				       	       												xtype: 'textfield',
+				       	       												allowBlank: false,
+				       	       												name: 'factura_nro',
 				       	       												hideLabel: true,
 				       	       												width: 100
 				       	       											}
@@ -603,9 +886,10 @@ viewContainer.bodyPanel = [{
 		       															},
 		       															{
 			       															fieldLabel: 'Estado',
-			       															hiddenName: 'cont_moneda_id',
+			       															hiddenName: 'estado_factura',
 			       															width: 90,
 			       															value: 'P',
+			       															forceSelection: true,
 			       															valueField: 'id',
 			       															displayField:'valor',
 			       															xtype: 'combo',
@@ -741,14 +1025,56 @@ viewContainer.bodyPanel = [{
 			       															valueField: 'cont_moneda_id',
 			       															displayField:'simbolo',
 			       															xtype: 'combo',
-			       															store: stockMonedaStore,
+			       															store: contMonedaStore,
 			       															typeAhead:true,
 			       															mode:'local',
 			       															allowBlank: false,
 			       															listeners:{
-			       																'select':function(thisCmp)
+			       																'select':function(thisCmp, record, index)
 			       																{
-			       																	thisCmp.disable();
+			       																	thisCmp.setReadOnly(true);
+			       																	console.log('record',record);
+			       																	
+			       																	monedaDecimales = (record.data.permite_decimal == 'S')?(true):(false);
+																					cantDecimalesMoneda = record.data.cnt_decimales;
+																					
+																					console.log(monedaDecimales,cantDecimalesMoneda);
+																					
+																					//en base a esto modifico mi cantidad
+																					var formulario = Ext.getCmp('mainForm');
+																					if(formulario)
+																					{
+																						var basicForm = formulario.getForm();
+																						
+																						//definir campo de moneda display
+																						var monedaDisplay = basicForm.findField('moneda_display');
+																						if(monedaDisplay)
+																						{
+																							monedaDisplay.setValue(record.data.nombre);
+																						}
+																						
+																						var costo_unit = basicForm.findField('costo_unit');
+																						
+																						var nuevoNumbers = {
+				       	       																		xtype: 'numberfield',
+				       	       																		width: 90,
+				       	       																		allowNegative: false,
+				       	       																		allowDecimals: monedaDecimales,
+				       	       																		decimalPrecision: cantDecimalesMoneda,
+				       	       																		name: 'costo_unit',
+				       	       																		fieldLabel: 'Costo Unit.'
+				       	       																	};
+																						
+																						
+																						console.log(costo_unit);
+																						if(costo_unit)
+																						{
+																							var padre = costo_unit.ownerCt;
+																							padre.remove(costo_unit);
+																							padre.add(nuevoNumbers);
+																							padre.doLayout();
+																						}
+																					}
 			       																}
 			       															}
 		       															}
@@ -771,7 +1097,7 @@ viewContainer.bodyPanel = [{
 																			fieldLabel: 'RUC / Nombre',
 																			cls: 'searchIcon',
 																			hideTrigger: true,
-																			width: 200,
+																			width: 210,
 																			allowBlank: false,
 																			minChars: 2,
 																			cls: 'searchIcon',
@@ -838,6 +1164,7 @@ viewContainer.bodyPanel = [{
 				       	       											},
 				       	       											{
 				       	       												xtype: 'textfield',
+				       	       												width: 180,
 				       	       												fieldLabel: 'Documento',
 				       	       												name: 'displayDocumento',
 				       	       												disabled: true
@@ -846,6 +1173,7 @@ viewContainer.bodyPanel = [{
 				       	       												xtype: 'textfield',
 				       	       												fieldLabel: 'Nombre o Raz. Social',
 				       	       												name: 'displayNombre',
+				       	       												width: 180,
 				       	       												disabled: true
 				       	       											},
 				       	       											{
@@ -887,7 +1215,6 @@ viewContainer.bodyPanel = [{
 																			cls: 'searchIcon',
 																			hideTrigger: true,
 																			width: 475,
-																			allowBlank: false,
 																			minChars: 2,
 																			cls: 'searchIcon',
 																			displayField: 'mostrar',
@@ -897,7 +1224,7 @@ viewContainer.bodyPanel = [{
 																			triggerAction: 'all',
 																			listWidth: 500,
 																			queryDelay: 1000,
-																			queryParam: 's[articulo]',
+																			queryParam: 's[cadena]',
 																			store: stockArticuloStore,
 																			hiddenName: 'stock_articulo_id_codigo',
 																			listeners:{
@@ -941,6 +1268,13 @@ viewContainer.bodyPanel = [{
 																						existencia = existencia[0];
 																						existencia.setValue(record.data.existencia);
 																					}
+																					
+																					var iva = padre.find('hiddenName','porcentaje_impuesto');
+																					if(iva.length>0)
+																					{
+																						iva = iva[0];
+																						iva.setValue(record.data.porcentaje_impuesto);
+																					}
 																				},
 																				'change':function(thisField, newValue, oldValue)
 																				{
@@ -973,7 +1307,7 @@ viewContainer.bodyPanel = [{
 																			listeners:{
 																				'beforequery':function(objectQuery)
 																				{
-																					objectQuery.combo.getStore().setBaseParam('s[articulo]',null);
+																					objectQuery.combo.getStore().setBaseParam('s[cadena]',null);
 																				},
 																				'beforeselect':function(thisCombo, record, index)
 																				{
@@ -1011,6 +1345,13 @@ viewContainer.bodyPanel = [{
 																						existencia.setValue(record.data.existencia);
 																					}
 																					
+																					var iva = padre.find('hiddenName','porcentaje_impuesto');
+																					if(iva.length>0)
+																					{
+																						iva = iva[0];
+																						iva.setValue(record.data.porcentaje_impuesto);
+																					}
+																					
 																				},
 																				'change':function(thisField, newValue, oldValue)
 																				{
@@ -1034,18 +1375,19 @@ viewContainer.bodyPanel = [{
 				       	       																	{
 				       	       																		xtype: 'numberfield',
 				       	       																		width: 50,
-				       	       																		allowBlank: false,
 				       	       																		allowNegative: false,
 				       	       																		allowDecimals: false,
+				       	       																		minValue: 1,
 				       	       																		name: 'cantidad',
 				       	       																		fieldLabel: 'Cantidad'
 				       	       																	},
 				       	       																	{
 				       	       																		xtype: 'numberfield',
 				       	       																		width: 90,
-				       	       																		allowBlank: false,
 				       	       																		allowNegative: false,
+				       	       																		readOnly: true,
 				       	       																		name: 'costo_unit',
+				       	       																		emptyText: 'Seleccione moneda..',
 				       	       																		fieldLabel: 'Costo Unit.'
 				       	       																	}
 				       	       															]
@@ -1073,16 +1415,15 @@ viewContainer.bodyPanel = [{
 				       	       																	{
 			       																					fieldLabel: '%IVA',
 			       																					hiddenName: 'porcentaje_impuesto',
-			       																					disabled:true,
 			       																					forceSelection: true,
 			       																					xtype: 'combo',
 			       																					triggerAction: 'all',
 			       																					store: stockImpuestoStore,
+			       																					readOnly: true,
 			      																					displayField: 'valor',
 			       																					valueField: 'id',
 			       																					mode: 'local',
-			       																					width: 75,
-			       																					allowBlank: false
+			       																					width: 75
 		       																					}
 				       	       															]
 				       	       														},
@@ -1161,26 +1502,38 @@ viewContainer.bodyPanel = [{
 				       	       											},
 				       	       											{
 				       	       												xtype: 'container',
-				       	       												defaults:{xtype: 'textfield', disabled: true},
+				       	       												defaults:{xtype: 'numberfield', disabled: true},
 				       	       												layout: 'form',
 				       	       												items:[
 				       	       														{
-				       	       															fieldLabel: '<span style="text-decoration:underline; ">Valor Total Trans.</span>'
+				       	       															fieldLabel: '<span style="text-decoration:underline; ">Valor Total Trans.</span>',
+				       	       															name: 'valor_total_trans_display',
+				       	       															value: 0
 				       	       														},
 				       	       														{
-				       	       															fieldLabel: 'Moneda'
+				       	       															fieldLabel: 'Moneda',
+				       	       															name: 'moneda_display',
+				       	       															xtype: 'textfield'
 				       	       														},
 				       	       														{
-				       	       															fieldLabel: 'IVA 10%'
+				       	       															fieldLabel: 'IVA 10%',
+				       	       															name: 'iva_10_display',
+				       	       															value: 0
 				       	       														},
 				       	       														{
-				       	       															fieldLabel: 'IVA 5%'
+				       	       															fieldLabel: 'IVA 5%',
+				       	       															name: 'iva_5_display',
+				       	       															value: 0
 				       	       														},
 				       	       														{
-				       	       															fieldLabel: 'IVA Exenta'
+				       	       															fieldLabel: 'IVA Exenta',
+				       	       															name: 'iva_exenta_display',
+				       	       															value: 0
 				       	       														},
 				       	       														{
-				       	       															fieldLabel: 'Total IVA'
+				       	       															fieldLabel: 'Total IVA',
+				       	       															name: 'total_iva_display',
+				       	       															value: 0
 				       	       														}
 				       	       												]
 				       	       											}
@@ -1240,7 +1593,8 @@ viewContainer.bodyPanel = [{
 					       	       			        									style:{margin: '5px 0'},
 					       	       			        									width: 95,
 					       	       			        									iconCls: 'addIcon',
-					       	       			        									text: 'Guardar'
+					       	       			        									text: 'Guardar',
+					       	       			        									handler: guardarCompraHandler
 																					}
 				       	       												]		
 				       	       											}
@@ -1264,25 +1618,25 @@ viewContainer.bodyPanel = [{
 				               						store: mainStore,
 				               						cm: new Ext.grid.ColumnModel([
 				               							{ header: "Quitar", fixed:true, dataIndex: 'categoria',  width: 40, renderer: function(v,meta,record){
-				               								return '<div class="deleteIcon"></div>';
+				               								return '<div class="deleteIcon" onclick="quitarArticuloCompra(' + record.data.stock_articulo_id +');"></div>';
 				               							}},
 				               							{ header: "Cant.", fixed: true, dataIndex: 'cantidad',  width: 80},
-														{ header: "Descrip.", dataIndex: 'nombre', width: 160},
+														{ header: "Descrip.", dataIndex: 'articulo', width: 160},
 														{ header: "Costo Unit.", dataIndex: 'costo_unit',  width: 100},
 														{ header: "Exenta", dataIndex: null,  width: 100, renderer: function(v,meta,record){
-															if(record.data.impuesto == 0)
+															if(record.data.porc_impuesto == 0)
 																return record.data.cantidad * record.data.costo_unit;
 															else
 																return '-';
 														}},
 														{ header: "5%", dataIndex: null,  width: 100, renderer: function(v,meta,record){
-															if(record.data.impuesto == 5)
+															if(record.data.porc_impuesto == 5)
 																return record.data.cantidad * record.data.costo_unit;
 															else
 																return '-';
 														}},
 														{ header: "10%", dataIndex: null,  width: 100, renderer: function(v,meta,record){
-															if(record.data.impuesto == 10)
+															if(record.data.porc_impuesto == 10)
 																return record.data.cantidad * record.data.costo_unit;
 															else
 																return '-';

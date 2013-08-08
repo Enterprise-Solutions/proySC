@@ -67,6 +67,7 @@ function formularioStockArticulo(isNew, data, readOnly, isOnModalWindow, cb)
 			       			if(readOnly || isOnModalWindow)
 			       				return;
 			       				
+			       			return;
 			       			//contenedor
 			       			var itemContainer = thisEl.itemCt.dom.childNodes[1].firstChild.id;
 			       			
@@ -102,6 +103,7 @@ function formularioStockArticulo(isNew, data, readOnly, isOnModalWindow, cb)
 			       			if(readOnly || isOnModalWindow)
 			       				return;
 			       			
+			       			return;
 			       			console.log('thisEl',thisEl);
 			       			//contenedor
 			       			var itemContainer = thisEl.itemCt.dom.childNodes[1].firstChild.id;
@@ -180,7 +182,7 @@ function formularioStockArticulo(isNew, data, readOnly, isOnModalWindow, cb)
 			       							value: (isNew)?(null):(data.cont_moneda_id),
 			       							xtype: 'combo',
 			       							disabled:readOnly,
-			       							store: stockMonedaStore,
+			       							store: contMonedaStore,
 			       							typeAhead:true,
 			       							mode:'local',
 			       							allowBlank: false
@@ -316,6 +318,7 @@ function formularioStockArticulo(isNew, data, readOnly, isOnModalWindow, cb)
 							{
 							    xtype: 'button',
 							    text: 'Guardar',
+							    disabled: readOnly,
 							    handler: function(b,e){
 								       //verificar si esta todo ok
 								       var mainForm = b.ownerCt.ownerCt;
@@ -324,6 +327,8 @@ function formularioStockArticulo(isNew, data, readOnly, isOnModalWindow, cb)
 								       {
 									       var valores = basicForm.getFieldValues();
 									       
+									       if(isOnModalWindow)
+									           ventanaModal.getEl().mask('Enviando..');
 							
 									       if(valores.stock_articulo_id)//si existe es edicion
 									       {
@@ -363,6 +368,10 @@ function formularioStockArticulo(isNew, data, readOnly, isOnModalWindow, cb)
 															   cb(true, response);
 													   }
 												   },
+												   failure: function(response, opts) {
+												       if(isOnModalWindow)
+      											           ventanaModal.getEl().unmask();
+   												   },
 												   jsonData:{
 												       'post': valores,
 													   'formulario': mainForm.id
