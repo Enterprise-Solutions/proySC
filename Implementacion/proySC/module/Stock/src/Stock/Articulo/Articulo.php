@@ -52,7 +52,7 @@ class Articulo
     /**
      * @ORM\Column(type="integer")
      */
-    protected $tiempo_garantia;
+    protected $tiempo_garantia;     
     
     /**
      * @ORM\Column(type="string")
