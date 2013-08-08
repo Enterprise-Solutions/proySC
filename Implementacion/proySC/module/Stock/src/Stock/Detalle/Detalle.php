@@ -28,12 +28,12 @@ class Detalle
     /**
      * @ORM\Column(type="integer")
      */
-    protected $fact_compra_detalle_id;
+    protected $fact_ingreso_detalle_id;
     
     /**
      * @ORM\Column(type="integer")
      */
-    protected $fact_venta_detalle_id;
+    protected $fact_egreso_detalle_id;
     
     /**
      * @ORM\Column(type="string")
