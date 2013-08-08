@@ -4,8 +4,10 @@ namespace Fact\Controller;
 
 use EnterpriseSolutions\Controller\BaseController;
 use EnterpriseSolutions\Db\Dao;
+use Fact\Ingreso\QueryObject\Get\Dao as DaoGet;
 
 use Fact\Ingreso\QueryObject\Select;
+use Fact\Ingreso\QueryObject\Get;
 
 use Fact\Ingreso\Service\ValidarDetalle as ValidarDetalleService;
 use Fact\Ingreso\Service\Crear as CrearIngresoService;
@@ -47,7 +49,10 @@ class CompraController extends BaseController
      */
     public function getAction()
     {
-    
+        $query = new Get($this->getServiceLocator()->get('Zend\Db\Adapter\Adapter'));
+        $dao = new DaoGet($query);
+        $template = $this->_crearTemplateParaGet();
+        return $template($dao, array());
     }
     
     /**
