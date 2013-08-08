@@ -14,6 +14,5 @@ function formatearFecha(date, formato)
 			break;
 	}
 	
-	console.log(fecha);
 	return fecha;
 }

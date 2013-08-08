@@ -69,7 +69,7 @@ guardarCompraHandler = function(b,e)
 		//verificamos que hayan registros
 		var records = mainStore.getRange();
 		
-		console.log('records',records);
+		console.log('records',records, formatearFecha(valores.fecha, 1));
 		
 		if(records.length == 0)
 		{
@@ -79,7 +79,7 @@ guardarCompraHandler = function(b,e)
 
 		var registros = [];
 
-		for(var x=0; x<records.length;x++)
+		for(var x=0; x<records.length;x++)	
 		{
 			registros.push(records[x].data);
 		}
@@ -93,7 +93,7 @@ guardarCompraHandler = function(b,e)
 					cont_moneda_id: valores.cont_moneda_id,
 					codigo: '--',
 					doc_nro: valores.factura_nro.join('-'),
-					doc_fecha: valores.fecha,
+					doc_fecha: formatearFecha(valores.fecha, 1),
 					doc_tipo: 'F',
 					condicion: 'C',
 					estado: valores.estado_factura
