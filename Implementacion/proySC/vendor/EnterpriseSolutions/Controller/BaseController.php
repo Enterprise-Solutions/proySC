@@ -64,4 +64,9 @@ class BaseController extends AbstractActionController {
 	{
 		
 	}
+	
+	public function listUIAction()
+	{
+		 
+	}
 }
