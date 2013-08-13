@@ -8,6 +8,7 @@ use Fact\Ingreso\QueryObject\Get\Dao as DaoGet;
 
 use Fact\Ingreso\QueryObject\Select;
 use Fact\Ingreso\QueryObject\Get;
+use Fact\Ingreso\QueryObject\LastCost;
 
 use Fact\Ingreso\Service\ValidarDetalle as ValidarDetalleService;
 use Fact\Ingreso\Service\Crear as CrearIngresoService;
@@ -33,7 +34,10 @@ class CompraController extends BaseController
      */
     public function getLastCostAction()
     {
-        
+        $query = new LastCost($this->getServiceLocator()->get('Zend\Db\Adapter\Adapter'));
+        $dao = new Dao($query);
+        $template = $this->_crearTemplateParaListado();
+        return $template($dao, array(), array());
     }
     
     public function indexAction($overwritedParams = array())

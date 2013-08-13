@@ -4,6 +4,7 @@ namespace Fact\Ingreso\Service;
 
 use Doctrine\ORM\EntityManager;
 use Fact\Ingreso\Ingreso;
+use Fact\Ingreso\Service\AsignarProveedor as AsignarProveedorService;
 use Fact\Detalle\Service\Crear as CrearDetalleIngresoService;
 
 class Crear
@@ -29,6 +30,7 @@ class Crear
     {
         $this->crearIngreso($data['Ingreso']);
         $this->crearIngresoDetalle($data['Detalle']);
+        $this->asignarProveedor($data['Proveedor']);
         $this->em->persist($this->ingreso);
     }
     
@@ -50,6 +52,16 @@ class Crear
             $detalle = $service->getDetalle();
             $this->ingreso->add($detalle);
         }
+    }
+    
+    protected function asignarProveedor($data)
+    {
+    	if (isset($data['org_parte_rol_id'])) {
+    		$proveedorAsignado = new Proveedor();
+    		$proveedorAsignado->addRol($data['org_parte_rol_id']);
+    		$proveedorAsignado->addDocumento($this->ingreso->getId());
+    		$this->em->persist($proveedorAsignado);
+    	}
     }
     
     public function getRespuesta()
