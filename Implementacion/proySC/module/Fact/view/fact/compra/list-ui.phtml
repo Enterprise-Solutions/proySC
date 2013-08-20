@@ -12,6 +12,124 @@ function hideBloque()
 
 var mainStore = factIngresoStore;
 
+var formularioEditarIngreso = function(data)
+{
+	return {
+		xtype: 'form',
+		title: 'Anular Ingreso',
+		cls: 'ladoDerecho',
+		bodyCssClass: 'formularioGeneral',
+		layout: 'form',
+		autoHeight: true,
+		defaults:{xtype: 'displayfield'},
+		items:[
+		       {
+			       xtype: 'hidden',
+			       name: 'fact_ingreso_id',
+			       value: data.fact_ingreso_id
+		       },
+		       {
+			       fieldLabel: 'Nro. Ingreso',
+			       name: 'doc_nro',
+			       width: 150,
+			       value: data.doc_nro
+		       },
+		       {
+			       fieldLabel: 'Fecha',
+			       name: 'doc_fecha',
+			       width: 150,
+			       value: data.doc_fecha
+		       },
+		       {
+			       fieldLabel: 'Fecha',
+			       name: 'total_ingreso',
+			       width: 150,
+			       value: data.total_ingreso
+		       },
+		       {
+			       fieldLabel: 'Fecha',
+			       name: 'moneda_simbolo',
+			       width: 150,
+			       value: data.moneda_simbolo
+		       },
+		       {
+			       xtype: 'container',
+			       layout: 'column',
+			       defaults:{style: {margin: '5px'}},
+			       items:[
+							{
+							    xtype: 'button',
+							    text: 'Anular',
+							    handler: function(b,e){
+								       //verificar si esta todo ok
+								       var mainForm = b.ownerCt.ownerCt;
+								       basicForm = mainForm.getForm();
+								       
+								       var valores = basicForm.getFieldValues();
+									       
+									    	var myId = valores.fact_ingreso_id;
+									    	
+									    	Ext.Msg.confirm('Anular','Desea anular la factura?', function(boton){
+									    		
+									    		if(boton == 'yes')
+									    		{
+									    			 Ajax.PostElement.request({
+												   		url: baseURL + '/fact/compra/put',
+												   		success: function(response, opt){
+												      		 mainStore.reload();
+												   		},
+												   		jsonData:{
+												       		'put': {fact_ingreso_id: myId}
+												   		}
+											   });   
+									    		}
+									    	});
+									    	
+									    	
+									      
+								   }
+							},
+							{
+								xtype: 'button',
+								text: 'Cancelar',
+								handler: function(b,e){
+									var mainForm = b.ownerCt.ownerCt;
+							        var padre = mainForm.ownerCt;
+							        padre.remove(mainForm);
+								}
+							}
+				   ]
+		       }
+		],
+		listeners:{
+			'render':function(){
+				hideBloque();
+			}
+		}
+	};
+};
+
+var editarIngreso = function(fact_ingreso_id)//aca cargamos el formulario para anular
+{
+	//obtenemos registro
+	var registro = mainStore.getById(fact_ingreso_id);
+	
+	if(!registro)
+		return;
+		
+	console.log(registro);
+	
+	//buscamos destino
+	var destino = Ext.getCmp('formContainer');
+	if(destino)
+	{
+		destino.removeAll();
+		var addedEl = destino.add(formularioEditarIngreso(registro.data));
+		destino.doLayout();
+		addedEl.body.highlight();
+	}
+};
+
 viewContainer.bodyPanel = [{
 	layout: 'fit',
 	xtype: 'container',
@@ -216,10 +334,10 @@ viewContainer.bodyPanel = [{
 														{ header: "Total", dataIndex: 'total_ingreso',  width: 65},
 														{ header: "Moneda", dataIndex: 'moneda_simbolo',  width: 65},
 														{ header: "Ver", dataIndex: null,  width: 32, align: 'center', renderer: function(v,meta,record){
-															return '<div class="viewIcon" onclick="verMoneda(' + record.data.cont_moneda_id + ')"></div>';
+															return '<div class="viewIcon" onclick="verIngreso(' + record.data.fact_ingreso_id + ')"></div>';
 														}},
 														{ header: "Editar", dataIndex: null,  width: 32, align: 'center', renderer: function(v,meta,record){
-															return '<div class="editIcon" onclick="editarMoneda(' + record.data.cont_moneda_id + ')"></div>';
+															return '<div class="editIcon" onclick="editarIngreso(' + record.data.fact_ingreso_id + ')"></div>';
 														}}
 														])
 				           						}

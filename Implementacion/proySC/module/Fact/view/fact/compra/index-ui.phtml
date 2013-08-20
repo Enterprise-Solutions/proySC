@@ -40,6 +40,11 @@ guardarCompraHandlerCallback = function(options, success, response)
 	var formulario = Ext.getCmp('mainForm');
 	if(formulario)
 		formulario.getEl().unmask();
+		
+	if(success)
+	{
+	}
+		//location.href = baseURL + '/fact/compra/list-ui';
 };
 
 guardarCompraHandler = function(b,e)
@@ -98,7 +103,8 @@ guardarCompraHandler = function(b,e)
 					condicion: 'C',
 					estado: valores.estado_factura
 				},
-				'Detalle':registros
+				'Detalle':registros,
+				'Proveedor': {org_parte_rol_id: valores.org_parte_id_buscar}
 			}
 		};
 		
@@ -1574,7 +1580,7 @@ viewContainer.bodyPanel = [{
 					       	       			        									xtype: 'button',
 					       	       			        									width: 85,
 					       	       			        									handler: function(b,e){
-				       	       																Ext.Msg.alert('Aviso','En Impl.');
+				       	       																location.href = baseURL + '/fact/compra/list-ui';
 				       	       															},
 					       	       			        									style:{margin: '5px 0'},
 					       	       			        									iconCls: 'addIcon',
