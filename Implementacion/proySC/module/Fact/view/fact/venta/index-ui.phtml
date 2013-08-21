@@ -1,386 +1,851 @@
-<script type="text/javascript">
-function hideBloque()
-{
-	var cajaMensaje = Ext.getCmp('messageBox');
-	if(cajaMensaje){
-		cajaMensaje.addClass('oculto');
-	}	
-}
+<!-- primero stores siempre -->
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/factCompraDetalleStore.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/genericoProductoStore.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/genericoSiNoStore.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/stockImpuestoStore.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/stockCategoriaStore.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/stockMarcaStore.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/contMonedaStore.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/orgRolesDePartesClienteStore.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/orgRolesDePartesVendedorStore.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/orgParteTipoStore.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/orgParteStore.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/orgDocumentoTipoStore.js"></script>
 
-function formularioArticulo(isNew, data, readOnly)
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/stockEstadoFacturaStore.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/stockEstadoStore.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/stockGarantiaTipoStore.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/stockArticuloStore.js"></script>
+<!-- despues lo demas -->
+<script type="text/javascript" src="<?=$this->basePath();?>/js/common/ventanaModal.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/forms/formularioEmpresa.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/forms/formularioPersona.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/forms/stockArticulo.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/forms/orgParteCliente.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/forms/orgParteAsesor.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/common/hideBloque.js"></script>
+<script type="text/javascript">
+
+var mainStore = factCompraDetalleStore;
+
+mainStore.on('remove', function(thisStore, record, index){
+	console.log('remove', thisStore, record, index);
+});
+
+var monedaDecimales = false;
+var cantDecimalesMoneda = -1;
+
+guardarCompraHandlerCallback = function(options, success, response)
 {
-	return {
-		xtype: 'form',
-		title: (readOnly)?('Ver Articulo'):((isNew)?('Crear Articulo'):('Editar Articulo')),
-		cls: 'ladoDerecho',
-		bodyCssClass: 'formularioGeneral',
-		layout: 'form',
-		//defaults:{(readOnly)?(xtype:'displayfield'):(xtype:'textfield')},
-		autoHeight: true,
-		items:[
-		       {
-			       xtype: 'hidden',
-			       name: 'stock_articulo_id',
-			       value: (isNew)?(null):(data.stock_articulo_id)
-		       },
-		       {
-			       fieldLabel: 'Nombre',
-			       name: 'nombre',
-			       width: 150,
-			       maxLength: 40,
-			       value: (isNew)?(null):(data.nombre),
-			       xtype: 'textfield',
-			       disabled:readOnly,
-			       allowBlank: false
-		       },
-		       {
-			       fieldLabel: 'Codigo',
-			       name: 'codigo',
-			       width: 115,
-			       maxLength: 40,
-			       value: (isNew)?(null):(data.codigo),
-			       xtype: 'textfield',
-			       disabled:readOnly,
-			       allowBlank: false
-		       },
-		       {
-			       fieldLabel: 'Modelo',
-			       name: 'modelo',
-			       maxLength: 100,
-			       width: 150,
-			       value: (isNew)?(null):(data.modelo),
-			       xtype: 'textfield',
-			       disabled:readOnly,
-			       allowBlank: false
-		       },
-		       {
-			       	fieldLabel: 'Marca',
-			        hiddenName: 'stock_marca_id',
-			       	width: 130,
-			       	valueField: 'stock_marca_id',
-			       	displayField:'marca',
-			       	value: (isNew)?(null):(data.stock_marca_id),
-			       	xtype: 'combo',
-			       	disabled:readOnly,
-			       	store: stockMarcaStore,
-			       	typeAhead:true,mode:'local',
-			       	allowBlank: false
-		       },
-		       {
-			       	fieldLabel: 'Categoria',
-			        hiddenName: 'stock_categoria_id',
-			       	width: 130,
-			       	valueField: 'stock_categoria_id',
-			       	displayField:'categoria',
-			       	disabled:readOnly,
-			       	value: (isNew)?(null):(data.stock_categoria_id),
-			       	xtype: 'combo',
-			       	store: stockCategoriaStore,
-			       	typeAhead:true,mode:'local',
-			       	allowBlank: false
-		       },
-		       {
-			       fieldLabel: 'NCM',
-			       name: 'ncm',
-			       maxLength: 100,
-			       width: 150,
-			       value: (isNew)?(null):(data.ncm),
-			       xtype: 'textfield',
-			       disabled:readOnly
-		       },
-		       {
-			       fieldLabel: 'Descrip.',
-			       name: 'descripcion',
-			       disabled:readOnly,
-			       width: '80%',
-			       value: (isNew)?(null):(data.descripcion),
-			       xtype: 'textarea'
-		       },
-		       {
-		           xtype: 'fieldset',
-		           title: 'Precio Venta',
-		           layout: 'column',
-		           defaults:{xtype:'container'},
-		           items:[
-		           			{
-		           				width: 200,
-		           				layout: 'form',
-		           				labelWidth: 100,
-		           				items:[
-		       							{
-			       							fieldLabel: 'Precio Venta',
-			       							name: 'precio_venta',
-			       							width: 80,
-			       							disabled:readOnly,
-			       							value: (isNew)?(null):(data.precio_venta),
-			       							xtype: 'numberfield',
-			      							allowBlank: false,
-			      							allowDecimals:true,
-			      							allowNegative: false
-		       							}
-		           				]
-		           			},
-		           			{
-		           				width: 150,
-		           				layout: 'form',
-		           				labelWidth: 60,
-		           				items:[
-		           						{
-			       							hideLabel:true,
-			       							hiddenName: 'cont_moneda_id',
-			       							width: 90,
-			       							valueField: 'cont_moneda_id',
-			       							displayField:'moneda',
-			       							value: (isNew)?(null):(data.cont_moneda_id),
-			       							xtype: 'combo',
-			       							disabled:readOnly,
-			       							store: stockMonedaStore,
-			       							typeAhead:true,mode:'local',
-			       							allowBlank: false
-		       							}
-		           				]
-		           			}
-		           ]
-		       },
-		       {
-		           xtype: 'fieldset',
-		           title: 'Garantia',
-		           layout: 'column',
-		           defaults:{xtype:'container'},
-		           items:[
-		           			{
-		           				width: 150,
-		           				layout: 'form',
-		           				labelWidth: 80,
-		           				items:[
-		           						{
-			       							fieldLabel: 'Tiempo Gar.',
-			       							name: 'tiempo_garantia',
-			       							width: 50,
-			       							value: (isNew)?(null):(data.tiempo_garantia),
-			       							xtype: 'numberfield',
-			       							allowBlank: false,
-			       							allowNegative:false,
-			       							disabled:readOnly,
-			       							allowDecimals: false
-		       							}
-		           				]
-		           			},
-		           			{
-		           				width: 150,
-		           				layout: 'form',
-		           				labelWidth: 60,
-		           				items:[
-		           						{
-			       							hideLabel:true,
-			       							hiddenName: 'stock_garantia_tipo_id',
-			       							width: 90,
-			       							valueField: 'stock_garantia_tipo_id',
-			       							displayField:'garantia_tipo',
-			       							value: (isNew)?(null):(data.stock_garantia_tipo_id),
-			       							xtype: 'combo',
-			       							disabled:readOnly,
-			       							store: stockGarantiaTipoStore,
-			       							typeAhead:true,mode:'local',
-			       							allowBlank: false
-		       							}
-		           				]
-		           			}
-		           ]
-		       },
-		       {
-			       fieldLabel: '%IVA',
-			       hiddenName: 'porcentaje_impuesto',
-			       value: (isNew)?(null):(data.porcentaje_impuesto),
-			       xtype: 'combo',
-			       triggerAction: 'all',
-			       store: stockImpuestoStore,
-			       displayField: 'valor',
-			       disabled:readOnly,
-			       valueField: 'id',
-			       mode: 'local',
-			       width: 100,
-			       allowBlank: false
-		       },
-		       {
-			       fieldLabel: '% Max. Desc.',
-			       name: 'descuento_maximo',
-			       value: (isNew)?(null):(data.descuento_maximo),
-			       xtype: 'numberfield',
-			       disabled:readOnly,
-			       width: 45,
-			       allowNegative: false,
-			       allowBlank: false
-		       },
-		       {
-			       fieldLabel: 'Estado',
-			       hiddenName: 'estado',
-			       value: (isNew)?(null):(data.estado),
-			       xtype: 'combo',
-			       store: stockEstadoStore,
-			       displayField: 'valor',
-			       valueField: 'id',
-			       disabled:readOnly,
-			       mode: 'local',
-			       triggerAction: 'all',
-			       width: 100,
-			       allowBlank: false
-		       },
-		       {
-			       fieldLabel: 'Es Servicio?',
-			       hiddenName: 'es_servicio',
-			       value: (isNew)?(null):(data.tipo),
-			       xtype: 'combo',
-			       store: genericoSiNoStore,
-			       displayField: 'valor',
-			       valueField: 'id',
-			       disabled:readOnly,
-			       mode: 'local',
-			       triggerAction: 'all',
-			       width: 75,
-			       value: 'N',
-			       allowBlank: false
-		       },
-		       {
-			       xtype: 'container',
-			       layout: 'column',
-			       defaults:{style: {margin: '5px'}},
-			       items:[
-							{
-							    xtype: 'button',
-							    text: 'Guardar',
-							    handler: function(b,e){
-								       //verificar si esta todo ok
-								       var mainForm = b.ownerCt.ownerCt;
-								       basicForm = mainForm.getForm();
-								       if(basicForm.isValid())
-								       {
-									       var valores = basicForm.getFieldValues();
-									       
-							
-									       if(valores.stock_articulo_id)//si existe es edicion
-									       {
-									    	   Ajax.PostElement.request({
-												   url: baseURL + '/stock/articulo/put',
-												   success: function(response, opt){
-												       mainStore.reload();
-												   },
-												   jsonData:{
-												       'put': valores,
-													   'formulario': mainForm.id
-												   }
-											   });
-									       }
-									       else
-									       {
-									           delete valores.stock_articulo_id;
-									           
-										       //sino es creacion
-									    	   //si esta todo ok hacemos la solicitud
-									    	   Ajax.PostElement.request({
-												   url: baseURL + '/stock/articulo/post',
-												   success: function(response, opt){
-													   mainStore.reload();
-												   },
-												   jsonData:{
-												       'post': valores,
-													   'formulario': mainForm.id
-												   }
-											   });
-									       }
-									       
-									       
-									       
-								       }
-								       else
-									   {
-										   Ext.Msg.alert('Aviso','Hay campos inv&aacute;lidos');
-									   }       
-								   }
-							},
-							{
-								xtype: 'button',
-								text: 'Cancelar',
-								handler: function(b,e){
-									var mainForm = b.ownerCt.ownerCt;
-							        var padre = mainForm.ownerCt;
-							        padre.remove(mainForm);
-								}
-							}
-				   ]
-		       }
-		],
-		listeners:{
-			'render':function(){
-				hideBloque();
+	console.log(options, success, response);
+	
+	var formulario = Ext.getCmp('mainForm');
+	if(formulario)
+		formulario.getEl().unmask();
+		
+	if(success)
+	{
+	}
+		//location.href = baseURL + '/fact/compra/list-ui';
+};
+
+guardarCompraHandler = function(b,e)
+{
+	//vemos si esta todo ok el formulari
+	var formulario = Ext.getCmp('mainForm');
+	if(formulario)
+	{
+		var basicForm = formulario.getForm();
+		
+		//obtenemos los datos
+		var valores = basicForm.getFieldValues();
+		
+		console.log('valores',valores);
+		
+		if(!basicForm.isValid())
+		{
+			Ext.Msg.alert('Aviso','Hay campos invalidos');
+			return;
+		}
+		
+		//obtenemos los datos
+		var valores = basicForm.getFieldValues();
+		
+		console.log('valores',valores);
+		
+		//verificamos que hayan registros
+		var records = mainStore.getRange();
+		
+		console.log('records',records, formatearFecha(valores.fecha, 1));
+		
+		if(records.length == 0)
+		{
+			Ext.Msg.alert('Aviso','La compra no tiene productos');
+			return;
+		}
+
+		var registros = [];
+
+		for(var x=0; x<records.length;x++)	
+		{
+			registros.push(records[x].data);
+		}
+		
+		//mascara
+		formulario.getEl().mask('Enviando...');
+
+		var datos = {
+			'post':{
+				'Ingreso':{
+					cont_moneda_id: valores.cont_moneda_id,
+					codigo: '--',
+					doc_nro: valores.factura_nro.join('-'),
+					doc_fecha: formatearFecha(valores.fecha, 1),
+					doc_tipo: 'F',
+					condicion: 'C',
+					estado: valores.estado_factura
+				},
+				'Detalle':registros,
+				'Proveedor': {org_parte_rol_id: valores.org_parte_id_buscar}
+			}
+		};
+		
+		
+		console.log('datos',datos);
+		
+		Ajax.PostElement.request({
+				url: baseURL + '/fact/compra/post',
+				callback: guardarCompraHandlerCallback,
+				jsonData: datos
+			});	
+		
+	}
+				
+};
+
+quitarArticuloCompra = function(id)
+{
+	var record = mainStore.getById(id);
+	if(record)
+		mainStore.remove(record);
+		
+		
+	var formulario = Ext.getCmp('mainForm');
+			if(formulario)
+			{
+				var basicForm = formulario.getForm();
+				
+				console.log('basicForm',basicForm);
+				
+				//definimos el total
+				var totalAdd = record.data.cantidad * record.data.precio_unit; //se suma al total
+				
+				console.log('totalAdd',totalAdd);
+				
+				var sumarIVA;
+				if(record.data.porc_impuesto == 10)
+				{
+					sumarIVA = totalAdd / 11;
+					var campo = basicForm.findField('iva_10_display');
+					if(campo)
+						campo.setValue(campo.getValue() - sumarIVA);
+				}
+				else if(record.data.porc_impuesto == 5)
+				{
+					sumarIVA = totalAdd / 21;
+					var campo = basicForm.findField('iva_5_display');
+					if(campo)
+						campo.setValue(campo.getValue() - sumarIVA);
+				}
+				else
+				{
+					sumarIVA = 0;
+					var campo = basicForm.findField('iva_exenta_display');
+					if(campo)
+						campo.setValue(campo.getValue() - sumarIVA);
+				}
+				
+				//aplicar a los campos
+				var total = basicForm.findField('valor_total_trans_display');
+				if(total)
+				{
+					console.log(total);
+					total.setValue(total.getValue() - totalAdd);
+				}
+				
+				var total_iva = basicForm.findField('total_iva_display');
+				if(total_iva)
+				{
+					total_iva.setValue(total_iva.getValue() - sumarIVA);
+				}
+			}
+};
+
+agregarArticuloCompraCallback = function(options, success, response)
+{
+	var grilla = Ext.getCmp('mainGrid');
+	var bloque = Ext.getCmp('bloqueArticulo');
+	
+	console.log('agregarArticuloCompraCallback',options, success, response);
+	if(success)
+	{
+		//var datos = Ext.decode(response.responseText);
+		var respuesta = Ext.decode(response.responseText);
+		
+		if(respuesta.exitoso)//se valido insercion
+		{
+			console.log('resp',respuesta);
+			//creamos registro en el main store
+			var nuevoRegistro = new mainStore.recordType(respuesta, respuesta.stock_articulo_id);
+			console.log('nuevoRegistro',nuevoRegistro);
+			mainStore.insert(0, nuevoRegistro);
+			//una vez insertado tenemos que actualizar nuestro campos de calculos de iva y demas
+			
+			var formulario = Ext.getCmp('mainForm');
+			if(formulario)
+			{
+				var basicForm = formulario.getForm();
+				
+				console.log('basicForm',basicForm);
+				
+				//definimos el total
+				var totalAdd = nuevoRegistro.data.cantidad * nuevoRegistro.data.precio_unit; //se suma al total
+				
+				console.log('totalAdd',totalAdd);
+				
+				var sumarIVA;
+				if(nuevoRegistro.data.porc_impuesto == 10)
+				{
+					sumarIVA = totalAdd / 11;
+					var campo = basicForm.findField('iva_10_display');
+					if(campo)
+						campo.setValue(campo.getValue() + sumarIVA);
+				}
+				else if(nuevoRegistro.data.porc_impuesto == 5)
+				{
+					sumarIVA = totalAdd / 21;
+					var campo = basicForm.findField('iva_5_display');
+					if(campo)
+						campo.setValue(campo.getValue() + sumarIVA);
+				}
+				else
+				{
+					sumarIVA = 0;
+					var campo = basicForm.findField('iva_exenta_display');
+					if(campo)
+						campo.setValue(campo.getValue() + sumarIVA);
+				}
+				
+				//aplicar a los campos
+				var total = basicForm.findField('valor_total_trans_display');
+				if(total)
+				{
+					console.log(total);
+					total.setValue(total.getValue() + totalAdd);
+				}
+				
+				var total_iva = basicForm.findField('total_iva_display');
+				if(total_iva)
+				{
+					total_iva.setValue(total_iva.getValue() + sumarIVA);
+				}
+			}
+		 			
+			
+			
+			//ceramos el formulario de articulo
+			if(bloque)
+			{
+				var bloques = bloque.findByType('field',false);
+				for(var x=0; x<bloques.length; x++)
+				{
+					if(bloques[x].xtype == 'combo')
+					{
+						bloques[x].clearValue();
+						if(bloques[x].hiddenName == 'stock_articulo_id_codigo')
+							bloques[x].focus();
+					}
+					else if(bloques[x].xtype == 'numberfield')
+					{
+						bloques[x].setValue(null);
+					}
+				}
 			}
 		}
-	};	
-}
-
-function verArticulo(id)
-{
-	
-	//var registro = mainStore.getById(id);
-	
-	//if(registro)
-	//{
-		var destino = Ext.getCmp('formContainer');
-		if(destino)
+		else//no se valido insercion
 		{
-			destino.removeAll();
-			//hacemos solicitud
+			Ext.Msg.alert('Aviso','Hubo un error. Intentelo de nuevo.');
+		}
+		
+	}
+	
+	//desenmascar grilla y container
+	if(bloque)
+	{
+		bloque.getEl().unmask();
+	}
+				
+	
+	if(grilla)
+		grilla.getEl().unmask();
+			
+};
 
+agregarArticuloCompra = function(b, e)
+{
+	//verificar formulario
+	var formulario = Ext.getCmp('mainForm');
+	if(formulario)
+	{
+		var basicForm = formulario.getForm();
+		 
+		if(basicForm.isValid())
+		{
+			
+			//verificamos valores individuales obligatorios que son 
+			var c1 = basicForm.findField('stock_articulo_id_codigo');
+			var c2 = basicForm.findField('stock_articulo_id_rcap');
+			var c3 = basicForm.findField('cantidad');
+			
+			var c5 = basicForm.findField('porcentaje_impuesto');
+			var c6 = basicForm.findField('cont_moneda_id');
+			
+			if(c1.getValue() == '')
+			{
+				Ext.Msg.alert('Aviso','Debe seleccionar un producto');
+				return;
+			}
+			
+			if(c2.getValue() == '')
+			{
+				Ext.Msg.alert('Aviso','Debe seleccionar un producto');
+				return;
+			}
+			
+			
+			if(c3.getValue() == '')
+			{
+				Ext.Msg.alert('Aviso','Debe seleccionar una cantidad');
+				return;
+			}
+			
+			if(c5.getValue() == '')
+			{
+				Ext.Msg.alert('Aviso','El producto debe tener un porcentaje de impuesto definido');
+				return;
+			}
+
+			if(c6.getValue() == '')
+			{
+				Ext.Msg.alert('Aviso','Debe seleccionar una moneda');
+				return;
+			}
+			
+			var valores = basicForm.getFieldValues();
+			
+			console.log('valores',valores);
+			
+			//verificamos que ese articulo no este en la grilla
+			var id = valores.stock_articulo_id_codigo;
+			//buscamos
+			var record = mainStore.getById(id);
+			if(record)
+			{
+				Ext.Msg.alert('Aviso','Ese articulo ya se encuentra en la compra');
+				return;
+			}
+			
+			//obtenemos los valores que me interesan
+			var datos = {
+				cantidad: valores.cantidad,
+				precio_unit: valores.precio_unit,
+				stock_articulo_id: valores.stock_articulo_id_codigo,
+				porc_impuesto: valores.porcentaje_impuesto,
+				cont_moneda_id: valores.cont_moneda_id
+			};
+			
+			//hacemos request enmascarando bloque de articulo y bloque de grilla
+			//mainGrid
+			//bloqueArticulo
+			
+			var bloque = Ext.getCmp('bloqueArticulo');
+			if(bloque)
+				bloque.getEl().mask('Agregando .. ');
+				
+			var grilla = Ext.getCmp('mainGrid');
+			if(grilla)
+			{
+			 	grilla.getEl().mask('Agregando..');
+			}
+			
+			//aca hacemos la solicitud y manejamos la respuesta en CB
+			Ajax.PostElement.request({
+				url: baseURL + '/fact/compra/validate',
+				callback: agregarArticuloCompraCallback,
+				jsonData: datos
+			});		
+			
+		}
+		else
+			Ext.Msg.alert('Aviso','Debe completar todos los campos');
+	}
+};
+
+verDetallesCliente = function(b,e)
+{
+	//obtenemos los campos del formulario
+	var formulario = Ext.getCmp('mainForm');
+	if(formulario)
+	{
+		var basicForm = formulario.getForm();
+		var valores = basicForm.getFieldValues();
+		
+		if(valores.org_parte_id_buscar)
+		{
+			//mi store es orgRolParteStore
+			//obtenemos record
+			var registro = orgRolParteStore.getById(valores.org_parte_id_buscar);
+			console.log(registro);
+		}
+		else
+			Ext.Msg.alert('Aviso','Debe seleccionar un proveedor');
+	}
+};
+
+verDetallesAsesor = function(b,e)
+{
+	//obtenemos los campos del formulario
+	var formulario = Ext.getCmp('mainForm');
+	if(formulario)
+	{
+		var basicForm = formulario.getForm();
+		var valores = basicForm.getFieldValues();
+		
+		if(valores.org_parte_id_buscar)
+		{
+			//mi store es orgRolParteStore
+			//obtenemos record
+			var registro = orgRolParteVendedorStore.getById(valores.org_parte_id_buscar);
+			console.log(registro);
+		}
+		else
+			Ext.Msg.alert('Aviso','Debe seleccionar un proveedor');
+	}
+};
+
+
+agregarClienteHandlerCallback = function(success, rawData)
+{
+	console.log('agregarClienteHandlerCallback',success, rawData);
+	//obtener id
+	if(success)
+	{
+		var respuestaID = Ext.decode(rawData.responseText);
+		if(respuestaID.length > 0)
+		{
+			respuestaID = respuestaID[0];
+			
+			console.log('respuestaID',respuestaID);
+			
+			orgRolParteStore.load({
+				params:{
+					's[org_parte_rol_id]':respuestaID.org_parte_rol_id,
+					's[nombre]': null
+				},
+				callback: function(records, options, success)
+				{
+					console.log('cb agregar store proveedor',records, options, success);
+					
+					if(records.length == 0)
+					{
+						Ext.Msg.alert('Aviso','No se encontro cliente. Recargue la pagina');
+						return;
+					}
+					
+					var record = records[0];
+					
+					if(success)
+					{
+						//buscamos el campo org_parte_id_buscar y seteamos el valor correspondiente de proveedor
+						var formulario = Ext.getCmp('mainForm');
+						if(formulario)
+						{
+							var basicForm = formulario.getForm();
+		
+							var campo = basicForm.findField('org_parte_id_buscar');	
+							if(campo)
+								campo.setValue(record.data.org_parte_rol_id);
+								
+							campo = basicForm.findField('displayDocumento');	
+							if(campo)
+								campo.setValue(record.data.mostrarDocumentos);
+								
+							campo = basicForm.findField('displayNombre');	
+							if(campo)
+								campo.setValue(record.data.mostrarNombre);
+						}					
+					}
+					else
+					{
+						Ext.Msg.alert('Aviso','Hubo un error definiendo Proveedor');
+					}
+				}
+			});
+		}
+	}
+	else
+	{
+		Ext.Msg.alert('Aviso','Ocurrio un error al agregar Cliente');
+	}
+	
+};
+
+agregarCliente = function(b,e)
+{
+	//obtenemos los campos del formulario
+	var formulario = Ext.getCmp('mainForm');
+	if(formulario)
+	{
+		var basicForm = formulario.getForm();
+		
+		var campo = basicForm.findField('org_parte_id_buscar');
+		campo.clearValue();
+		
+		campo = basicForm.findField('displayNombre');
+		campo.setValue(null);
+		
+		campo = basicForm.findField('displayDocumento');
+		campo.setValue(null);
+		
+		//abrimos ventana de creacion
+		ventanaModal.add(formularioOrgParte(true, null, false, true, agregarClienteHandlerCallback));
+		ventanaModal.doLayout();
+		ventanaModal.show();
+	}
+};
+
+
+agregarAsesorHandlerCallback = function(success, rawData)
+{
+	console.log('agregarAsesorHandlerCallback',success, rawData);
+	//obtener id
+	if(success)
+	{
+		var respuestaID = Ext.decode(rawData.responseText);
+		if(respuestaID.length > 0)
+		{
+			respuestaID = respuestaID[0];
+			
+			console.log('respuestaID',respuestaID);
+			
+			orgRolParteVendedorStore.load({
+				params:{
+					's[org_parte_rol_id]':respuestaID.org_parte_rol_id,
+					's[nombre]': null
+				},
+				callback: function(records, options, success)
+				{
+					console.log('cb agregar store proveedor',records, options, success);
+					
+					if(records.length == 0)
+					{
+						Ext.Msg.alert('Aviso','No se encontro proveedor. Recargue la pagina');
+						return;
+					}
+					
+					var record = records[0];
+					
+					if(success)
+					{
+						//buscamos el campo org_parte_id_buscar_asesor y seteamos el valor correspondiente de proveedor
+						var formulario = Ext.getCmp('mainForm');
+						if(formulario)
+						{
+							var basicForm = formulario.getForm();
+		
+							var campo = basicForm.findField('org_parte_id_buscar_asesor');	
+							if(campo)
+								campo.setValue(record.data.org_parte_rol_id);
+								
+							campo = basicForm.findField('displayDocumento_asesor');	
+							if(campo)
+								campo.setValue(record.data.mostrarDocumentos);
+								
+							campo = basicForm.findField('displayNombre_asesor');	
+							if(campo)
+								campo.setValue(record.data.mostrarNombre);
+						}					
+					}
+					else
+					{
+						Ext.Msg.alert('Aviso','Hubo un error definiendo Asesor');
+					}
+				}
+			});
+		}
+	}
+	else
+	{
+		Ext.Msg.alert('Aviso','Ocurrio un error al agregar Cliente');
+	}
+	
+};
+
+agregarAsesor = function(b,e)
+{
+	//obtenemos los campos del formulario
+	var formulario = Ext.getCmp('mainForm');
+	if(formulario)
+	{
+		var basicForm = formulario.getForm();
+		
+		var campo = basicForm.findField('org_parte_id_buscar_asesor');
+		campo.clearValue();
+		
+		campo = basicForm.findField('displayNombre_asesor');
+		campo.setValue(null);
+		
+		campo = basicForm.findField('displayDocumento_asesor');
+		campo.setValue(null);
+		
+		//abrimos ventana de creacion
+		ventanaModal.add(formularioOrgParteAsesor(true, null, false, true, agregarAsesorHandlerCallback));
+		ventanaModal.doLayout();
+		ventanaModal.show();
+	}
+};
+
+
+agregarArticuloHandlerCallback = function(success, rawData)
+{
+	console.log('success, rawData',success, rawData);
+	if(success)
+	{
+		var bloque = Ext.getCmp('bloqueArticulo');
+		if(bloque)
+			bloque.getEl().mask('Cargando...');
+		var respuesta = Ext.decode(rawData.responseText);
+		var id = respuesta.stock_articulo_id;
+		
+		//cargo el store con este dato
+		stockArticuloStore.load({
+			params:{
+				's[id]':id,
+				's[cadena]': null,
+				's[rcap]':null
+			},
+			callback: function(records, options, success)
+			{
+				console.log('records',records);
+				if(records.length == 0)
+				{
+					Ext.Msg.alert('Aviso','No se encontro registro. Intentelo de nuevo');
+					return;
+				}
+				
+				var record = records[0];
+				
+				if(success)
+				{
+					var formulario = Ext.getCmp('mainForm');
+					if(formulario)
+					{
+						console.log('inside main form y record', record);
+						//seteamos en el form
+						var basicForm = formulario.getForm();
+						//obtener campo1 y setear valor
+						var campo1 = basicForm.findField('stock_articulo_id_codigo');
+						console.log('campo1',campo1);
+						if(campo1)
+						{
+							campo1.setValue(record.data.stock_articulo_id);
+						}
+						
+						var campo2 = basicForm.findField('stock_articulo_id_rcap');
+						console.log('campo2',campo2);
+						if(campo2)
+						{
+							campo2.setValue(record.data.stock_articulo_id);
+						}
+						
+						var iva = basicForm.findField('porcentaje_impuesto');
+						if(iva)
+						{
+							iva.setValue(record.data.porcentaje_impuesto);
+						}
+						
+						
+					
+					}
+				}
+				else
+				{
+					Ext.Msg.alert('Aviso','No se encontro articulo');
+				}
+				
+				var bloque = Ext.getCmp('bloqueArticulo');
+					if(bloque)
+						bloque.getEl().unmask();
+			}
+		});
+			
+	}
+};
+
+agregarArticuloHandler = function(b,e)
+{
+	var formulario = Ext.getCmp('mainForm');
+	if(formulario)
+	{
+		var basicForm = formulario.getForm();
+		
+		var campo1 = basicForm.findField('stock_articulo_id_codigo');
+		var campo2 = basicForm.findField('stock_articulo_id_rcap');
+		//solo podemos ver si tenemos articulo seleccionado
+		if(campo1)
+			campo1.setValue(null);
+		if(campo2)
+			campo2.setValue(null);
+				
+			//creamos ventana modal
+			//anhadimos formulario pero antes obtenemos registro
+			
+		ventanaModal.add(formularioStockArticulo(true, null, false, true, agregarArticuloHandlerCallback));
+		ventanaModal.doLayout();
+		ventanaModal.show();
+			
+	}
+};
+
+verDetallesArticuloHandlerCallback = function(success, rawData)
+{
+	var bloque = Ext.getCmp('bloqueArticulo');
+	if(bloque)
+		bloque.getEl().unmask();
+		
+	if(success)
+	{
+		var data = Ext.decode(rawData.responseText);
+		
+		stockArticuloStore.reload({
+			callback: function(records, options, success){
+				console.log('cb view', records, options, success);
+				
+				
+				if(records.length == 0)
+				{
+					Ext.Msg.alert('Aviso','No se encontro articulo. Intentelo de nuevo');
+				}
+				else
+				{
+				
+				var record = records[0];
+				
+				console.log('record en view',record);
+				
+				if(success)
+				{
+					var formulario = Ext.getCmp('mainForm');
+					if(formulario)
+					{
+						console.log('inside main form');
+						//seteamos en el form
+						var basicForm = formulario.getForm();
+						
+						console.log('basicForm',basicForm);
+						
+						//obtener campo1 y setear valor
+						var campo1 = basicForm.findField('stock_articulo_id_codigo');
+						console.log('campo1',campo1);
+						if(campo1)
+						{
+							campo1.setValue(record.data.stock_articulo_id);
+						}
+						
+						var campo2 = basicForm.findField('stock_articulo_id_rcap');
+						console.log('campo2',campo2);
+						if(campo2)
+						{
+							console.log('in');
+							campo2.setValue(record.data.stock_articulo_id, campo2.getStore());
+						}
+						
+						var iva = basicForm.findField('porcentaje_impuesto');
+						console.log('iva', iva);
+						if(iva)
+						{
+							
+							iva.setValue(record.data.porcentaje_impuesto);
+						}
+					
+					}
+				}
+				else
+				{
+					Ext.Msg.alert('Aviso','No se encontro articulo');
+				}
+				
+				}
+			}
+		});
+		
+			
+	}
+	
+	var bloque = Ext.getCmp('bloqueArticulo');
+	if(bloque)
+		bloque.getEl().unmask();
+};
+
+verDetallesArticuloHandler = function(b,e)
+{
+
+	var formulario = Ext.getCmp('mainForm');
+	if(formulario)
+	{
+		var bloque = Ext.getCmp('bloqueArticulo');
+		if(bloque)
+			bloque.getEl().mask('Cargando...');
+			
+		var basicForm = formulario.getForm();
+		var valores = basicForm.getFieldValues();
+		
+		//solo podemos ver si tenemos articulo seleccionado
+		if(valores.stock_articulo_id_codigo)
+		{
+			//creamos ventana modal
+			//anhadimos formulario pero antes obtenemos registro
+			
 			Ajax.PostElement.request({
 				url: baseURL + '/stock/articulo/get',
 				success: function(response, opt){
-					//mainStore.reload();
+					var bloque = Ext.getCmp('bloqueArticulo');
+					if(bloque)
+						bloque.getEl().unmask();
 					var data = Ext.decode(response.responseText);
-					var addedEl = destino.add(formularioArticulo(false, data, true));
-					destino.doLayout();
-					addedEl.body.highlight();
+					ventanaModal.add(formularioStockArticulo(false, data, false, true, verDetallesArticuloHandlerCallback));
+					ventanaModal.doLayout();
+					ventanaModal.show();
 				},
-				params:{id:id}
+				failure: function(){
+					var bloque = Ext.getCmp('bloqueArticulo');
+					if(bloque)
+						bloque.getEl().unmask();
+				},
+				params:{id: valores.stock_articulo_id_codigo}
 			});		
-				
 			
 		}
-	//}
-}
-
-function editarArticulo(id)
-{
-	
-	//var registro = mainStore.getById(id);
-	
-	//if(registro)
-	//{
-		var destino = Ext.getCmp('formContainer');
-		if(destino)
+		else
 		{
-			destino.removeAll();
-			//hacemos solicitud
-
-			Ajax.PostElement.request({
-				url: baseURL + '/stock/articulo/get',
-				success: function(response, opt){
-					//mainStore.reload();
-					var data = Ext.decode(response.responseText);
-					var addedEl = destino.add(formularioArticulo(false, data, false));
-					destino.doLayout();
-					addedEl.body.highlight();
-				},
-				params:{id:id}
-			});		
-				
-			
+			Ext.Msg.alert('Aviso','Seleccione un articulo para poder visualizar sus detalles');
 		}
-	//}
-}
+	}
+};
+
 
 function borrarArticulo(id)
 {
-
 	var registro = mainStore.getById(id);
 	
 	if(registro)
@@ -399,9 +864,7 @@ function borrarArticulo(id)
 						success: function(response, opt){
 							mainStore.reload();
 						},
-						jsonData:{
-								'delete':{'stock_articulo_id' : id}
-						}
+						jsonData:{'delete':{stock_articulo_id : id}}
 					});	
 				}
 			});
@@ -410,102 +873,8 @@ function borrarArticulo(id)
 	}
 }
 
-var mainStore = new Ext.data.JsonStore({
-	// store configs
-	totalProperty: 'numResults',
-	//url: baseURL + '/stock/articulo/index',
-	// reader configs
-	root: '',
-	paramNames: {
-		start: 'p[page]',
-		limit: 'p[limit]'
-	},
-	baseParams: {
-		'p[limit]': 10,
-		'p[page]': 0
-	},
-	//autoLoad:true,
-	idProperty: 'stock_articulo_id',
-	fields: ['stock_articulo_id','cant','descrip','precio_unit','exenta','cinco','diez'],
-	data: [
-		{'stock_articulo_id': 1,'cant': 5,'descrip': 'Celular Sony','precio_unit':'100000 Gs','exenta':'-','cinco':'-','diez':'500000 Gs'},
-		{'stock_articulo_id': 2,'cant': 5,'descrip': 'Celular Sony','precio_unit':'100000 Gs','exenta':'-','cinco':'-','diez':'500000 Gs'},
-		{'stock_articulo_id': 3,'cant': 5,'descrip': 'Celular Sony','precio_unit':'100000 Gs','exenta':'-','cinco':'-','diez':'500000 Gs'},
-		{'stock_articulo_id': 4,'cant': 5,'descrip': 'Celular Sony','precio_unit':'100000 Gs','exenta':'-','cinco':'-','diez':'500000 Gs'},
-		{'stock_articulo_id': 5,'cant': 5,'descrip': 'Celular Sony','precio_unit':'100000 Gs','exenta':'-','cinco':'-','diez':'500000 Gs'},
-		{'stock_articulo_id': 6,'cant': 5,'descrip': 'Celular Sony','precio_unit':'100000 Gs','exenta':'-','cinco':'-','diez':'500000 Gs'}
-	]
-});
 
-var stockCategoriaStore = new Ext.data.JsonStore({
-	// store configs
-	url: baseURL + '/stock/combos/categoria',
-	// reader configs
-	autoLoad:true,
-	root: 'records',
-	idProperty: 'stock_categoria_id',
-	fields: ['stock_categoria_id','categoria']
-});
 
-var stockMarcaStore = new Ext.data.JsonStore({
-	// store configs
-	url: baseURL + '/stock/combos/marca',
-	// reader configs
-	root: 'records',
-	autoLoad:true,
-	idProperty: 'stock_marca_id',
-	fields: ['stock_marca_id','marca']
-});
-
-var stockImpuestoStore = new Ext.data.ArrayStore({
-	idIndex: 0,  
-    fields: ['id','valor'],
-    data: [
-    	[0,'Exento'],
-    	[5,'5%'],
-    	[10,'10%']
-    ]
-});
-
-var genericoSiNoStore = new Ext.data.ArrayStore({
-	idIndex: 0,  
-    fields: ['id','valor'],
-    data: [
-    	['N','No'],
-    	['S','Si']
-    ]
-});
-
-var stockEstadoStore = new Ext.data.ArrayStore({
-	idIndex: 0,  
-    fields: ['id','valor'],
-    data: [
-    	['A','Activo'],
-    	['I','Inactivo'],
-    	['D','Descontinuado'],
-    	['O','Obsoleto'],
-    ]
-});
-
-var stockMonedaStore = new Ext.data.JsonStore({
-	// store configs
-	url: baseURL + '/stock/combos/moneda',
-	// reader configs
-	root: 'records',
-	autoLoad:true,
-	idProperty: 'cont_moneda_id',
-	fields: ['cont_moneda_id','moneda']
-});
-
-var stockGarantiaTipoStore = new Ext.data.JsonStore({
-	// store configs
-	url: baseURL + '/stock/combos/garantia-tipo',
-	// reader configs
-	root: 'records',
-	autoLoad:true,
-	idProperty: 'stock_garantia_tipo_id',
-	fields: ['stock_garantia_tipo_id','garantia_tipo']
-});
 
 
 viewContainer.bodyPanel = [{
@@ -521,7 +890,9 @@ viewContainer.bodyPanel = [{
 				layout: 'anchor',
 				items:[
 						{
-							xtype: 'container',
+							xtype: 'form',
+							id: 'mainForm',
+							labelAlign: 'right',
 							layout: 'anchor',
 							items:[
 									{
@@ -538,301 +909,891 @@ viewContainer.bodyPanel = [{
 				       	       			width: 1024,
 				       	       			defaults:{cls: 'bloqueFactura azul', xtype: 'container', columnWidth: .33, height: 75},
 				       	       			items: [
-				       	       					/*{
-				       	       						layout: 'form',
-				       	       						items:[
-				       	       								{
-				       	       									xtype: 'numberfield',
-				       	       									fieldLabel: 'Id.',
-				       	       									disabled: true,
-				       	       									value: 12345678
-				       	       								}
-				       	       						]
+				       	       					{
+				       	       						layout: 'column',
+				       	       						height: 35,
+				       	       						cls: 'bloqueFactura',
+				       	       						style: {border:'none'}
 				       	       					},
 				       	       					{
 				       	       						columnWidth: .34,
-				       	       						cls: 'bloqueFactura crema'
+				       	       						height: 35,
+				       	       						style: {border:'none'},
+				       	       						cls: 'bloqueFactura'
 				       	       					},
 				       	       					{
-				       	       						layout: 'form',
-				       	       						items:[
-				       	       								{
-				       	       									xtype: 'displayfield',
-				       	       									value: 'Agregar Nuevo'
-				       	       								},
-				       	       								{
-				       	       									xtype: 'button',
-				       	       									text: 'Cliente'
-				       	       								},
-				       	       								{
-				       	       									xtype: 'button',
-				       	       									text: 'Articulo'
-				       	       								}
-				       	       						]
-				       	       					},*/
-				       	       					{
-				       	       						layout: 'form',
-				       	       						height: 150,
-				       	       						items:[
-				       	       								{
-				       	       									xtype: 'displayfield',
-				       	       									hideLabel: true,
-				       	       									cls: 'titulo',
-				       	       									value: 'Datos Venta'
-				       	       								},
-				       	       								{
-			       												fieldLabel: 'Tipo Operacion',
-			        											xtype: 'textfield',
-			        											value: 'Venta',
-			        											disabled: true
-		       												},
-				       	       								{
-			       												fieldLabel: 'Fecha',
-			        											xtype: 'datefield',
-			        											value: '08/07/2013'
-		       												},
-				       	       								{
-			       												fieldLabel: 'Moneda',
-			       												hiddenName: 'cont_moneda_id',
-			       												width: 90,
-			       												valueField: 'cont_moneda_id',
-			       												displayField:'moneda',
-			       												xtype: 'combo',
-			       												store: stockMonedaStore,
-			       												typeAhead:true,mode:'local',
-			       												allowBlank: false
-		       												},
-		       												{
-		       													fieldLabel: 'Nro. Factura',
-			        											xtype: 'textfield',
-			        											value: '001-002-0010994'
-		       												}
-				       	       						]
+				       	       						cls: 'bloqueFactura',
+				       	       						style: {border:'none'},
+				       	       						height: 35
 				       	       					},
 				       	       					{
-				       	       						columnWidth: .34,
-				       	       						layout: 'form',
-				       	       						height: 150,
-				       	       						cls: 'spinner',
-				       	       						items:[
-				       	       						]
-				       	       					},
-				       	       					{
-				       	       						layout: 'form',
-				       	       						height: 150,
+				       	       						xtype: 'container',
+				       	       						layout: 'column',
+				       	       						cls: '',
+				       	       						autoHeight:true,
+				       	       						defaults:{xtype: 'container'},
+				       	       						columnWidth: .67,
 				       	       						items:[
 				       	       								{
-				       	       									xtype: 'displayfield',
-				       	       									value: 'Accesos Rapidos',
-				       	       									cls: 'titulo',
-				       	       									hideLabel: true
-				       	       								},
-				       	       								{
-				       	       									xtype: 'container',
-				       	       									defaults:{style: 'margin: 5px;'},
-				       	       									layout: 'column',
+				       	       									layout: 'form',
+				       	       									cls: 'bloqueFactura azul',
+				       	       									columnWidth: .5,
+				       	       									height: 200,
 				       	       									items:[
 				       	       											{
-				       	       												xtype: 'container',
-				       	       												columnWidth: 1,
-				       	       												items:[
-				       	       														{
-				       	       															xtype: 'button',
-				       	       															style: {margin: '0 auto'},
-				       	       															iconCls: 'addIcon',
-				       	       															text: 'Crear Tasa Cambio'
-				       	       														}
-				       	       												]
+				       	       												xtype: 'displayfield',
+				       	       												hideLabel: true,
+				       	       												cls: 'titulo',
+				       	       												value: 'Datos Compra'
+				       	       											},
+				       	       											{
+			       															fieldLabel: 'Tipo Operacion',
+			        														xtype: 'textfield',
+			        														value: 'Venta',
+			        														disabled: true
+		       															},
+		       															{
+			       															fieldLabel: 'Estado',
+			       															hiddenName: 'estado_factura',
+			       															width: 90,
+			       															value: 'P',
+			       															forceSelection: true,
+			       															valueField: 'id',
+			       															displayField:'valor',
+			       															xtype: 'combo',
+			       															store: stockEstadoFacturaStore,
+			       															typeAhead:true,
+			       															mode:'local',
+			       															allowBlank: false
+		       															},
+				       	       											{
+			       															fieldLabel: 'Fecha',
+			       															name: 'fecha',
+			       															allowBlank: false,
+			        														xtype: 'datefield',
+			        														value: new Date(),
+			        														listeners:{
+			        															'change':function(thisEl, newValue, oldValue)
+			        															{
+			        																if(!newValue)
+			        																	thisEl.setValue(oldValue);
+			        																	
+			        																var padre = thisEl.ownerCt;
+			        																var f1, f2, diasDif;
+			        																var valorFecha = thisEl.value.split('/');
+			        																f1 = new Date(valorFecha[1] + '/' + valorFecha[0] + '/' + valorFecha[2]);
+			        																
+			        																
+			        																var dias = padre.find('name','dias');
+			        																if(dias.length>0)
+			        																{
+			        																	dias = dias[0];
+			        																	diasDif = dias.value;
+			        																}
+			        																
+			        																
+			        																var fecha_vencimiento = padre.find('name','fecha_vencimiento');
+			        																if(fecha_vencimiento.length>0)
+			        																{
+			        																	fecha_vencimiento = fecha_vencimiento[0];
+			        																	var valorVenc = thisEl.value;
+			        																	if(valorVenc)
+			        																	{
+			        																		valorVenc = valorVenc.split('/');
+			        																		f2 = new Date(valorVenc[1] + '/' + valorVenc[0] + '/' + valorVenc[2]);	
+			        																		
+			        																		
+			        																		f2.setDate(parseInt(f1.getDate()) + parseInt(diasDif));
+			        																		
+			        																		fecha_vencimiento.setValue(f2);
+			        																	}
+			        																}
+			        															}
+			        														}
+		       															},
+		       															{
+		       																fieldLabel: 'Agregar D&iacute;as',
+			        														xtype: 'numberfield',
+			        														width: 75,
+			        														allowBlank: false,
+			        														allowNegative: false,
+			        														allowDecimals: false,
+			        														name: 'dias',
+			        														value: 0,
+			        														listeners:{
+			        															'change':function(thisEl, newValue, oldValue)
+			        															{
+			        																if(!newValue)
+			        																	thisEl.setValue(oldValue);
+			        																	
+			        																var f1, f2;
+			        																
+			        																var padre = thisEl.ownerCt;
+			        																var fecha = padre.find('name','fecha');
+			        																if(fecha.length>0)
+			        																{
+			        																	fecha = fecha[0];
+			        																	var valorFecha = fecha.value;
+			        																	
+			        																	if(valorFecha)
+			        																	{
+			        																		valorFecha = valorFecha.split('/');
+			        																		f1 = new Date(valorFecha[1] + '/' + valorFecha[0] + '/' + valorFecha[2]);	
+			        																	}
+			        																	else
+			        																	{
+			        																		Ext.Msg.alert('Aviso','Compra sin Fecha');
+			        																		return;
+			        																	}
+			        																}
+			        																
+			        																var fecha_vencimiento = padre.find('name','fecha_vencimiento');
+			        																if(fecha_vencimiento.length>0)
+			        																{
+			        																	fecha_vencimiento = fecha_vencimiento[0];
+			        																	var valorVenc = fecha.value;
+			        																	if(valorVenc)
+			        																	{
+			        																		valorVenc = valorVenc.split('/');
+			        																		f2 = new Date(valorVenc[1] + '/' + valorVenc[0] + '/' + valorVenc[2]);	
+			        																		
+			        																		f2.setDate(f1.getDate() + newValue);
+			        																		
+			        																		fecha_vencimiento.setValue(f2);
+			        																	}
+			        																}
+			        																
+			        																
+			        															}
+			        														}
+		       															},
+		       															{
+		       																fieldLabel: 'Fecha Venc.',
+			        														xtype: 'datefield',
+			        														disabled: true,
+			        														name: 'fecha_vencimiento',
+			        														listeners:{
+			        															'render':function(thisEl)
+			        															{
+			        																var padre = thisEl.ownerCt;
+			        																var fecha = padre.find('name','fecha');
+			        																if(fecha.length>0)
+			        																{
+			        																	fecha = fecha[0];
+			        																	thisEl.value = fecha.value;
+			        																}
+			        															}
+			        														}
+		       															},
+				       	       											{
+			       															fieldLabel: 'Moneda',
+			       															hiddenName: 'cont_moneda_id',
+			       															width: 90,
+			       															forceSelection:true,
+			       															valueField: 'cont_moneda_id',
+			       															displayField:'simbolo',
+			       															xtype: 'combo',
+			       															store: contMonedaStore,
+			       															typeAhead:true,
+			       															mode:'local',
+			       															allowBlank: false,
+			       															listeners:{
+			       																'select':function(thisCmp, record, index)
+			       																{
+			       																	thisCmp.setReadOnly(true);
+			       																	console.log('record',record);
+			       																	
+			       																	
+																					console.log(monedaDecimales,cantDecimalesMoneda);
+																					
+																					//en base a esto modifico mi cantidad
+																					var formulario = Ext.getCmp('mainForm');
+																					if(formulario)
+																					{
+																						var basicForm = formulario.getForm();
+																						
+																						//definir campo de moneda display
+																						var monedaDisplay = basicForm.findField('moneda_display');
+																						if(monedaDisplay)
+																						{
+																							monedaDisplay.setValue(record.data.nombre);
+																						}
+																						
+																						
+																					}
+			       																}
+			       															}
+		       															}
+				       	       									]
+				       	       								},
+				       	       								{
+				       	       									columnWidth: .5,
+				       	       									layout: 'form',
+				       	       									cls: 'bloqueFactura azul',
+				       	       									height: 200,
+				       	       									items:[
+				       	       											{
+				       	       												xtype: 'displayfield',
+				       	       												hideLabel: true,
+				       	       												cls: 'titulo',
+				       	       												value: 'Asesor'
+				       	       											},
+				       	       											{
+				       	       												xtype: 'combo',
+																			fieldLabel: 'CI / Nombre',
+																			cls: 'searchIcon',
+																			hideTrigger: true,
+																			width: 160,
+																			allowBlank: false,
+																			minChars: 2,
+																			cls: 'searchIcon',
+																			displayField: 'mostrar',
+																			valueField: 'org_parte_rol_id',
+																			forceSelection: true,
+																			mode: 'remote',
+																			triggerAction: 'all',
+																			listWidth: 350,
+																			queryDelay: 1000,
+																			queryParam: 's[nombre]',
+																			store: orgRolParteVendedorStore,
+																			hiddenName: 'org_parte_id_buscar_asesor',
+																			listeners:{
+																				'select':function(thisField, record, index)
+																				{
+																					
+																					//si selecciono algo tengo que poner en los campos dependientes
+																					//busco ambos campos
+																					var padre = thisField.ownerCt;
+																					var displayNombre = padre.find('name','displayNombre_asesor');
+																					var displayDocumento = padre.find('name','displayDocumento_asesor');
+																					
+																					console.log(displayNombre,displayDocumento,record.data)
+																					
+																					if(displayNombre.length>0)
+																					{
+																						displayNombre = displayNombre[0];
+																						
+																						displayNombre.setValue(record.data.mostrarNombre);
+																					}
+																					
+																					if(displayDocumento.length>0)
+																					{
+																						displayDocumento = displayDocumento[0];
+																						displayDocumento.setValue(record.data.mostrarDocumentos);
+																					}
+																					
+																					
+																				},
+																				'change':function(thisField, newValue, oldValue)
+																				{
+																					if(!newValue)
+																					{
+																						var padre = thisField.ownerCt;
+																						var displayNombre = padre.find('name','displayNombre_asesor');
+																						var displayDocumento = padre.find('name','displayDocumento_asesor');
+																					
+																						if(displayNombre.length>0)
+																						{
+																							displayNombre = displayNombre[0];
+																							displayNombre.setValue(null);
+																						}
+																					
+																						if(displayDocumento.length>0)
+																						{
+																							displayDocumento = displayDocumento[0];
+																							displayDocumento.setValue(null);
+																						}
+																					}
+																				}
+																			}
+																			
+				       	       											},
+				       	       											{
+				       	       												xtype: 'textfield',
+				       	       												width: 100,
+				       	       												fieldLabel: 'Documento',
+				       	       												name: 'displayDocumento_asesor',
+				       	       												disabled: true
+				       	       											},
+				       	       											{
+				       	       												xtype: 'textfield',
+				       	       												fieldLabel: 'Nombre o Raz. Social',
+				       	       												name: 'displayNombre_asesor',
+				       	       												width: 100,
+				       	       												disabled: true
 				       	       											},
 				       	       											{
 				       	       												xtype: 'container',
-				       	       												columnWidth: 1,
+				       	       												layout: 'column',
+				       	       												defaults:{style:{margin: '0 5px'}},
 				       	       												items:[
 				       	       														{
 				       	       															xtype: 'button',
-				       	       															style: {margin: '0 auto'},
+				       	       															handler: verDetallesAsesor,
+				       	       															text: 'Ver Detalles'
+				       	       														},
+				       	       														{
+				       	       															xtype: 'button',
 				       	       															iconCls: 'addIcon',
-				       	       															text: 'Crear Cliente'
+				       	       															text: 'Agregar Asesor',
+				       	       															handler: agregarAsesor
 				       	       														}
 				       	       												]
+				       	       											}
+				       	       									]
+				       	       								},
+				       	       								{
+				       	       									layout: 'form',
+				       	       									labelWidth: 130,
+				       	       									height: 160,
+				       	       									cls: 'bloqueFactura azul',
+				       	       									id: 'bloqueAsesor',
+				       	       									columnWidth: 1,
+				       	       									items:[
+				       	       											{
+				       	       												xtype: 'displayfield',
+				       	       												hideLabel: true,
+				       	       												cls: 'titulo',
+				       	       												value: 'Cliente'
+				       	       											},
+				       	       											{
+				       	       												xtype: 'combo',
+																			fieldLabel: 'RUC / Nombre',
+																			cls: 'searchIcon',
+																			hideTrigger: true,
+																			width: 360,
+																			allowBlank: false,
+																			minChars: 2,
+																			cls: 'searchIcon',
+																			displayField: 'mostrar',
+																			valueField: 'org_parte_rol_id',
+																			forceSelection: true,
+																			mode: 'remote',
+																			triggerAction: 'all',
+																			listWidth: 350,
+																			queryDelay: 1000,
+																			queryParam: 's[nombre]',
+																			store: orgRolParteStore,
+																			hiddenName: 'org_parte_id_buscar',
+																			listeners:{
+																				'select':function(thisField, record, index)
+																				{
+																					
+																					//si selecciono algo tengo que poner en los campos dependientes
+																					//busco ambos campos
+																					var padre = thisField.ownerCt;
+																					var displayNombre = padre.find('name','displayNombre');
+																					var displayDocumento = padre.find('name','displayDocumento');
+																					
+																					console.log(displayNombre,displayDocumento,record.data)
+																					
+																					if(displayNombre.length>0)
+																					{
+																						displayNombre = displayNombre[0];
+																						
+																						displayNombre.setValue(record.data.mostrarNombre);
+																					}
+																					
+																					if(displayDocumento.length>0)
+																					{
+																						displayDocumento = displayDocumento[0];
+																						displayDocumento.setValue(record.data.mostrarDocumentos);
+																					}
+																					
+																					
+																				},
+																				'change':function(thisField, newValue, oldValue)
+																				{
+																					if(!newValue)
+																					{
+																						var padre = thisField.ownerCt;
+																						var displayNombre = padre.find('name','displayNombre');
+																						var displayDocumento = padre.find('name','displayDocumento');
+																					
+																						if(displayNombre.length>0)
+																						{
+																							displayNombre = displayNombre[0];
+																							displayNombre.setValue(null);
+																						}
+																					
+																						if(displayDocumento.length>0)
+																						{
+																							displayDocumento = displayDocumento[0];
+																							displayDocumento.setValue(null);
+																						}
+																					}
+																				}
+																			}
+																			
+				       	       											},
+				       	       											{
+				       	       												xtype: 'textfield',
+				       	       												width: 280,
+				       	       												fieldLabel: 'Documento',
+				       	       												name: 'displayDocumento',
+				       	       												disabled: true
+				       	       											},
+				       	       											{
+				       	       												xtype: 'textfield',
+				       	       												fieldLabel: 'Nombre o Raz. Social',
+				       	       												name: 'displayNombre',
+				       	       												width: 280,
+				       	       												disabled: true
 				       	       											},
 				       	       											{
 				       	       												xtype: 'container',
-				       	       												columnWidth: 1,
+				       	       												layout: 'column',
+				       	       												defaults:{style:{margin: '0 5px'}},
 				       	       												items:[
 				       	       														{
 				       	       															xtype: 'button',
-				       	       															style: {margin: '0 auto'},
+				       	       															handler: verDetallesCliente,
+				       	       															text: 'Ver Detalles'
+				       	       														},
+				       	       														{
+				       	       															xtype: 'button',
 				       	       															iconCls: 'addIcon',
-				       	       															text: 'Crear Moneda'
+				       	       															text: 'Agregar Cliente',
+				       	       															handler: agregarCliente
+				       	       														}
+				       	       												]
+				       	       											}
+				       	       									]
+				       	       								},
+				       	       								{
+				       	       									layout: 'form',
+				       	       									height: 180,
+				       	       									cls: 'bloqueFactura azul',
+				       	       									id: 'bloqueArticulo',
+				       	       									columnWidth: 1,
+				       	       									items:[
+				       	       											{
+				       	       												xtype: 'displayfield',
+				       	       												hideLabel: true,
+				       	       												cls: 'titulo',
+				       	       												value: 'Articulo'
+				       	       											},
+				       	       											{
+				       	       												xtype: 'combo',
+																			fieldLabel: 'Codigo / Nombre',
+																			cls: 'searchIcon',
+																			hideTrigger: true,
+																			width: 475,
+																			minChars: 2,
+																			cls: 'searchIcon',
+																			displayField: 'mostrar',
+																			valueField: 'stock_articulo_id',
+																			forceSelection: true,
+																			mode: 'remote',
+																			triggerAction: 'all',
+																			listWidth: 500,
+																			queryDelay: 1000,
+																			queryParam: 's[cadena]',
+																			store: stockArticuloStore,
+																			hiddenName: 'stock_articulo_id_codigo',
+																			listeners:{
+																				'beforequery':function(objectQuery)
+																				{
+																					objectQuery.combo.getStore().setBaseParam('s[rcap]',null);
+																				},
+																				'beforeselect':function(thisCombo, record, index)
+																				{
+																					//reseteo el otro campo
+																					var padre = thisCombo.ownerCt;
+																					var otroCombo = padre.find('hiddenName','stock_articulo_id_rcap');
+																					if(otroCombo.length>0)
+																					{
+																						otroCombo = otroCombo[0];
+																						otroCombo.setValue(null);
+																					}
+																				},
+																				'select':function(thisField, record, index)
+																				{
+																					
+																					//reseteo el otro campo
+																					var padre = thisField.ownerCt;
+																					var otroCombo = padre.find('hiddenName','stock_articulo_id_rcap');
+																					if(otroCombo.length>0)
+																					{
+																						otroCombo = otroCombo[0];
+																						otroCombo.setValue(record.data.stock_articulo_id);
+																					}
+																					
+																					
+																					var cantidad = padre.find('name','cantidad');
+																					if(cantidad.length>0)
+																					{
+																						cantidad = cantidad[0];
+																						cantidad.focus(true,true);
+																					}
+																					
+																					var existencia = padre.find('name','existencia');
+																					if(existencia.length>0)
+																					{
+																						existencia = existencia[0];
+																						existencia.setValue(record.data.existencia);
+																					}
+																					
+																					var iva = padre.find('hiddenName','porcentaje_impuesto');
+																					if(iva.length>0)
+																					{
+																						iva = iva[0];
+																						iva.setValue(record.data.porcentaje_impuesto);
+																					}
+																					
+																					var precio = padre.find('name','precio_unit');
+																					console.log(precio,'precio');
+																					if(precio.length>0)
+																					{
+																						precio = precio[0];
+																						precio.setValue(record.data.precio_venta);
+																					}
+																					
+																					var simbolo = padre.find('name','simbolo');
+																					if(simbolo.length>0)
+																					{
+																						simbolo = simbolo[0];
+																						simbolo.setValue(record.data.simbolo);
+																					}
+																				},
+																				'change':function(thisField, newValue, oldValue)
+																				{
+																					if(!thisField.isValid())
+																					{
+																						thisField.focus(true,true);
+																					}
+																				}
+																			}
+																			
+				       	       											},
+				       	       											{
+				       	       												xtype: 'combo',
+																			fieldLabel: 'Cod. Ref. Prov',
+																			cls: 'searchIcon',
+																			hideTrigger: true,
+																			width: 475,
+																			minChars: 2,
+																			cls: 'searchIcon',
+																			displayField: 'rcap',
+																			valueField: 'stock_articulo_id',
+																			forceSelection: true,
+																			mode: 'remote',
+																			triggerAction: 'all',
+																			listWidth: 500,
+																			queryDelay: 1000,
+																			queryParam: 's[rcap]',
+																			store: stockArticuloStore,
+																			hiddenName: 'stock_articulo_id_rcap',
+																			listeners:{
+																				'beforequery':function(objectQuery)
+																				{
+																					objectQuery.combo.getStore().setBaseParam('s[cadena]',null);
+																				},
+																				'beforeselect':function(thisCombo, record, index)
+																				{
+																					//reseteo el otro campo
+																					var padre = thisCombo.ownerCt;
+																					var otroCombo = padre.find('hiddenName','stock_articulo_id_codigo');
+																					if(otroCombo.length>0)
+																					{
+																						otroCombo = otroCombo[0];
+																						otroCombo.setValue(null);
+																					}
+																				},
+																				'select':function(thisField, record, index)
+																				{
+																					//reseteo el otro campo
+																					var padre = thisField.ownerCt;
+																					var otroCombo = padre.find('hiddenName','stock_articulo_id_codigo');
+																					if(otroCombo.length>0)
+																					{
+																						otroCombo = otroCombo[0];
+																						otroCombo.setValue(record.data.stock_articulo_id);
+																					}
+																					
+																					var cantidad = padre.find('name','cantidad');
+																					if(cantidad.length>0)
+																					{
+																						cantidad = cantidad[0];
+																						cantidad.focus(true,true);
+																					}
+																					
+																					var existencia = padre.find('name','existencia');
+																					if(existencia.length>0)
+																					{
+																						existencia = existencia[0];
+																						existencia.setValue(record.data.existencia);
+																					}
+																					
+																					var iva = padre.find('hiddenName','porcentaje_impuesto');
+																					if(iva.length>0)
+																					{
+																						iva = iva[0];
+																						iva.setValue(record.data.porcentaje_impuesto);
+																					}
+																					
+																					var precio = padre.find('name','precio_unit');
+																					console.log(precio,'precio');
+																					if(precio.length>0)
+																					{
+																						precio = precio[0];
+																						precio.setValue(record.data.precio_venta);
+																					}
+																					
+																					var simbolo = padre.find('name','simbolo');
+																					if(simbolo.length>0)
+																					{
+																						simbolo = simbolo[0];
+																						simbolo.setValue(record.data.simbolo);
+																					}
+																					
+																				},
+																				'change':function(thisField, newValue, oldValue)
+																				{
+																					if(!thisField.isValid())
+																					{
+																						thisField.focus(true,true);
+																					}
+																				}
+																			}
+																			
+				       	       											},
+				       	       											{
+				       	       												xtype: 'container',
+				       	       												layout: 'column',
+				       	       												items:[
+				       	       														{
+				       	       															xtype: 'container',
+				       	       															layout: 'form',
+				       	       															columnWidth: .29,
+				       	       															items:[
+				       	       																	{
+				       	       																		xtype: 'numberfield',
+				       	       																		width: 50,
+				       	       																		allowNegative: false,
+				       	       																		allowDecimals: false,
+				       	       																		minValue: 1,
+				       	       																		name: 'cantidad',
+				       	       																		fieldLabel: 'Cantidad'
+				       	       																	},
+				       	       																	{
+				       	       																		xtype: 'numberfield',
+				       	       																		width: 90,
+				       	       																		allowNegative: false,
+				       	       																		disabled:true,
+				       	       																		name: 'precio_unit',
+				       	       																		emptyText: 'Seleccione producto..',
+				       	       																		fieldLabel: 'Precio Unit.'
+				       	       																	}
+				       	       															]
+				       	       														},
+				       	       														{
+				       	       															xtype: 'container',
+				       	       															layout: 'form',
+				       	       															columnWidth: .36,
+				       	       															style:{marginTop:'5px'},
+				       	       															items:[
+				       	       																	{
+				       	       																		xtype: 'numberfield',
+				       	       																		width: 80,
+				       	       																		disabled:true,
+				       	       																		name: 'existencia',
+				       	       																		fieldLabel: 'En Stock'
+				       	       																	},
+				       	       																	{
+				       	       																		xtype: 'textfield',
+				       	       																		width: 60,
+				       	       																		disabled:true,
+				       	       																		name: 'simbolo',
+				       	       																		fieldLabel: 'Moneda'
+				       	       																	},
+				       	       																	{
+			       																					fieldLabel: '%IVA',
+			       																					hiddenName: 'porcentaje_impuesto',
+			       																					forceSelection: true,
+			       																					xtype: 'combo',
+			       																					triggerAction: 'all',
+			       																					store: stockImpuestoStore,
+			       																					disabled:true,
+			      																					displayField: 'valor',
+			       																					valueField: 'id',
+			       																					mode: 'local',
+			       																					width: 75
+		       																					}
+				       	       															]
+				       	       														},
+				       	       														{
+				       	       															xtype: 'container',
+				       	       															layout: 'column',
+				       	       															columnWidth: .35,
+				       	       															items:[
+				       	       																	{
+				       	       																		xtype: 'container',
+				       	       																		width: 80,
+				       	       																		layout: 'form',
+				       	       																		defaults:{style:{margin:'3px 0'}},
+				       	       																		items:[
+				       	       																				{
+				       	       																					xtype: 'button',
+				       	       																					width: 75,
+				       	       																					iconCls: '',
+				       	       																					handler: verDetallesArticuloHandler,
+				       	       																					text: 'Detalles'
+				       	       																				},
+				       	       																				{
+				       	       																					xtype: 'button',
+				       	       																					width: 75,
+				       	       																					iconCls: 'addIcon',
+				       	       																					handler: agregarArticuloHandler,
+				       	       																					text: 'Articulo'
+				       	       																				}
+				       	       																		]
+				       	       																	},
+				       	       																	{
+				       	       																		xtype: 'container',
+				       	       																		columnWidth: 1,
+				       	       																		defaults:{style:{margin:'3px 0'}},
+				       	       																		layout: 'form',
+				       	       																		items:[
+				       	       																				{
+				       	       																					xtype: 'button',
+				       	       																					iconCls: 'cart',
+				       	       																					width: 75,
+				       	       																					height: 70,
+				       	       																					handler: agregarArticuloCompra,
+				       	       																					text: 'Agregar'
+				       	       																				}
+				       	       																		]
+				       	       																	}
+				       	       															]
 				       	       														}
 				       	       												]
 				       	       											}
 				       	       									]
 				       	       								}
-				       	       						]
-				       	       					},
+				       	       							]
+				       	       					},	
 				       	       					{
-				       	       						layout: 'form',
-				       	       						height: 200,
+				       	       						xtype: 'container',
+				       	       						layout: 'anchor',
+				       	       						cls: '',
+				       	       						defaults:{xtype: 'container'},
+				       	       						autoHeight:true,
+				       	       						columnWidth: .33,
+				       	       						style:{color:'white', fontWeight:'bold'},
 				       	       						items:[
 				       	       								{
-				       	       									xtype: 'displayfield',
-				       	       									hideLabel: true,
-				       	       									cls: 'titulo',
-				       	       									value: 'Agregar Articulo'
-				       	       								},
-				       	       								{
-				       	       									xtype: 'textfield',
-				       	       									width: 180,
-				       	       									cls: 'searchIcon',
-				       	       									fieldLabel: 'Codigo / Nombre',
-				       	       									value: '1289212 - Galaxy Ace 2'
-				       	       								},
-				       	       								{
-				       	       									xtype: 'textfield',
-				       	       									width: 150,
-				       	       									disabled: true,
-				       	       									fieldLabel: 'Precio Unit.',
-				       	       									value: '850000 Gs'
-				       	       								},
-				       	       								{
-				       	       									xtype: 'container',
-				       	       									layout: 'column',
+				       	       									layout: 'form',
+				       	       									labelWidth: 130,
+				       	       									cls: 'bloqueFactura azulOscuro',
+				       	       									height: 215,
 				       	       									items:[
 				       	       											{
-				       	       												xtype: 'container',
-				       	       												columnWidth: .5,
-				       	       												layout: 'form',
-				       	       												items:[
-				       	       														{
-				       	       															xtype: 'textfield',
-				       	       															width: 45,
-				       	       															disabled: true,
-				       	       															fieldLabel: 'IVA',
-				       	       															value: '10%'
-				       	       														}
-				       	       												]
+				       	       												xtype: 'displayfield',
+				       	       												value: 'Total Compra',
+				       	       												style:{backgroundColor:'#00CCFF', color: 'black'},
+				       	       												cls: 'titulo',
+				       	       												hideLabel: true
 				       	       											},
 				       	       											{
 				       	       												xtype: 'container',
-				       	       												columnWidth: .5,
+				       	       												defaults:{xtype: 'numberfield', disabled: true},
 				       	       												layout: 'form',
 				       	       												items:[
 				       	       														{
-				       	       															xtype: 'textfield',
-				       	       															width: 45,
-				       	       															disabled: true,
-				       	       															fieldLabel: 'Desc. Max.',
-				       	       															value: '8%'
+				       	       															fieldLabel: '<span style="text-decoration:underline; ">Valor Total Trans.</span>',
+				       	       															name: 'valor_total_trans_display',
+				       	       															value: 0
+				       	       														},
+				       	       														{
+				       	       															fieldLabel: 'Moneda',
+				       	       															name: 'moneda_display',
+				       	       															xtype: 'textfield'
+				       	       														},
+				       	       														{
+				       	       															fieldLabel: 'IVA 10%',
+				       	       															name: 'iva_10_display',
+				       	       															value: 0
+				       	       														},
+				       	       														{
+				       	       															fieldLabel: 'IVA 5%',
+				       	       															name: 'iva_5_display',
+				       	       															value: 0
+				       	       														},
+				       	       														{
+				       	       															fieldLabel: 'IVA Exenta',
+				       	       															name: 'iva_exenta_display',
+				       	       															value: 0
+				       	       														},
+				       	       														{
+				       	       															fieldLabel: 'Total IVA',
+				       	       															name: 'total_iva_display',
+				       	       															value: 0
 				       	       														}
 				       	       												]
 				       	       											}
 				       	       									]
 				       	       								},
 				       	       								{
-				       	       									xtype: 'textfield',
-				       	       									width: 100,
-				       	       									fieldLabel: 'Cantidad',
-				       	       									value: '10'
-				       	       								},
-				       	       								{
-				       	       									xtype: 'numberfield',
-				       	       									width: 65,
-				       	       									fieldLabel: 'Desc. %',
-				       	       									value: '5'
-				       	       								},
-				       	       								{
-				       	       									xtype: 'button',
-				       	       									iconCls: 'cart',
-				       	       									text: 'Agregar Articulo'
-				       	       								}
-				       	       						]
-				       	       					},
-				       	       					{
-				       	       						columnWidth: .34,
-				       	       						cls: 'bloqueFactura crema',
-				       	       						layout: 'form',
-				       	       						height: 150,
-				       	       						items:[
-				       	       								{
-				       	       									xtype: 'displayfield',
-				       	       									hideLabel: true,
-				       	       									cls: 'titulo',
-				       	       									value: 'Cliente'
-				       	       								},
-				       	       								{
-				       	       									xtype: 'textfield',
-				       	       									width: 200,
-				       	       									cls: 'searchIcon',
-				       	       									fieldLabel: 'RUC / Nombre',
-				       	       									value: 'Omar Esgaib / 1278321-1'
-				       	       								},
-				       	       								{
-				       	       									xtype: 'textfield',
-				       	       									fieldLabel: 'Documento',
-				       	       									disabled: true,
-				       	       									value: '1278321-1'
-				       	       								},
-				       	       								{
-				       	       									xtype: 'textfield',
-				       	       									fieldLabel: 'Nombre o Raz. Social',
-				       	       									disabled: true,
-				       	       									value: 'Omar Esgaib'
-				       	       								}
-				       	       						]
-				       	       					},
-				       	       					{
-				       	       						layout: 'form',
-				       	       						height: 200,
-				       	       						items:[
-				       	       								{
-				       	       									xtype: 'displayfield',
-				       	       									value: 'Total Venta',
-				       	       									cls: 'titulo',
-				       	       									hideLabel: true
-				       	       								},
-				       	       								{
-				       	       									xtype: 'numberfield',
-				       	       									width: 200,
-				       	       									disabled: true,
-				       	       									fieldLabel: 'Total Pagado',
-				       	       									value: '234234232'
-				       	       								},
-				       	       								{
-				       	       									xtype: 'textfield',
-				       	       									width: 75,
-				       	       									disabled: true,
-				       	       									fieldLabel: 'Moneda',
-				       	       									value: 'Gs'
-				       	       								},
-				       	       								{
-				       	       									xtype: 'textfield',
-				       	       									width: 75,
-				       	       									disabled: true,
-				       	       									fieldLabel: 'IVA 10%',
-				       	       									value: '12345'
-				       	       								},
-				       	       								{
-				       	       									xtype: 'textfield',
-				       	       									width: 75,
-				       	       									disabled: true,
-				       	       									fieldLabel: 'IVA 5%',
-				       	       									value: '0'
-				       	       								},
-				       	       								{
-				       	       									xtype: 'textfield',
-				       	       									width: 75,
-				       	       									disabled: true,
-				       	       									fieldLabel: 'IVA Exenta',
-				       	       									value: '0'
-				       	       								},
-				       	       								{
-				       	       									xtype: 'textfield',
-				       	       									width: 75,
-				       	       									disabled: true,
-				       	       									fieldLabel: 'Total IVA',
-				       	       									value: '12345'
+				       	       									layout: 'column',
+				       	       									cls: '',
+				       	       									height: 110,
+				       	       									items:[
+				       	       											{
+				       	       												xtype: 'container',
+				       	       												layout: 'form',
+				       	       												width: 130,
+				       	       												items:[
+				       	       														{
+				       	       															xtype: 'container',
+				       	       															html: '&nbsp;'
+				       	       														}
+				       	       												]
+				       	       											},
+				       	       											{
+				       	       												xtype: 'container',
+				       	       												layout: 'form',
+				       	       												width: 100,
+				       	       												items:[
+				       	       														{
+					       	       			        									xtype: 'button',
+					       	       			        									width: 85,
+					       	       			        									style:{margin: '5px 0'},
+					       	       			        									iconCls: 'addIcon',
+					       	       			        									handler: function(b,e){
+				       	       																Ext.Msg.alert('Aviso','En Impl.');
+				       	       															},
+					       	       			        									text: 'Reset'
+																					},
+																					{
+					       	       			        									xtype: 'button',
+					       	       			        									width: 85,
+					       	       			        									handler: function(b,e){
+				       	       																location.href = baseURL + '/fact/venta/list-ui';
+				       	       															},
+					       	       			        									style:{margin: '5px 0'},
+					       	       			        									iconCls: 'addIcon',
+					       	       			        									text: 'Cancelar'
+																					}
+				       	       												]
+				       	       											},
+				       	       											{
+				       	       												xtype: 'container',
+				       	       												layout: 'form',
+				       	       												width: 100,
+				       	       												items:[
+				       	       														{
+					       	       			        									xtype: 'button',
+					       	       			        									height: 50,
+					       	       			        									style:{margin: '5px 0'},
+					       	       			        									width: 95,
+					       	       			        									iconCls: 'addIcon',
+					       	       			        									text: 'Guardar',
+					       	       			        									handler: guardarCompraHandler
+																					}
+				       	       												]		
+				       	       											}
+				       	       									]
 				       	       								}
 				       	       						]
 				       	       					},
@@ -852,14 +1813,29 @@ viewContainer.bodyPanel = [{
 				               						store: mainStore,
 				               						cm: new Ext.grid.ColumnModel([
 				               							{ header: "Quitar", fixed:true, dataIndex: 'categoria',  width: 40, renderer: function(v,meta,record){
-				               								return '<div class="deleteIcon"></div>';
+				               								return '<div class="deleteIcon" onclick="quitarArticuloCompra(' + record.data.stock_articulo_id +');"></div>';
 				               							}},
-				               							{ header: "Cant.", fixed: true, dataIndex: 'cant',  width: 80},
-														{ header: "Descrip.", dataIndex: 'descrip', width: 160},
-														{ header: "Precio Unit.", dataIndex: 'precio_unit',  width: 100},
-														{ header: "Exenta", dataIndex: 'exenta',  width: 100},
-														{ header: "5%", dataIndex: 'cinco',  width: 100},
-														{ header: "10%", dataIndex: 'diez',  width: 100}
+				               							{ header: "Cant.", fixed: true, dataIndex: 'cantidad',  width: 80},
+														{ header: "Descrip.", dataIndex: 'articulo', width: 160},
+														{ header: "Costo Unit.", dataIndex: 'precio_unit',  width: 100},
+														{ header: "Exenta", dataIndex: null,  width: 100, renderer: function(v,meta,record){
+															if(record.data.porc_impuesto == 0)
+																return record.data.cantidad * record.data.precio_unit;
+															else
+																return '-';
+														}},
+														{ header: "5%", dataIndex: null,  width: 100, renderer: function(v,meta,record){
+															if(record.data.porc_impuesto == 5)
+																return record.data.cantidad * record.data.precio_unit;
+															else
+																return '-';
+														}},
+														{ header: "10%", dataIndex: null,  width: 100, renderer: function(v,meta,record){
+															if(record.data.porc_impuesto == 10)
+																return record.data.cantidad * record.data.precio_unit;
+															else
+																return '-';
+														}}
 													])
 				           						}
 				       	       			]
@@ -869,39 +1845,6 @@ viewContainer.bodyPanel = [{
 				       	       			layout: 'toolbar',
 				       	       			cls: 'pagingContainer',
 				       	       			items:[
-				       	       					'->',
-				       	       			        {
-					       	       			        xtype: 'button',
-					       	       			        iconCls: 'addIcon',
-					       	       			        text: 'Guardar',
-													handler: function(b,e){
-														//buscamos destino
-														var destino = Ext.getCmp('formContainer');
-														if(destino)
-														{
-															destino.removeAll();
-															var addedEl = destino.add(formularioArticulo(true, null, false));
-															destino.doLayout();
-															addedEl.body.highlight();
-														}
-													}
-				       	       			        },
-				       	       			        {
-					       	       			        xtype: 'button',
-					       	       			        iconCls: 'addIcon',
-					       	       			        text: 'Reset',
-													handler: function(b,e){
-														//buscamos destino
-														var destino = Ext.getCmp('formContainer');
-														if(destino)
-														{
-															destino.removeAll();
-															var addedEl = destino.add(formularioArticulo(true, null, false));
-															destino.doLayout();
-															addedEl.body.highlight();
-														}
-													}
-				       	       			        }
 				       	       			]
 				       	   			}
 							]

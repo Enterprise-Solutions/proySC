@@ -25,7 +25,7 @@
 
 		function buttonClick(b,e)
 		{
-			location.href = baseURL + '/' + b.modulo + '/' + b.codigo + '/index-ui';
+			location.href = baseURL + '/' + b.modulo + '/' + b.codigo + '/' + ((b.view)?(b.view):('index-ui'));
 		}
 		
 			Ext.onReady(function(){
@@ -94,9 +94,9 @@
             								        	defaults:{handler: buttonClick},
 														items:[
 														       {text: 'Crear Venta', codigo: 'venta', modulo: 'fact'},
-														       {text: 'Mantener Ventas', codigo: 'ventas', modulo: 'fact'},
+														       {text: 'Mantener Ventas', codigo: 'venta', modulo: 'fact', view: 'list-ui'},
 														       {text: 'Crear Compra', codigo: 'compra', modulo: 'fact'},
-														       {text: 'Mantener Compras', codigo: 'compras', modulo: 'fact'}
+														       {text: 'Mantener Compras', codigo: 'compra', modulo: 'fact', view: 'list-ui'}
 														]
                 								    }
         								        },

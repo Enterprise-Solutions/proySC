@@ -1,0 +1,1100 @@
+<!-- primero stores siempre -->
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/factCompraDetalleStore.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/genericoProductoStore.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/genericoSiNoStore.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/stockImpuestoStore.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/orgRolesDePartesProveedorStore.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/orgParteTipoStore.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/orgParteStore.js"></script>
+
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/stockEstadoFacturaStore.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/stockEstadoStore.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/stockArticuloStore.js"></script>
+<!-- despues lo demas -->
+<script type="text/javascript" src="<?=$this->basePath();?>/js/common/ventanaModal.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/forms/formularioEmpresa.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/forms/formularioPersona.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/forms/orgParteProveedor.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/common/hideBloque.js"></script>
+<script type="text/javascript">
+
+var mainStore = factCompraDetalleStore;
+
+mainStore.on('remove', function(thisStore, record, index){
+	console.log('remove', thisStore, record, index);
+});
+
+var monedaDecimales = false;
+var cantDecimalesMoneda = -1;
+
+guardarCompraHandlerCallback = function(options, success, response)
+{
+	console.log(options, success, response);
+	
+	var formulario = Ext.getCmp('mainForm');
+	if(formulario)
+		formulario.getEl().unmask();
+		
+	if(success)
+	{
+	}
+		//location.href = baseURL + '/fact/compra/list-ui';
+};
+
+guardarCompraHandler = function(b,e)
+{
+	//vemos si esta todo ok el formulari
+	var formulario = Ext.getCmp('mainForm');
+	if(formulario)
+	{
+		var basicForm = formulario.getForm();
+		
+		//obtenemos los datos
+		var valores = basicForm.getFieldValues();
+		
+		console.log('valores',valores);
+		
+		if(!basicForm.isValid())
+		{
+			Ext.Msg.alert('Aviso','Hay campos invalidos');
+			return;
+		}
+		
+		//obtenemos los datos
+		var valores = basicForm.getFieldValues();
+		
+		console.log('valores',valores);
+		
+		//verificamos que hayan registros
+		var records = mainStore.getRange();
+		
+		console.log('records',records, formatearFecha(valores.fecha, 1));
+		
+		if(records.length == 0)
+		{
+			Ext.Msg.alert('Aviso','La compra no tiene productos');
+			return;
+		}
+
+		var registros = [];
+
+		for(var x=0; x<records.length;x++)	
+		{
+			registros.push(records[x].data);
+		}
+		
+		//mascara
+		formulario.getEl().mask('Enviando...');
+
+		var datos = {
+			'post':{
+				'Ingreso':{
+					cont_moneda_id: valores.cont_moneda_id,
+					codigo: '--',
+					doc_nro: valores.factura_nro.join('-'),
+					doc_fecha: formatearFecha(valores.fecha, 1),
+					doc_tipo: 'F',
+					condicion: 'C',
+					estado: valores.estado_factura
+				},
+				'Detalle':registros,
+				'Proveedor': {org_parte_rol_id: valores.org_parte_id_buscar}
+			}
+		};
+		
+		
+		console.log('datos',datos);
+		
+		Ajax.PostElement.request({
+				url: baseURL + '/fact/compra/post',
+				callback: guardarCompraHandlerCallback,
+				jsonData: datos
+			});	
+		
+	}
+				
+};
+
+agregarArticuloCompraCallback = function(options, success, response)
+{
+	var grilla = Ext.getCmp('mainGrid');
+	var bloque = Ext.getCmp('bloqueArticulo');
+	
+	console.log('agregarArticuloCompraCallback',options, success, response);
+	if(success)
+	{
+		//var datos = Ext.decode(response.responseText);
+		var respuesta = Ext.decode(response.responseText);
+		
+		if(respuesta.exitoso)//se valido insercion
+		{
+			console.log('resp',respuesta);
+			//creamos registro en el main store
+			var nuevoRegistro = new mainStore.recordType(respuesta, respuesta.stock_articulo_id);
+			console.log('nuevoRegistro',nuevoRegistro);
+			mainStore.insert(0, nuevoRegistro);
+			//una vez insertado tenemos que actualizar nuestro campos de calculos de iva y demas
+			
+			var formulario = Ext.getCmp('mainForm');
+			if(formulario)
+			{
+				var basicForm = formulario.getForm();
+				
+				console.log('basicForm',basicForm);
+				
+				//definimos el total
+				var totalAdd = nuevoRegistro.data.cantidad * nuevoRegistro.data.costo_unit; //se suma al total
+				
+				console.log('totalAdd',totalAdd);
+				
+				var sumarIVA;
+				if(nuevoRegistro.data.porc_impuesto == 10)
+				{
+					sumarIVA = totalAdd / 11;
+					var campo = basicForm.findField('iva_10_display');
+					if(campo)
+						campo.setValue(campo.getValue() + sumarIVA);
+				}
+				else if(nuevoRegistro.data.porc_impuesto == 5)
+				{
+					sumarIVA = totalAdd / 21;
+					var campo = basicForm.findField('iva_5_display');
+					if(campo)
+						campo.setValue(campo.getValue() + sumarIVA);
+				}
+				else
+				{
+					sumarIVA = 0;
+					var campo = basicForm.findField('iva_exenta_display');
+					if(campo)
+						campo.setValue(campo.getValue() + sumarIVA);
+				}
+				
+				//aplicar a los campos
+				var total = basicForm.findField('valor_total_trans_display');
+				if(total)
+				{
+					console.log(total);
+					total.setValue(total.getValue() + totalAdd);
+				}
+				
+				var total_iva = basicForm.findField('total_iva_display');
+				if(total_iva)
+				{
+					total_iva.setValue(total_iva.getValue() + sumarIVA);
+				}
+			}
+		 			
+			
+			
+			//ceramos el formulario de articulo
+			if(bloque)
+			{
+				var bloques = bloque.findByType('field',false);
+				for(var x=0; x<bloques.length; x++)
+				{
+					if(bloques[x].xtype == 'combo')
+					{
+						bloques[x].clearValue();
+						if(bloques[x].hiddenName == 'stock_articulo_id_codigo')
+							bloques[x].focus();
+					}
+					else if(bloques[x].xtype == 'numberfield')
+					{
+						bloques[x].setValue(null);
+					}
+				}
+			}
+		}
+		else//no se valido insercion
+		{
+			Ext.Msg.alert('Aviso','Hubo un error. Intentelo de nuevo.');
+		}
+		
+	}
+	
+	//desenmascar grilla y container
+	if(bloque)
+	{
+		bloque.getEl().unmask();
+	}
+				
+	
+	if(grilla)
+		grilla.getEl().unmask();
+			
+};
+
+agregarArticuloCompra = function(b, e)
+{
+	//verificar formulario
+	var formulario = Ext.getCmp('mainForm');
+	if(formulario)
+	{
+		var basicForm = formulario.getForm();
+		 
+		if(basicForm.isValid())
+		{
+			
+			//verificamos valores individuales obligatorios que son 
+			var c1 = basicForm.findField('stock_articulo_id_codigo');
+			var c2 = basicForm.findField('stock_articulo_id_rcap');
+			var c3 = basicForm.findField('cantidad');
+			var c4 = basicForm.findField('costo_unit');
+			var c5 = basicForm.findField('porcentaje_impuesto');
+			var c6 = basicForm.findField('cont_moneda_id');
+			
+			if(c1.getValue() == '')
+			{
+				Ext.Msg.alert('Aviso','Debe seleccionar un producto');
+				return;
+			}
+			
+			if(c2.getValue() == '')
+			{
+				Ext.Msg.alert('Aviso','Debe seleccionar un producto');
+				return;
+			}
+			
+			
+			if(c3.getValue() == '')
+			{
+				Ext.Msg.alert('Aviso','Debe seleccionar una cantidad');
+				return;
+			}
+			
+			if(c4.getValue() == '')
+			{
+				Ext.Msg.alert('Aviso','Debe seleccionar un costo unitario');
+				return;
+			}
+			
+			if(c5.getValue() == '')
+			{
+				Ext.Msg.alert('Aviso','El producto debe tener un porcentaje de impuesto definido');
+				return;
+			}
+
+			if(c6.getValue() == '')
+			{
+				Ext.Msg.alert('Aviso','Debe seleccionar una moneda');
+				return;
+			}
+			
+			var valores = basicForm.getFieldValues();
+			
+			console.log('valores',valores);
+			
+			//verificamos que ese articulo no este en la grilla
+			var id = valores.stock_articulo_id_codigo;
+			//buscamos
+			var record = mainStore.getById(id);
+			if(record)
+			{
+				Ext.Msg.alert('Aviso','Ese articulo ya se encuentra en la compra');
+				return;
+			}
+			
+			//obtenemos los valores que me interesan
+			var datos = {
+				cantidad: valores.cantidad,
+				costo_unit: valores.costo_unit,
+				stock_articulo_id: valores.stock_articulo_id_codigo,
+				porc_impuesto: valores.porcentaje_impuesto,
+				cont_moneda_id: valores.cont_moneda_id
+			};
+			
+			//hacemos request enmascarando bloque de articulo y bloque de grilla
+			//mainGrid
+			//bloqueArticulo
+			
+			var bloque = Ext.getCmp('bloqueArticulo');
+			if(bloque)
+				bloque.getEl().mask('Agregando .. ');
+				
+			var grilla = Ext.getCmp('mainGrid');
+			if(grilla)
+			{
+			 	grilla.getEl().mask('Agregando..');
+			}
+			
+			//aca hacemos la solicitud y manejamos la respuesta en CB
+			Ajax.PostElement.request({
+				url: baseURL + '/fact/compra/validate',
+				callback: agregarArticuloCompraCallback,
+				jsonData: datos
+			});		
+			
+		}
+		else
+			Ext.Msg.alert('Aviso','Debe completar todos los campos');
+	}
+};
+
+verDetallesProveedor = function(b,e)
+{
+	//obtenemos los campos del formulario
+	var formulario = Ext.getCmp('mainForm');
+	if(formulario)
+	{
+		var basicForm = formulario.getForm();
+		var valores = basicForm.getFieldValues();
+		
+		if(valores.org_parte_id_buscar)
+		{
+			//mi store es orgRolParteStore
+			//obtenemos record
+			var registro = orgRolParteStore.getById(valores.org_parte_id_buscar);
+			console.log(registro);
+		}
+		else
+			Ext.Msg.alert('Aviso','Debe seleccionar un proveedor');
+	}
+};
+
+
+
+agregarArticuloHandlerCallback = function(success, rawData)
+{
+	console.log('success, rawData',success, rawData);
+	if(success)
+	{
+		var bloque = Ext.getCmp('bloqueArticulo');
+		if(bloque)
+			bloque.getEl().mask('Cargando...');
+		var respuesta = Ext.decode(rawData.responseText);
+		var id = respuesta.stock_articulo_id;
+		
+		//cargo el store con este dato
+		stockArticuloStore.load({
+			params:{
+				's[id]':id,
+				's[cadena]': null,
+				's[rcap]':null
+			},
+			callback: function(records, options, success)
+			{
+				console.log('records',records);
+				if(records.length == 0)
+				{
+					Ext.Msg.alert('Aviso','No se encontro registro. Intentelo de nuevo');
+					return;
+				}
+				
+				var record = records[0];
+				
+				if(success)
+				{
+					var formulario = Ext.getCmp('mainForm');
+					if(formulario)
+					{
+						console.log('inside main form y record', record);
+						//seteamos en el form
+						var basicForm = formulario.getForm();
+						//obtener campo1 y setear valor
+						var campo1 = basicForm.findField('stock_articulo_id_codigo');
+						console.log('campo1',campo1);
+						if(campo1)
+						{
+							campo1.setValue(record.data.stock_articulo_id);
+						}
+						
+						var campo2 = basicForm.findField('stock_articulo_id_rcap');
+						console.log('campo2',campo2);
+						if(campo2)
+						{
+							campo2.setValue(record.data.stock_articulo_id);
+						}
+						
+						var iva = basicForm.findField('porcentaje_impuesto');
+						if(iva)
+						{
+							iva.setValue(record.data.porcentaje_impuesto);
+						}
+						
+						
+					
+					}
+				}
+				else
+				{
+					Ext.Msg.alert('Aviso','No se encontro articulo');
+				}
+				
+				var bloque = Ext.getCmp('bloqueArticulo');
+					if(bloque)
+						bloque.getEl().unmask();
+			}
+		});
+			
+	}
+};
+
+agregarArticuloHandler = function(b,e)
+{
+	var formulario = Ext.getCmp('mainForm');
+	if(formulario)
+	{
+		var basicForm = formulario.getForm();
+		
+		var campo1 = basicForm.findField('stock_articulo_id_codigo');
+		var campo2 = basicForm.findField('stock_articulo_id_rcap');
+		//solo podemos ver si tenemos articulo seleccionado
+		if(campo1)
+			campo1.setValue(null);
+		if(campo2)
+			campo2.setValue(null);
+				
+			//creamos ventana modal
+			//anhadimos formulario pero antes obtenemos registro
+			
+		ventanaModal.add(formularioStockArticulo(true, null, false, true, agregarArticuloHandlerCallback));
+		ventanaModal.doLayout();
+		ventanaModal.show();
+			
+	}
+};
+
+verDetallesArticuloHandlerCallback = function(success, rawData)
+{
+	var bloque = Ext.getCmp('bloqueArticulo');
+	if(bloque)
+		bloque.getEl().unmask();
+		
+	if(success)
+	{
+		var data = Ext.decode(rawData.responseText);
+		
+		stockArticuloStore.reload({
+			callback: function(records, options, success){
+				console.log('cb view', records, options, success);
+				
+				
+				if(records.length == 0)
+				{
+					Ext.Msg.alert('Aviso','No se encontro articulo. Intentelo de nuevo');
+				}
+				else
+				{
+				
+				var record = records[0];
+				
+				console.log('record en view',record);
+				
+				if(success)
+				{
+					var formulario = Ext.getCmp('mainForm');
+					if(formulario)
+					{
+						console.log('inside main form');
+						//seteamos en el form
+						var basicForm = formulario.getForm();
+						
+						console.log('basicForm',basicForm);
+						
+						//obtener campo1 y setear valor
+						var campo1 = basicForm.findField('stock_articulo_id_codigo');
+						console.log('campo1',campo1);
+						if(campo1)
+						{
+							campo1.setValue(record.data.stock_articulo_id);
+						}
+						
+						var campo2 = basicForm.findField('stock_articulo_id_rcap');
+						console.log('campo2',campo2);
+						if(campo2)
+						{
+							console.log('in');
+							campo2.setValue(record.data.stock_articulo_id, campo2.getStore());
+						}
+						
+						var iva = basicForm.findField('porcentaje_impuesto');
+						console.log('iva', iva);
+						if(iva)
+						{
+							
+							iva.setValue(record.data.porcentaje_impuesto);
+						}
+					
+					}
+				}
+				else
+				{
+					Ext.Msg.alert('Aviso','No se encontro articulo');
+				}
+				
+				}
+			}
+		});
+		
+			
+	}
+	
+	var bloque = Ext.getCmp('bloqueArticulo');
+	if(bloque)
+		bloque.getEl().unmask();
+};
+
+verDetallesArticuloHandler = function(b,e)
+{
+
+	var formulario = Ext.getCmp('mainForm');
+	if(formulario)
+	{
+		var bloque = Ext.getCmp('bloqueArticulo');
+		if(bloque)
+			bloque.getEl().mask('Cargando...');
+			
+		var basicForm = formulario.getForm();
+		var valores = basicForm.getFieldValues();
+		
+		//solo podemos ver si tenemos articulo seleccionado
+		if(valores.stock_articulo_id_codigo)
+		{
+			//creamos ventana modal
+			//anhadimos formulario pero antes obtenemos registro
+			
+			Ajax.PostElement.request({
+				url: baseURL + '/stock/articulo/get',
+				success: function(response, opt){
+					var bloque = Ext.getCmp('bloqueArticulo');
+					if(bloque)
+						bloque.getEl().unmask();
+					var data = Ext.decode(response.responseText);
+					ventanaModal.add(formularioStockArticulo(false, data, false, true, verDetallesArticuloHandlerCallback));
+					ventanaModal.doLayout();
+					ventanaModal.show();
+				},
+				failure: function(){
+					var bloque = Ext.getCmp('bloqueArticulo');
+					if(bloque)
+						bloque.getEl().unmask();
+				},
+				params:{id: valores.stock_articulo_id_codigo}
+			});		
+			
+		}
+		else
+		{
+			Ext.Msg.alert('Aviso','Seleccione un articulo para poder visualizar sus detalles');
+		}
+	}
+};
+
+
+function borrarArticulo(id)
+{
+	var registro = mainStore.getById(id);
+	
+	if(registro)
+	{
+		var destino = Ext.getCmp('formContainer');
+		if(destino)
+		{
+			destino.removeAll();
+			//hacemos solicitud
+
+			Ext.Msg.confirm('Eliminar','Desea eliminar el elemento ' + registro.data.nombre, function(a,b){
+				if(a == 'yes')
+				{
+					Ajax.PostElement.request({
+						url: baseURL + '/stock/articulo/delete',
+						success: function(response, opt){
+							mainStore.reload();
+						},
+						jsonData:{'delete':{stock_articulo_id : id}}
+					});	
+				}
+			});
+			
+		}
+	}
+}
+
+
+
+
+
+viewContainer.bodyPanel = [{
+	layout: 'fit',
+	xtype: 'container',
+	autoHeight: true,
+	cls: 'fittedContainer',
+	items: [
+			{
+				xtype: 'container',
+				autoHeight: true,
+				id: 'secondMainContainer',
+				layout: 'anchor',
+				items:[
+						{
+							xtype: 'form',
+							id: 'mainForm',
+							labelAlign: 'right',
+							layout: 'anchor',
+							items:[
+									{
+										xtype: 'container',
+										html: 'Cargar Compra',
+										cls: 'mainTitle'
+									},
+									{
+				       	       			xtype: 'container',
+				       	       			itemId: 'compraContainer',
+				       	       			cls: 'compraContainer',
+				       	       			style:{margin: '10px auto'},
+				       	       			layout: 'column',
+				       	       			width: 1024,
+				       	       			defaults:{cls: 'bloqueFactura azul', xtype: 'container', columnWidth: .33, height: 75},
+				       	       			items: [
+				       	       					{
+				       	       						layout: 'column',
+				       	       						height: 35,
+				       	       						cls: 'bloqueFactura crema',
+				       	       						style:{paddingTop: '5px'},
+				       	       						items:[
+				       	       								{
+				       	       									xtype: 'container',
+				       	       									layout: 'form',
+				       	       									labelWidth: 75,
+				       	       									width: 250,
+				       	       									items:[
+				       	       											{
+				       	       												xtype: 'textfield',
+				       	       												width: 150,
+				       	       												disabled: true,
+				       	       												allowBlank: false,
+				       	       												name: 'doc_nro',
+				       	       												fieldLabel: 'Factura Nro.'
+				       	       											}
+				       	       									]
+				       	       								}
+				       	       						]
+				       	       					},
+				       	       					{
+				       	       						columnWidth: .34,
+				       	       						height: 35,
+				       	       						style: {border:'none'},
+				       	       						cls: 'bloqueFactura'
+				       	       					},
+				       	       					{
+				       	       						cls: 'bloqueFactura',
+				       	       						style: {border:'none'},
+				       	       						height: 35
+				       	       					},
+				       	       					{
+				       	       						xtype: 'container',
+				       	       						layout: 'column',
+				       	       						cls: '',
+				       	       						autoHeight:true,
+				       	       						defaults:{xtype: 'container'},
+				       	       						columnWidth: .67,
+				       	       						items:[
+				       	       								{
+				       	       									layout: 'form',
+				       	       									cls: 'bloqueFactura azul',
+				       	       									columnWidth: .5,
+				       	       									height: 200,
+				       	       									items:[
+				       	       											{
+				       	       												xtype: 'displayfield',
+				       	       												hideLabel: true,
+				       	       												cls: 'titulo',
+				       	       												value: 'Datos Compra'
+				       	       											},
+				       	       											{
+			       															fieldLabel: 'Tipo Operacion',
+			        														xtype: 'textfield',
+			        														value: 'Compra',
+			        														disabled: true
+		       															},
+		       															{
+			       															fieldLabel: 'Estado',
+			       															name: 'estado',
+			       															width: 90,
+			        														xtype: 'textfield',
+			        														disabled: true
+		       															},
+		       															{
+			       															fieldLabel: 'Fecha',
+			       															name: 'doc_fecha',
+			       															width: 90,
+			        														xtype: 'textfield',
+			        														disabled: true
+		       															},
+		       															{
+			       															fieldLabel: 'Fecha Venc.',
+			       															name: 'doc_fecha',
+			       															width: 90,
+			        														xtype: 'textfield',
+			        														disabled: true
+		       															},
+		       															{
+			       															fieldLabel: 'Moneda',
+			       															name: 'simbolo',
+			       															width: 90,
+			        														xtype: 'textfield',
+			        														disabled: true
+		       															}
+				       	       									]
+				       	       								},
+				       	       								{
+				       	       									columnWidth: .5,
+				       	       									layout: 'form',
+				       	       									cls: 'bloqueFactura azul',
+				       	       									height: 200,
+				       	       									items:[
+				       	       											{
+				       	       												xtype: 'displayfield',
+				       	       												hideLabel: true,
+				       	       												cls: 'titulo',
+				       	       												value: 'Proveedor'
+				       	       											},
+				       	       											{
+				       	       												xtype: 'combo',
+																			fieldLabel: 'RUC / Nombre',
+																			cls: 'searchIcon',
+																			hideTrigger: true,
+																			width: 210,
+																			allowBlank: false,
+																			minChars: 2,
+																			cls: 'searchIcon',
+																			displayField: 'mostrar',
+																			valueField: 'org_parte_rol_id',
+																			forceSelection: true,
+																			mode: 'remote',
+																			triggerAction: 'all',
+																			listWidth: 350,
+																			queryDelay: 1000,
+																			queryParam: 's[nombre]',
+																			store: orgRolParteStore,
+																			hiddenName: 'org_parte_id_buscar',
+																			listeners:{
+																				'select':function(thisField, record, index)
+																				{
+																					
+																					//si selecciono algo tengo que poner en los campos dependientes
+																					//busco ambos campos
+																					var padre = thisField.ownerCt;
+																					var displayNombre = padre.find('name','displayNombre');
+																					var displayDocumento = padre.find('name','displayDocumento');
+																					
+																					console.log(displayNombre,displayDocumento,record.data)
+																					
+																					if(displayNombre.length>0)
+																					{
+																						displayNombre = displayNombre[0];
+																						
+																						displayNombre.setValue(record.data.mostrarNombre);
+																					}
+																					
+																					if(displayDocumento.length>0)
+																					{
+																						displayDocumento = displayDocumento[0];
+																						displayDocumento.setValue(record.data.mostrarDocumentos);
+																					}
+																					
+																					
+																				},
+																				'change':function(thisField, newValue, oldValue)
+																				{
+																					if(!newValue)
+																					{
+																						var padre = thisField.ownerCt;
+																						var displayNombre = padre.find('name','displayNombre');
+																						var displayDocumento = padre.find('name','displayDocumento');
+																					
+																						if(displayNombre.length>0)
+																						{
+																							displayNombre = displayNombre[0];
+																							displayNombre.setValue(null);
+																						}
+																					
+																						if(displayDocumento.length>0)
+																						{
+																							displayDocumento = displayDocumento[0];
+																							displayDocumento.setValue(null);
+																						}
+																					}
+																				}
+																			}
+																			
+				       	       											},
+				       	       											{
+				       	       												xtype: 'textfield',
+				       	       												width: 180,
+				       	       												fieldLabel: 'Documento',
+				       	       												name: 'displayDocumento',
+				       	       												disabled: true
+				       	       											},
+				       	       											{
+				       	       												xtype: 'textfield',
+				       	       												fieldLabel: 'Nombre o Raz. Social',
+				       	       												name: 'displayNombre',
+				       	       												width: 180,
+				       	       												disabled: true
+				       	       											},
+				       	       											{
+				       	       												xtype: 'container',
+				       	       												layout: 'column',
+				       	       												defaults:{style:{margin: '0 5px'}},
+				       	       												items:[
+				       	       														{
+				       	       															xtype: 'button',
+				       	       															handler: verDetallesProveedor,
+				       	       															text: 'Ver Detalles'
+				       	       														}
+				       	       												]
+				       	       											}
+				       	       									]
+				       	       								}
+				       	       							]
+				       	       					},	
+				       	       					{
+				       	       						xtype: 'container',
+				       	       						layout: 'anchor',
+				       	       						cls: '',
+				       	       						defaults:{xtype: 'container'},
+				       	       						autoHeight:true,
+				       	       						columnWidth: .33,
+				       	       						style:{color:'white', fontWeight:'bold'},
+				       	       						items:[
+				       	       								{
+				       	       									layout: 'form',
+				       	       									labelWidth: 130,
+				       	       									cls: 'bloqueFactura azulOscuro',
+				       	       									height: 215,
+				       	       									items:[
+				       	       											{
+				       	       												xtype: 'displayfield',
+				       	       												value: 'Total Compra',
+				       	       												style:{backgroundColor:'#00CCFF', color: 'black'},
+				       	       												cls: 'titulo',
+				       	       												hideLabel: true
+				       	       											},
+				       	       											{
+				       	       												xtype: 'container',
+				       	       												defaults:{xtype: 'numberfield', disabled: true},
+				       	       												layout: 'form',
+				       	       												items:[
+				       	       														{
+				       	       															fieldLabel: '<span style="text-decoration:underline; ">Valor Total Trans.</span>',
+				       	       															name: 'total_ingreso',
+				       	       															value: 0
+				       	       														},
+				       	       														{
+				       	       															fieldLabel: 'Moneda',
+				       	       															name: 'moneda_display',
+				       	       															xtype: 'textfield'
+				       	       														},
+				       	       														{
+				       	       															fieldLabel: 'IVA 10%',
+				       	       															name: 'total_iva_diez_porciento',
+				       	       															value: 0
+				       	       														},
+				       	       														{
+				       	       															fieldLabel: 'IVA 5%',
+				       	       															name: 'total_iva_cinco_porciento',
+				       	       															value: 0
+				       	       														},
+				       	       														{
+				       	       															fieldLabel: 'IVA Exenta',
+				       	       															name: 'total_excenta',
+				       	       															value: 0
+				       	       														},
+				       	       														{
+				       	       															fieldLabel: 'Total IVA',
+				       	       															name: 'total_impuesto',
+				       	       															value: 0
+				       	       														}
+				       	       												]
+				       	       											}
+				       	       									]
+				       	       								},
+				       	       								{
+				       	       									layout: 'column',
+				       	       									cls: '',
+				       	       									height: 50,
+				       	       									items:[
+				       	       											{
+				       	       												xtype: 'container',
+				       	       												layout: 'form',
+				       	       												width: 130,
+				       	       												items:[
+				       	       														{
+				       	       															xtype: 'container',
+				       	       															html: '&nbsp;'
+				       	       														}
+				       	       												]
+				       	       											},
+				       	       											{
+				       	       												xtype: 'container',
+				       	       												layout: 'form',
+				       	       												width: 125,
+				       	       												items:[
+																					{
+					       	       			        									xtype: 'button',
+					       	       			        									width: 125,
+					       	       			        									handler: function(b,e){
+				       	       																location.href = baseURL + '/fact/compra/list-ui';
+				       	       															},
+					       	       			        									style:{margin: '5px 0'},
+					       	       			        									iconCls: 'addIcon',
+					       	       			        									text: 'Volver Listado'
+																					}
+				       	       												]
+				       	       											}
+				       	       									]
+				       	       								}
+				       	       						]
+				       	       					},
+				       	       					{
+				               						xtype: 'grid',
+				               						autoHeight: true,
+				               						columnWidth: 1,
+				               						id: 'mainGrid',
+				               						stripeRows: true,
+				               						loadMask: true,
+				               						sm: new Ext.grid.CellSelectionModel(),
+				               						viewConfig: {
+				               					        forceFit: true,
+				               					        emptyText: 'Sin Registros',
+				               					        loadingText: 'Cargando .. '
+				               						},
+				               						store: mainStore,
+				               						cm: new Ext.grid.ColumnModel([
+				               							{ header: "Cant.", fixed: true, dataIndex: 'cantidad',  width: 80},
+														{ header: "Descrip.", dataIndex: 'articulo', width: 160},
+														{ header: "Costo Unit.", dataIndex: 'costo_unit',  width: 100},
+														{ header: "Exenta", dataIndex: null,  width: 100, renderer: function(v,meta,record){
+															if(record.data.porc_impuesto == 0)
+																return record.data.cantidad * record.data.costo_unit;
+															else
+																return '-';
+														}},
+														{ header: "5%", dataIndex: null,  width: 100, renderer: function(v,meta,record){
+															if(record.data.porc_impuesto == 5)
+																return record.data.cantidad * record.data.costo_unit;
+															else
+																return '-';
+														}},
+														{ header: "10%", dataIndex: null,  width: 100, renderer: function(v,meta,record){
+															if(record.data.porc_impuesto == 10)
+																return record.data.cantidad * record.data.costo_unit;
+															else
+																return '-';
+														}}
+													])
+				           						}
+				       	       			]
+				       	   			},
+				       	   			{
+				       	       			xtype: 'toolbar',
+				       	       			layout: 'toolbar',
+				       	       			cls: 'pagingContainer',
+				       	       			items:[
+				       	       			]
+				       	   			}
+							]
+						}
+						
+						
+						/*,
+						{
+							xtype: 'container',
+							columnWidth: .35,
+							layout: 'anchor',
+							items:[
+			    					{
+			    						xtype: 'container',
+			    						layout: 'anchor',
+			    						cls: 'oculto',
+			    						id: 'messageBox',
+			    						items:[
+			    						       {
+			        						       xtype: 'container',
+			    						    	   html: 'Generico'
+			    						       }
+			    					
+			   	    					]
+			    					},
+							       {
+									     xtype: 'container',
+									     layout: 'anchor',
+									     id: 'formContainer'
+							       }
+							]
+						}*/
+				]
+			}
+	],
+	listeners:{
+		'render':function(thisCmp)
+		{
+			thisCmp.getEl().mask('Cargando .. ');
+			var ingresoId = location.hash.substr(1);
+			
+			console.log(ingresoId);
+			//cargando
+			Ajax.PostElement.request({
+				url: baseURL + '/fact/compra/get',
+				callback: function(options, success, response){
+					console.log(options, success, response);
+					if(success)
+					{
+						//obtenemos form y cargamos los datos
+						var respuesta = Ext.decode(response.responseText);
+						
+						//cargamos store de detalles
+						var detalles = respuesta.detalles;
+						
+						factCompraDetalleStore.loadData(detalles);
+						
+						console.log(factCompraDetalleStore);
+						
+						//seteamos valores en el formulario
+						var formulario = Ext.getCmp('mainForm');
+						if(formulario)
+						{
+							var basicForm = formulario.getForm();
+							var impuesto = 0;
+							
+							for(var prop in respuesta)
+							{
+								if(prop == 'total_iva_cinco_porciento' || prop == 'total_iva_diez_porciento')
+								{
+									if(!isNaN(respuesta[prop]))
+										impuesto += parseFloat(respuesta[prop]);
+								}
+							
+								var aux = basicForm.findField(prop);
+								if(aux)
+									aux.setValue(respuesta[prop]);
+							}
+							
+							var aux = basicForm.findField('total_impuesto');
+							aux.setValue(impuesto);
+							
+						}
+						
+						//sacamos mascara
+						var idForm = options.jsonData.formId;
+						
+						console.log(idForm);
+						
+						var f = Ext.getCmp(idForm);
+						if(f)
+							f.getEl().unmask();
+					}
+					else
+						Ext.Msg.alert('Aviso','Ocurrio un error');
+				},
+				jsonData:{
+					'id': ingresoId,
+					'formId': thisCmp.id
+				}
+			});   
+		}
+	}
+}];
+</script>
