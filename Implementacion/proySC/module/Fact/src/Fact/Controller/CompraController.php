@@ -42,6 +42,9 @@ class CompraController extends BaseController
         return $template($dao, array(), array());
     }
     
+    /**
+     * Listado de Ingresos
+     */
     public function indexAction($overwritedParams = array())
     {
         $select = new Select($this->getServiceLocator()->get('Zend\Db\Adapter\Adapter'));
@@ -86,7 +89,7 @@ class CompraController extends BaseController
         
         $service = new EditarIngresoService($em);
         $service->ejecutar($data);
-        //$this->getEntityManager()->flush();
+        $service->persistir();
         
         return $this->toJson($service->getRespuesta());
     }
@@ -94,7 +97,6 @@ class CompraController extends BaseController
     /**
      * Convierte un array a json
      * @param array $respuesta
-     * @return J
      */
     protected function toJson($respuesta)
     {

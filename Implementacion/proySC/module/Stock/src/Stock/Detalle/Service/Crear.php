@@ -27,6 +27,12 @@ class Crear
      */
     protected $detalle;
     
+    /**
+     * Articulo
+     * @var Articulo
+     */
+    protected $articulo;
+    
     public function __construct($em, $ingresoDetalle)
     {
         $this->em             = $em;
