@@ -32,6 +32,12 @@ class Factory
 			case 'ruc':
 				$documento = new Ruc($tipoDeDocumento);
 				break;
+			case 'pasaporte':
+				$documento = new Pasaporte($tipoDeDocumento);
+				break;
+			case 'carnet':
+				$documento = new Carnet($tipoDeDocumento);
+				break;
 		}
 		
 		return $documento;	

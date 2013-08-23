@@ -6,6 +6,7 @@ use Org\Parte\Repository;
 
 use EnterpriseSolutions\Controller\BaseController;
 use Org\Parte\Service\Listado\Select;
+use Org\Parte\Service\Get\Select as GetSelect;
 //use EnterpriseSolutions\Db\Dao;
 use Org\Parte\Service\Listado\Dao;
 //use EnterpriseSolutions\Db\Dao\Get as GetDao;
@@ -28,7 +29,7 @@ class ParteController extends BaseController
 	
 	public function getAction()
 	{
-		$select = new Select($this->getServiceLocator()->get('Zend\Db\Adapter\Adapter'));
+		$select = new GetSelect($this->getServiceLocator()->get('Zend\Db\Adapter\Adapter'));
 		$dao = new GetDao($select);
 		$template = $this->_crearTemplateParaGet();
 		return $template($dao,array());
@@ -37,7 +38,8 @@ class ParteController extends BaseController
 	public function crearAction($orgParteTipoCodigo = null)
 	{
 		$em = $this->getServiceLocator()->get('doctrine.entitymanager.orm_default');
-		$actionService = new Creacion($em);
+		$adapter = $this->getServiceLocator()->get('Zend\Db\Adapter\Adapter');
+		$actionService = new Creacion($em,$adapter);
 		$service = new Transaccional($em,$actionService);
 		$datos = $this->SubmitParams()->getParam('post');
 		if($orgParteTipoCodigo){
@@ -50,7 +52,8 @@ class ParteController extends BaseController
 	public function editarAction()
 	{
 		$em = $this->getServiceLocator()->get('doctrine.entitymanager.orm_default');
-		$actionService = new Edicion($em);
+		$adapter = $this->getServiceLocator()->get('Zend\Db\Adapter\Adapter');
+		$actionService = new Edicion($em,$adapter);
 		$service = new Transaccional($em,$actionService);
 		$datos = $this->SubmitParams()->getParam('put');
 		$parte = $service->ejecutar($datos);
