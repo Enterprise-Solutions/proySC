@@ -7,6 +7,7 @@ use Org\Parte\ParteTipo;
 use Zend\InputFilter\InputFilter;
 use Zend\Stdlib\Hydrator\ObjectProperty as Hydrator;
 use \Exception;
+use Org\Parte\Repository;
 
 /**
  * @author pislas
@@ -34,6 +35,11 @@ class Parte
 	protected $_tipo;
 	
 	/**
+	 * @var Repository
+	 */
+	protected $_repository;
+	
+	/**
 	 * @param ParteTipo $parteTipo
 	 */
 	public function setParteTipo($parteTipo)
@@ -45,6 +51,11 @@ class Parte
 		if($parteTipo->getCodigo() == $this->codigo){
 			$this->_tipo = $parteTipo;
 		}
+	}
+	
+	public function setRepository(Repository $repository)
+	{
+		$this->_repository = $repository;
 	}
 	
 	/**
@@ -66,7 +77,7 @@ class Parte
 		if(!$if->isValid()){
 			throw new Exception("Error de creacion");
 		}
-		$this->_creado(array_filter($if->getValues()));
+		$this->_creado(array_filter($if->getValues(),function($value){return ($value == null)?false:true;}));
 	}
 	
 	public function editar($datos)
@@ -75,7 +86,7 @@ class Parte
 		if(!$if->isValid()){
 			throw new Exception("Error de edicion");
 		}
-		$this->_editado(array_filter($if->getValues()));
+		$this->_editado(array_filter($if->getValues(),function($value){return ($value == null)?false:true;}));
 	}
 	
 	public function _creado($datos)
