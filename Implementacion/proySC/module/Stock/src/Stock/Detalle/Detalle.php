@@ -94,6 +94,12 @@ class Detalle
         return $this->estado;
     }
     
+    public function vender($fact_egreso_detalle_id)
+    {
+        $this->fact_egreso_detalle_id = $fact_egreso_detalle_id;
+        $this->estado = 'V';
+    }
+    
     public function getIngresoDetalleId()
     {
         return $this->fact_ingreso_detalle_id;

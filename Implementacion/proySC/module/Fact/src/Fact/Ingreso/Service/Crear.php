@@ -6,8 +6,7 @@ use Doctrine\ORM\EntityManager;
 
 use Fact\Ingreso\Ingreso;
 
-use Fact\Detalle\Service\Crear as CrearDetalleIngresoService;
-use Fact\Ingreso\Service\AsignarProveedor as AsignarProveedorService;
+use Fact\Detalle\Service\Ingreso\Crear as CrearDetalleIngresoService;
 use Fact\Ingreso\Proveedor;
 
 class Crear
