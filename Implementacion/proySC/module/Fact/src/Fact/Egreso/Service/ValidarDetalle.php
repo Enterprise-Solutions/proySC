@@ -54,10 +54,28 @@ class ValidarDetalle
     public function validar($data)
     {
         $this->data = $data;
-        $this->articulo = $this->em->find('Stock\Articulo\Articulo', $this->data['stock_articulo_id']);
+        $this->articulo = $this->getArticulo();
         
         $this->validarCantidad();
         $this->validarCosto();
+        $this->validarExistencia();
+    }
+    
+    /**
+     * Obtiene el articulo solicitado
+     * @return Ambigous <object, NULL, unknown>
+     */
+    protected function getArticulo()
+    {
+        if (!isset($this->data['stock_articulo_id'])) {
+            Thrower::throwValidationException('Error de Validacion', 'No se recibio el identificador del articulo');
+        }
+        
+        try {
+            return $this->em->find('Stock\Articulo\Articulo', $this->data['stock_articulo_id']);
+        } catch (\Exception $e) {
+            Thrower::throwValidationException('Error de Validacion', 'No se encontro el articulo solicitado');
+        }
     }
     
     /**
@@ -123,7 +141,7 @@ class ValidarDetalle
             }
         }
         
-        if ($this->data['cantidad'] < $disponibles) {
+        if ($this->data['cantidad'] > $disponibles) {
             $this->status = false;
             $this->errorMessages[] = 'No existe la cantidad de articulos solicitada';
         }
