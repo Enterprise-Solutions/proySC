@@ -5,9 +5,9 @@ namespace Fact\Ingreso\Service;
 use Doctrine\ORM\EntityManager;
 use Fact\Ingreso\Ingreso;
 
-use Fact\Detalle\Service\Crear as CrearIngresoDetalleService;
-use Fact\Detalle\Service\Editar as EditarIngresoDetalleService;
-use Fact\Detalle\Service\Borrar as BorrarIngresoDetalleService;
+use Stock\Detalle\Service\Eliminar as EliminarDetalleService;
+
+use EnterpriseSolutions\Exceptions\Thrower;
 
 class Editar
 {
@@ -25,51 +25,58 @@ class Editar
     
     public function __construct($em)
     {
-        $this->em = $em;
+        $this->em      = $em;
+        $this->ingreso = null;
     }
     
     public function ejecutar($data)
     {
-        $this->editarIngreso($data['Ingreso']);
-        $this->actualizarDetalle($data['Detalle']);
-        $this->em->persist($this->ingreso);
-    }
-    
-    protected function editarIngreso($data)
-    {
+        $estadoFuturo = $data['estado'];
+        // Obtener el ingreso
         $this->ingreso = $this->em->find('Fact\Ingreso\Ingreso', $data['fact_ingreso_id']);
-        $this->ingreso->fromArray($data);
-    }
-    
-    protected function actualizarDetalle($data)
-    {
-        // Separar los datos
-        // Crear, editar y borrar detalles
-    }
-    
-    protected function crearIngresoDetalle($data)
-    {
-        $service = new CrearIngresoDetalleService($this->em, $this->ingreso);
-        $size = count($data);
+        $detalles = $this->ingreso->getDetalle();
         
-        for ($i=0; $i<$size; $i++) {
-            $service->init();
-            $service->ejecutar($data[$i]);
-            $detalle = $service->getDetalle();
-            $this->ingreso->add($detalle);
+        switch ($estadoFuturo) {
+        	case 'A':
+        	    $this->anularIngreso($detalles);
+        	    break;
+        	default:
+        	    break;
         }
     }
     
-    protected function editarIngresoDetalle($data)
+    /**
+     * Anular Ingreso
+     * 
+     */
+    protected function anularIngreso($detalles)
     {
-        $service = new EditarIngresoDetalleService();
-        $size = count($data);
+        foreach ($detalles as $detalle) {
+            // Verificar la disponibilidad de los articulos (todos tienen que estar en D)
+            // Eliminar los articulos
+            // Actualizar la existencia del articulo
+            $service = new EliminarDetalleService($this->em, $detalle);
+            $service->ejecutar(array());
+        }
+        
+        // Cambiar el estado del ingreso
+        // Marcar para guardar
+        $this->editarIngreso('A');
     }
     
-    protected function borrarIngresoDetalle($data)
+    /**
+     * Actualizar el estado del ingreso
+     * @param array $data
+     */
+    protected function editarIngreso($estado)
     {
-        $service = new BorrarIngresoDetalleService();
-        $size = count($data);
+        $this->ingreso->setEstado($estado);
+        $this->em->persist($this->ingreso);
+    }
+    
+    public function persistir()
+    {
+        $this->em->flush();
     }
     
     public function getRespuesta()

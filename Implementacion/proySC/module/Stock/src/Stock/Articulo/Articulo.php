@@ -207,4 +207,9 @@ class Articulo
     {
         $this->existencia++;
     }
+    
+    public function removeExistencia()
+    {
+        $this->existencia--;
+    }
 }

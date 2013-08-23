@@ -69,4 +69,9 @@ class BaseController extends AbstractActionController {
 	{
 		 
 	}
+	
+	public function getUIAction($id)
+	{
+			
+	}
 }

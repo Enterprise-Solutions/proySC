@@ -16,12 +16,6 @@ class Crear
     protected $em;
     
     /**
-     * Articulo
-     * @var Articulo
-     */
-    protected $articulo;
-    
-    /**
      * Ingreso Detalle
      * @var IngresoDetalle
      */
@@ -33,11 +27,17 @@ class Crear
      */
     protected $detalle;
     
+    /**
+     * Articulo
+     * @var Articulo
+     */
+    protected $articulo;
+    
     public function __construct($em, $ingresoDetalle)
     {
-        $this->em = $em;
+        $this->em             = $em;
         $this->ingresoDetalle = $ingresoDetalle;
-        $this->articulo = $this->em->find('Stock\Articulo\Articulo', $this->ingresoDetalle->getArticuloId());
+        $this->articulo       = $this->em->getReference('Stock\Articulo\Articulo', $this->ingresoDetalle->getArticuloId());
     }
     
     public function init()
@@ -49,7 +49,6 @@ class Crear
     {
         $this->crearDetalle($data);
         $this->actualizarExistencia();
-        $this->em->persist($this->detalle);
     }
     
     protected function crearDetalle($data)
@@ -59,6 +58,7 @@ class Crear
         $this->detalle->setDefaultValues();
         $this->detalle->setIngresoDetalle($this->ingresoDetalle);
         $this->detalle->setArticulo($this->articulo);
+        $this->em->persist($this->detalle);
     }
     
     protected function actualizarExistencia()

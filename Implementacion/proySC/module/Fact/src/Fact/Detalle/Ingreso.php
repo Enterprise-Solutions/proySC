@@ -149,6 +149,11 @@ class Ingreso
         return $this->stock_articulo_id;
     }
     
+    public function getId()
+    {
+        return $this->fact_ingreso_detalle_id;
+    }
+    
     public function getCantidad()
     {
         return $this->cantidad;

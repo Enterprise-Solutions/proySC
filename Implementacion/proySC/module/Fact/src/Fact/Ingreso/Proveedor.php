@@ -21,22 +21,24 @@ class Proveedor
 	protected $fact_rol_ingreso_id;
 	
 	/**
-	 * @ORM\Column(type="integer")
+	 * @ORM\ManyToOne(targetEntity="Org\Rol\RolDeParte")
+	 * @ORM\JoinColumn(name="org_parte_rol_id", referencedColumnName="org_parte_rol_id")
 	 */
-	protected $org_parte_rol_id;
+	protected $proveedor;
 	
 	/**
-	 * @ORM\Column(type="integer")
+	 * @ORM\ManyToOne(targetEntity="Fact\Ingreso\Ingreso")
+	 * @ORM\JoinColumn(name="fact_ingreso_id", referencedColumnName="fact_ingreso_id")
 	 */
-	protected $fact_ingreso_id;
+	protected $ingreso;
 	
-	public function addDocumento($documento_id)
+	public function setIngreso($ingreso)
 	{
-		$this->fact_ingreso_id = $documento_id;
+	    $this->ingreso = $ingreso;
 	}
 	
-	public function addRol($rol_id)
+	public function setProveedor($proveedor)
 	{
-		$this->org_parte_rol_id = $rol_id;
+	    $this->proveedor = $proveedor;
 	}
 }

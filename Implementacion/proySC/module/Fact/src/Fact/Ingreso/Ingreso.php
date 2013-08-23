@@ -189,6 +189,11 @@ class Ingreso
         $this->detalle = new ArrayCollection();
     }
     
+    public function getDetalle()
+    {
+        return $this->detalle;
+    }
+    
     /**
      * Setea los valores por defecto
      */
@@ -198,6 +203,22 @@ class Ingreso
             if (is_null($this->$property)) {
                 $this->$property = $value;
             }
+        }
+    }
+    
+    public function setEstado($estado)
+    {
+        switch ($this->estado) {
+        	case 'P':
+        	    $this->estado = $estado;
+        	    break;
+        	case 'A':
+        	    $errorMessage = 'El ingreso esta anulado. No se puede cambiar el estado.';
+        	    Thrower::throwValidationException('Error de Validacion', $errorMessage);
+        	    break;
+        	default:
+        	    $this->estado = $estado;
+        	    break;
         }
     }
     

@@ -47,7 +47,6 @@ class Crear
     {
         $this->crearDetalle($data);
         $this->crearArticuloDetalle();
-        $this->em->persist($this->detalle);
     }
     
     protected function crearDetalle($data)
@@ -56,6 +55,7 @@ class Crear
         $this->detalle->fromArray($data);
         $this->detalle->setDefaultValues();
         $this->detalle->setIngreso($this->ingreso);
+        $this->em->persist($this->detalle);
     }
     
     protected function crearArticuloDetalle()

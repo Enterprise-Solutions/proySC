@@ -89,6 +89,16 @@ class Detalle
         return $this->articulo;
     }
     
+    public function getEstado()
+    {
+        return $this->estado;
+    }
+    
+    public function getIngresoDetalleId()
+    {
+        return $this->fact_ingreso_detalle_id;
+    }
+    
     public function setIngresoDetalle($ingresoDetalle)
     {
         $this->ingresoDetalle = $ingresoDetalle;

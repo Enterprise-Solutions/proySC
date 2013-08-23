@@ -2,6 +2,8 @@
 
 namespace Fact\Controller;
 
+use Doctrine\ORM\EntityManager;
+
 use EnterpriseSolutions\Controller\BaseController;
 use EnterpriseSolutions\Db\Dao;
 use Fact\Ingreso\QueryObject\Get\Dao as DaoGet;
@@ -17,7 +19,7 @@ use Fact\Ingreso\Service\Editar as EditarIngresoService;
 class CompraController extends BaseController
 {
     /**
-     * Valida los datos del detalle
+     * Valida los datos del Detalle del Ingreso
      */
     public function validateAction()
     {
@@ -30,7 +32,7 @@ class CompraController extends BaseController
     }
     
     /**
-     * Ultimo costo del articulo comprado a un proveedor
+     * Ultimo costo de un articulo comprado a un proveedor
      */
     public function getLastCostAction()
     {
@@ -40,6 +42,9 @@ class CompraController extends BaseController
         return $template($dao, array(), array());
     }
     
+    /**
+     * Listado de Ingresos
+     */
     public function indexAction($overwritedParams = array())
     {
         $select = new Select($this->getServiceLocator()->get('Zend\Db\Adapter\Adapter'));
@@ -69,7 +74,7 @@ class CompraController extends BaseController
         
         $service = new CrearIngresoService($em);
         $service->ejecutar($data);
-        $this->getEntityManager()->flush();
+        $service->persistir();
         
         return $this->toJson($service->getRespuesta());
     }
@@ -84,19 +89,15 @@ class CompraController extends BaseController
         
         $service = new EditarIngresoService($em);
         $service->ejecutar($data);
-        $this->getEntityManager()->flush();
+        $service->persistir();
         
         return $this->toJson($service->getRespuesta());
     }
     
     /**
-     * Eliminar Ingreso
+     * Convierte un array a json
+     * @param array $respuesta
      */
-    public function deleteAction()
-    {
-        
-    }
-    
     protected function toJson($respuesta)
     {
         $viewModel = $this->_seleccionarViewModelSegunContexto(
@@ -106,14 +107,13 @@ class CompraController extends BaseController
         return $viewModel;
     }
     
+    /**
+     * Obtiene el Doctrine Entity Manager
+     * @return EntityManager
+     */
     protected function getEntityManager()
     {
         $em = $this->getServiceLocator()->get('doctrine.entitymanager.orm_default');
         return $em;
-    }
-    
-    protected function getServiceManager()
-    {
-        return new ServiceManager($this->getEntityManager());
     }
 }
