@@ -11,6 +11,8 @@ namespace Application;
 
 use Zend\Mvc\ModuleRouteListener;
 use Zend\Mvc\MvcEvent;
+use Application\Authentication\AuthenticationListener;
+use EnterpriseSolutions\Exceptions\Listener as ExceptionListener;
 
 class Module
 {
@@ -19,8 +21,24 @@ class Module
     	date_default_timezone_set('America/Asuncion');
         $e->getApplication()->getServiceManager()->get('translator');
         $eventManager        = $e->getApplication()->getEventManager();
+        
         $moduleRouteListener = new ModuleRouteListener();
         $moduleRouteListener->attach($eventManager);
+        
+        //$authListener = new AuthenticationListener();
+        //$authListener->attach($eventManager);
+        
+        $exceptionListener = new ExceptionListener();
+        $exceptionListener->attach($eventManager);
+    }
+    
+    public function getViewHelperConfig()
+    {
+        return array(
+            'invokables' => array(
+                'logged_user' => 'Application\View\Helper\LoggedUser',
+            ),
+        );
     }
 
     public function getConfig()

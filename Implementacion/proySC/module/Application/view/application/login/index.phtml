@@ -1,0 +1,459 @@
+<?php echo $this->doctype(); ?>
+
+<html lang="es">
+    <head>
+        <meta charset="utf-8">
+        <title>PRH - Paraguay</title>
+        <link rel="stylesheet" href="<?=$this->basePath();?>/ext-4.2/resources/css/ext-all-neptune.css"/>
+        <style type="text/css">
+        	body {
+			    /*background-color: #E9EFF4;*/
+			    background-color: white;
+			    
+			    font-size: 14px;
+			}
+			
+			body {
+			    line-height: 1;
+			}
+			
+        	#content{
+        		background-color: #FFFFFF;
+			    /*border: 1px solid #BAC4CF;
+			    border-radius: 10px 10px 10px 10px;
+			    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);*/
+			    margin-top: 10px;
+			    padding: 20px;
+        	}
+        	
+			#formLoginPanel label {
+			    display: block;
+			    font-family: Helvetica,'Lucida Grande',Arial,sans-serif;
+			    font-weight: bold;
+			    color: #406DA0;
+			    margin: 1px 0;
+			}
+			/*
+			#content ul input {
+			    background: -moz-linear-gradient(0% 100% 90deg, #B6D0E8, #7CACD5) repeat scroll 0 0 transparent;
+			    border: 1px solid #7DA0C4;
+			    border-radius: 7px 7px 7px 7px;
+			    color: #FFFFFF;
+			    font-size: 14px;
+			    font-weight: bold;
+			    height: 30px;
+			    padding-left: 10px;
+			    width: 345px;
+			}
+			*/
+			#formLoginPanel{
+				margin: 20px;
+				margin-top: 1px;
+				margin-bottom: 0px;
+				padding: 10px;
+				padding-left: 25px;
+			}
+
+			.boxLabel{
+			    font-family: Helvetica,'Lucida Grande',Arial,sans-serif;
+			    font-weight: bold;
+			    color: #406DA0;
+			    margin: 1px 0;
+			}
+			
+        </style>
+		<script type="text/javascript" src="<?php echo $this->basePath(); ?>/ext-4.2/ext-all.js"></script>
+		<script type="text/javascript" src="<?php echo $this->basePath(); ?>/ext-4.2/locale/ext-lang-es.js"></script>
+		<?php
+			$texto = "";
+
+			if ($this->messages){
+				$texto .= '<ul style="list-style-type: none;padding: 0px;margin: 0px;">';
+				foreach($this->messages as $message)	
+				{
+					$texto .= ('<li style="color: #112D6F; font-size: 15px;"><b> ** '.$message.' ** </b></li>');	
+				}	
+				$texto .= '</ul>';
+			}
+		?>
+		<script type="text/javascript">
+
+			var baseURL = '<?=$this->basePath()?>';
+			var mensajes = '<?php echo $texto; ?>';
+			
+			Ext.onReady(function(){
+				delete Ext.tip.Tip.prototype.minWidth;
+	
+				Ext.define('Pais', {
+					extend: 'Ext.data.Model',
+					fields: [
+						{
+							type: 'int',
+							name: 'dirPaisId'
+						},
+						{
+							type: 'string',
+							name: 'nombre'
+						}
+					]
+				});
+
+				Ext.define('TipoDoc', {
+					extend: 'Ext.data.Model',
+					fields: [
+						{
+							type: 'string',
+							name: 'orgDocumentoTipoCodigo'
+						},
+						{
+							type: 'string',
+							name: 'nombre'
+						}
+					]
+				});
+
+				var operacion = Ext.create('Ext.data.Operation', {
+					limit : 'all'
+				});
+
+				var paisStore = Ext.create('Ext.data.Store', {
+					model: 'Pais',
+					proxy: {
+						type: 'ajax',
+						extraParams: {'p[limit]':'all'},
+						headers: {'Accept':'application/json'},
+						url: baseURL + '/login/dir-pais?format=json',
+						reader: {
+							type: 'json',
+							root: 'records'
+						}
+					},
+					autoLoad: true
+				});
+
+				var tipoDocumentoStore = Ext.create('Ext.data.Store', {
+					model: 'TipoDoc',
+					proxy: {
+						type: 'ajax',
+						extraParams: {'p[limit]':'all'},
+						headers: {'Accept':'application/json'},
+						url: baseURL + '/login/per-doc-tipo?format=json',
+						reader: {
+							type: 'json',
+							root: 'records'
+						}
+					},
+					autoLoad: true
+				});
+
+			var buttonHandlerIngresar = function(b,e)
+			{
+				var form = b.up('form');
+				if(form)
+				{
+					var basicForm = form.getForm();
+
+					if(basicForm.isValid())
+					{
+						basicForm.url = baseURL + '/login/try';
+						basicForm.standardSubmit = true;
+						basicForm.method = 'POST';
+						basicForm.submit();
+					}
+					else
+					{
+						Ext.Msg.alert('Aviso','Hay campos inv&aacute;lidos');
+						return;
+					}
+				}		
+			};
+
+			var formularioInternacional = function(){
+				return {
+					xtype: 'form',
+	                 id: 'formLoginPanel',
+	                 height: 230,
+	                 width: 240,
+	                 frame: false,
+	                 border: false,
+	                 bodyStyle:{backgroundColor: 'transparent', border: 'none'},
+					items:[
+							{
+	                            xtype: 'label',
+	                            html: 'Usuario',
+                            },
+                            {
+	                            xtype: 'textfield',
+	                            hideLabel: true,
+	                            allowBlank: false,
+	                            tabIndex: 1,
+	                            name: 'Credenciales[cedula]'
+                            },
+                            {
+                            	xtype: 'label',
+	                            html: 'Contrase&ntilde;a'
+                            },
+                            {
+	                            xtype: 'textfield',
+	                            inputType: 'password',
+	                            hideLabel: true,
+	                            allowBlank: false,
+	                            tabIndex: 2,
+	                            name: 'Credenciales[contrasenha]'
+                            },
+                            {
+                            	xtype: 'label',
+	                            html: 'Documento'
+                            },
+                            {
+	                            xtype: 'combobox',
+	                            hideLabel: true,
+	                            allowBlank: false,
+	                            tabIndex: 4,
+	                            displayField: 'nombre',
+	                            valueField: 'orgDocumentoTipoCodigo',
+	                            store: tipoDocumentoStore,
+	                            queryMode: 'local',
+	                            forceSelection: true,
+	                            anchor: '74%',
+	                            name: 'Credenciales[orgDocumentoTipoCodigo]'
+                            },
+                            {
+                            	xtype: 'label',
+	                            html: 'Pa&iacute;s'
+                            },
+                            {
+	                            xtype: 'combobox',
+	                            hideLabel: true,
+	                            allowBlank: false,
+	                            tabIndex: 4,
+	                            displayField: 'nombre',
+	                            valueField: 'dirPaisId',
+	                            store: paisStore,
+	                            queryMode: 'local',
+	                            forceSelection: true,
+	                            anchor: '74%',
+	                            name: 'Credenciales[dirPaisId]'
+                            },
+                            {
+                            	xtype: 'container',
+                            	padding: '5 0 0 0',
+                            	layout: 'anchor',
+                            	//defaults: {margin: '5px'},
+                            	items:[
+                            			{
+                            				xtype: 'button',
+                            				tabIndex: 5,
+                            				scale: 'medium',
+                            				text: 'Ingresar',
+                            				handler: buttonHandlerIngresar
+                            			}
+                            			
+                            	]
+                            }
+					]
+				};
+			};
+
+			var formularioNacional = function(){
+
+
+
+				return {
+					xtype: 'form',
+	                 id: 'formLoginPanel',
+	                 height: 150,
+	                 width: 240,
+	                 frame: false,
+	                 border: false,
+	                 bodyStyle:{backgroundColor: 'transparent', border: 'none'},
+					items:[
+							{
+	                            xtype: 'label',
+	                            html: 'Usuario'
+                            },
+                            {
+	                            xtype: 'textfield',
+	                            hideLabel: true,
+	                            allowBlank: false,
+	                            tabIndex: 1,
+	                            name: 'Credenciales[cedula]'
+                            },
+                            {
+                            	xtype: 'label',
+	                            html: 'Contrase&ntilde;a'
+                            },
+                            {
+	                            xtype: 'textfield',
+	                            inputType: 'password',
+	                            hideLabel: true,
+	                            allowBlank: false,
+	                            tabIndex: 2,
+	                            name: 'Credenciales[contrasenha]'
+                            },
+                            {
+                            	xtype: 'container',
+                             	padding: '5 0 0 0',
+                            	layout: 'anchor',
+                            	//defaults: {margin: '5px'},
+                            	items:[
+                            			{
+                            				xtype: 'button',
+                            				scale: 'medium',
+                            				tabIndex: 3,
+                            				text: 'Ingresar',
+                            				handler: buttonHandlerIngresar
+                            			}
+                            			
+                            	]
+                            }
+					]
+				};
+			};
+			Ext.create('Ext.container.Viewport', {
+			    layout: 'border',
+			    items: [{
+			        region: 'north',
+			        width: 'fit',
+			        bodyStyle: {
+					        background: '-webkit-linear-gradient(top, #112D6F, #8291B5, white)',
+					        background: '-moz-linear-gradient(top, #112D6F, #8291B5, white)',
+					        background: '-o-linear-gradient(top, #112D6F, #8291B5, white)',
+					        background: 'linear-gradient(to bottom, #112D6F, #8291B5, white)',
+					        
+			        },
+			        border: 0,
+			        height: 120,
+			        maxHeight: 120,
+			    },  
+			    {
+			        region: 'south',
+			        bodyStyle: {
+			        	background: '-webkit-linear-gradient(top, white, #8291B5, #112D6F)',
+				        background: '-moz-linear-gradient(top, white, #8291B5, #112D6F)',
+				        background: '-o-linear-gradient(top, white, #8291B5, #112D6F)',
+				        background: 'linear-gradient(to bottom, white, #8291B5, #112D6F)',
+			        },
+			        border: 0,
+			        height: 110,
+			        maxHeight: 110,
+			    }, 
+			   {
+			        region: 'center',
+			        border: 0,
+			        layout: 'hbox',
+			        bodyStyle:
+			        {
+			        	background: 'white',
+			        	width: '100%',
+			        	height: '100%',	
+			        },	
+			        //minHeight: 230,
+			        height: 'fit',
+			        items:[{
+			    	    xtype: 'container',
+			    	    height: 'fit',
+			    	    flex: 1,
+			    	    padding: '0 10 10 10',
+			    	    layout: 'anchor',
+			    	    defaultType: 'textfield',
+			    	    items: Ext.create('Ext.Img', {
+			    	    	src: baseURL + '/img/prh-login.png',
+				            padding: '20 0 0 100',
+				        })},{
+						       xtype: 'container',
+						       flex: 0.5,
+							   html: mensajes,
+							   padding: '300 0 0 0',		
+					      },{
+			        	xtype: 'container',
+			    	    height: 'fit',
+			    	    width: 'fit',
+			    	    flex: 1,
+			    	    padding: '50 0 0 0',
+			    	  //  layout: 'anchor',
+			    	    items:[{
+						       xtype: 'container',
+						       layout: {
+							       type: 'hbox',
+							       align: 'stretch',
+							       pack: 'center'
+						       },
+						       height: 460,
+						       items:[
+						              {
+							              xtype: 'container',
+							              flex: 1
+						              },
+						              {
+							              xtype: 'container',
+							              width: 460,
+							              layout: 'anchor',
+							              id: 'content',
+							              items:[
+							                     {
+								                     xtype: 'container',
+								                      width: 240,
+								                     id: 'formLoginPanelContainer',
+								                     layout: 'anchor',
+								                     items:[
+								                            formularioNacional()
+												     ]
+							                     },
+		                            			{
+		                            				xtype: 'container',
+		                            				layout: 'form',
+		                            				style:{margin:'0 50px'},
+		                            				width: 200,
+		                            				items:[
+		                            						{
+					                            				xtype: 'checkbox',
+					                            				tabIndex: 6,
+					                            				columnWidth: 1,
+					                            				width: 200,
+					                            				name: 'extranjero',
+					                            				boxLabelCls: 'boxLabel',
+					                            				boxLabel: '   Documento Extranjero',
+					                            				listeners:{
+					                            					'change':function(thisField, newValue, oldValue, options){
+					                            							var formulario = Ext.getCmp('formLoginPanelContainer');
+					                            							if(formulario)
+					                            							{
+					                            								formulario.removeAll();
+					                            								var added;
+					                            								if(newValue)//si esta seleccionado
+						                            							{
+						                            								added = formulario.add(formularioInternacional());
+						                            								
+						                            							}
+						                            							else
+						                            							{
+						                            								added = formulario.add(formularioNacional());
+						                            							}
+						                            							formulario.doLayout();
+						                            							added.getEl().highlight({color:'red'});
+					                            							}
+					                            					}
+					                            				}
+					                            			}
+		                            				]
+		                            			}
+									      ]
+						              },
+							   ]
+					       },]
+				        }
+				        ]
+			       
+			        
+			    }]
+			});
+			
+				
+			});//onready
+		
+		</script>
+    </head>
+    <body>
+    </body>
+</html>
