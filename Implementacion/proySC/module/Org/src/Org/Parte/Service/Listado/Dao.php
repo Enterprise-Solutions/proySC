@@ -11,7 +11,7 @@ class Dao extends EsDao
 		$records = array_map(
 			function($record){
 				if(!$record['documentos']){
-					$record['documentos'] = array();
+					$record['documentos'] = '';
 					//return $record;
 				}
 				$documentos = explode(';', $record['documentos']);
@@ -38,7 +38,7 @@ class Dao extends EsDao
 				$record['documentos'] = $documentos;
 
 				if(!$record['contactos']){
-					$record['contactos'] = array();
+					$record['contactos'] = '';
 					//return $record;
 				}
 				$contactos = explode(';', $record['contactos']);
@@ -58,7 +58,7 @@ class Dao extends EsDao
 				$record['contactos'] = $contactos;
 				
 				if(!$record['Direcciones']){
-					$record['Direcciones'] = array();
+					$record['Direcciones'] = '';
 					return $record;
 				}
 				$contactos = explode(';', $record['Direcciones']);
