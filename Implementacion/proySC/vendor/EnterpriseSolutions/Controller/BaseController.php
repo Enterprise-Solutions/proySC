@@ -67,11 +67,30 @@ class BaseController extends AbstractActionController {
 	
 	public function listUIAction()
 	{
-		 
+		
 	}
 	
-	public function getUIAction($id)
+	public function crearUIAction()
 	{
-			
+	
+	}
+	
+	public function getUIAction()
+	{
+	
+	}
+	
+	public function editarUIAction()
+	{
+	
+	}
+	
+	public function _returnAsJson($respuesta)
+	{
+		$viewModel = $this->_seleccionarViewModelSegunContexto(array('Zend\View\Model\JsonModel' => array(
+				'text/html','application/json'
+		)));
+		$viewModel->setVariables($respuesta);
+		return $viewModel;
 	}
 }

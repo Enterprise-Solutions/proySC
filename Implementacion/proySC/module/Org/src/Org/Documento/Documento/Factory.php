@@ -39,7 +39,9 @@ class Factory
 				$documento = new Carnet($tipoDeDocumento);
 				break;
 		}
-		
+		//
+		$documento->dir_pais_id = 1;
+		$documento->preferencia = 1;
 		return $documento;	
 	}
 
