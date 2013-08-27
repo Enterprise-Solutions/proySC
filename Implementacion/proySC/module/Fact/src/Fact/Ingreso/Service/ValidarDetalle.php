@@ -2,6 +2,7 @@
 
 namespace Fact\Ingreso\Service;
 
+use Stock\Articulo\Articulo;
 use EnterpriseSolutions\Exceptions\Thrower;
 use Doctrine\ORM\EntityManager;
 
@@ -31,6 +32,12 @@ class ValidarDetalle
      */
     protected $status;
     
+    /**
+     * Articulo
+     * @var Articulo
+     */
+    protected $articulo;
+    
     public function __construct($em)
     {
         $this->errorMessages = array();
@@ -48,8 +55,26 @@ class ValidarDetalle
     {
         $this->data = $data;
         
+        $this->validarArticulo();
         $this->validarCantidad();
         $this->validarCosto();
+    }
+    
+    protected function validarArticulo()
+    {
+        if (!isset($this->data['stock_articulo_id'])) {
+            $this->status = false;
+            $this->errorMessages[] = 'No se especifico el articulo';
+            return;
+        }
+        
+        $articulo = $this->em->find('Stock\Articulo\Articulo', $this->data['stock_articulo_id']);
+        if (!$articulo) {
+            $this->status = false;
+            $this->errorMessages[] = 'No existe el articulo solicitado';
+        }
+        
+        $this->articulo = $articulo;
     }
     
     /**
@@ -61,6 +86,11 @@ class ValidarDetalle
      */
     protected function validarCantidad()
     {
+        if (!isset($this->data['cantidad'])) {
+            $this->status = false;
+        	$this->errorMessages[] = 'No se especifico la cantidad';
+        	return;
+        }
         if ($this->data['cantidad'] <= 0) {
             $this->status = false;
             $this->errorMessages[] = 'La cantidad debe ser mayor a 0 (cero)';
@@ -80,7 +110,19 @@ class ValidarDetalle
      */
     protected function validarCosto()
     {
+        if (!isset($this->data['cont_moneda_id'])) {
+            $this->status = false;
+            $this->errorMessages[] = 'No se especifico la moneda';
+            return;
+        }
+        
         $moneda = $this->em->find('Cont\Moneda\Moneda', $this->data['cont_moneda_id']);
+        
+        if (!isset($this->data['costo_unit'])) {
+            $this->status = false;
+            $this->errorMessages[] = 'No se especifico el costo unitario del producto';
+            return;
+        }
         
         if ($this->data['costo_unit'] <= 0) {
             $this->status = false;
@@ -116,9 +158,8 @@ class ValidarDetalle
             Thrower::throwValidationException('Error de Validacion', $this->errorMessages);
         }
         
-        $articulo = $this->em->find('Stock\Articulo\Articulo', $this->data['stock_articulo_id']);
         $successResult = array(
-            'articulo' => $articulo->getNombre(),
+            'articulo' => $this->articulo->getNombre(),
             'exitoso'  => true,
         );
         

@@ -57,7 +57,7 @@ class ValidarDetalle
         $this->articulo = $this->getArticulo();
         
         $this->validarCantidad();
-        $this->validarCosto();
+        $this->validarPrecio();
         $this->validarExistencia();
     }
     
@@ -69,6 +69,7 @@ class ValidarDetalle
     {
         if (!isset($this->data['stock_articulo_id'])) {
             Thrower::throwValidationException('Error de Validacion', 'No se recibio el identificador del articulo');
+            return;
         }
         
         try {
@@ -87,6 +88,12 @@ class ValidarDetalle
      */
     protected function validarCantidad()
     {
+        if (!isset($this->data['cantidad'])) {
+            $this->status = false;
+            $this->errorMessages[] = 'No se especifico la cantidad del producto';
+            return;
+        }
+        
         if ($this->data['cantidad'] <= 0) {
             $this->status = false;
             $this->errorMessages[] = 'La cantidad debe ser mayor a 0 (cero)';
@@ -99,21 +106,33 @@ class ValidarDetalle
     }
     
     /**
-     * Valida el costo recibido
+     * Valida el precio recibido
      * 
      * Controles:
-     *     - Costo mayor a cero
+     *     - Precio mayor a cero
      */
-    protected function validarCosto()
+    protected function validarPrecio()
     {
-        $moneda = $this->em->find('Cont\Moneda\Moneda', $this->data['cont_moneda_id']);
-        
-        if ($this->data['costo_unit'] <= 0) {
+        if (!isset($this->data['cont_moneda_id'])) {
             $this->status = false;
-            $this->errorMessages[] = 'El costo debe ser mayor a 0 (cero)';
+            $this->errorMessages[] = 'No se especifico la moneda';
+            return;
         }
         
-        if (is_float($this->data['costo_unit']) && !$moneda->permiteDecimales()) {
+        $moneda = $this->em->find('Cont\Moneda\Moneda', $this->data['cont_moneda_id']);
+        
+        if (!isset($this->data['precio_unit'])) {
+            $this->status = false;
+            $this->errorMessages[] = 'No se especifico el precio del producto';
+            return;
+        }
+        
+        if ($this->data['precio_unit'] <= 0) {
+            $this->status = false;
+            $this->errorMessages[] = 'El precio unitario debe ser mayor a 0 (cero)';
+        }
+        
+        if (is_float($this->data['precio_unit']) && !$moneda->permiteDecimales()) {
             $this->status = false;
             $this->errorMessages[] = 'La moneda seleccionada no permite valores decimales';
         }
@@ -141,6 +160,12 @@ class ValidarDetalle
             }
         }
         
+        if (!isset($this->data['cantidad'])) {
+            $this->status = false;
+            $this->errorMessages[] = 'No se especifico la cantidad';
+            return;
+        }
+        
         if ($this->data['cantidad'] > $disponibles) {
             $this->status = false;
             $this->errorMessages[] = 'No existe la cantidad de articulos solicitada';
@@ -153,7 +178,7 @@ class ValidarDetalle
      */
     protected function cantidadDecimales()
     {
-        return strlen(substr(strrchr(strval($this->data['costo_unit']), "."), 1));
+        return strlen(substr(strrchr(strval($this->data['precio_unit']), "."), 1));
     }
     
     /**
