@@ -11,10 +11,13 @@ class Dao extends EsDao
 		$records = array_map(
 			function($record){
 				if(!$record['documentos']){
-					$record['documentos'] = '';
+					//$record['documentos'] = '';
+					$documentos = array();
 					//return $record;
+				}else{
+					$documentos = explode(';', $record['documentos']);
 				}
-				$documentos = explode(';', $record['documentos']);
+				
 				$documentos = array_map(
 					function($documentoString){
 						/*return array_map(
@@ -38,10 +41,12 @@ class Dao extends EsDao
 				$record['documentos'] = $documentos;
 
 				if(!$record['contactos']){
-					$record['contactos'] = '';
-					//return $record;
+					//$record['contactos'] = '';
+					$contactos = array();
+				}else{
+					$contactos = explode(';', $record['contactos']);
 				}
-				$contactos = explode(';', $record['contactos']);
+				
 				$contactos = array_map(
 						function($documentoString){
 							$keyValueTokens = explode(",",$documentoString);
@@ -58,11 +63,14 @@ class Dao extends EsDao
 				$record['contactos'] = $contactos;
 				
 				if(!$record['Direcciones']){
-					$record['Direcciones'] = '';
-					return $record;
+					//$record['Direcciones'] = '';
+					//return $record;
+					$direcciones = array();
+				}else{
+					$direcciones = explode(';', $record['Direcciones']);
 				}
-				$contactos = explode(';', $record['Direcciones']);
-				$contactos = array_map(
+				//$contactos = explode(';', $record['Direcciones']);
+				$direcciones = array_map(
 						function($documentoString){
 							$keyValueTokens = explode(",",$documentoString);
 							$documento = array();
@@ -74,9 +82,8 @@ class Dao extends EsDao
 							}
 							return $documento;
 						},
-						$contactos);
-				$record['Direcciones'] = $contactos;
-				
+						$direcciones);
+				$record['Direcciones'] = $direcciones;
 				return $record;
 				
 			}, 
