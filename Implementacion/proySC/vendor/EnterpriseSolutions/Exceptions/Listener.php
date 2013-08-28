@@ -54,7 +54,7 @@ class Listener implements ListenerAggregateInterface
 			return;
 		}
 		$model = new JsonModel(array(
-			'status' => 'false',
+			'status' => false,
 			'mensaje' => $exception->getMensaje(),
 			'datos'   => $exception->getDatos()		
 		));

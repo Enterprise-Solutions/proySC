@@ -3,6 +3,7 @@
 namespace Stock\Articulo\QueryObject;
 
 use EnterpriseSolutions\Db\Select as DbSelect;
+use Zend\Db\Sql\Expression;
 
 class Select extends DbSelect
 {
@@ -70,6 +71,29 @@ class Select extends DbSelect
         if ($cadena) {
             $this->_select
                  ->where("(sa.nombre || ' ' || sa.codigo) ILIKE '%$cadena%'");
+        }
+    }
+    
+    public function addSearchByMedioDePago($medio)
+    {
+        $articulo = array('stock_articulo_id', 'nombre', 'codigo', 'precio_venta', 'existencia', 'rcap', 'porcentaje_impuesto');
+        switch ($medio) {
+        	case 'E':  // Efectivo
+        	    $this->_select
+        	         ->columns(array_merge($articulo, array('precio_venta_final' => 'precio_venta')));
+        	    break;
+        	case 'C':  // Credito
+        	    $this->_select
+        	         ->columns(array_merge($articulo, array('precio_venta_final' => new Expression("sa.precio_venta * 1.04"))));
+        	    break;
+        	case 'D':  // Debito
+        	    $this->_select
+        	         ->columns(array_merge($articulo, array('precio_venta_final' => new Expression("sa.precio_venta * 1.08"))));
+        	    break;
+        	default:   // Defecto: Efectivo
+        	    $this->_select
+        	         ->columns(array_merge($articulo, array('precio_venta_final' => 'precio_venta')));
+        	    break;
         }
     }
 }
