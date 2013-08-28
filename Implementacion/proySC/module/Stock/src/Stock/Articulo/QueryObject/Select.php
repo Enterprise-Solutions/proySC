@@ -84,11 +84,11 @@ class Select extends DbSelect
         	    break;
         	case 'C':  // Credito
         	    $this->_select
-        	         ->columns(array_merge($articulo, array('precio_venta_final' => new Expression("sa.precio_venta * 1.04"))));
+        	         ->columns(array_merge($articulo, array('precio_venta_final' => new Expression("sa.precio_venta * 1.08"))));
         	    break;
         	case 'D':  // Debito
         	    $this->_select
-        	         ->columns(array_merge($articulo, array('precio_venta_final' => new Expression("sa.precio_venta * 1.08"))));
+        	         ->columns(array_merge($articulo, array('precio_venta_final' => new Expression("sa.precio_venta * 1.04"))));
         	    break;
         	default:   // Defecto: Efectivo
         	    $this->_select
