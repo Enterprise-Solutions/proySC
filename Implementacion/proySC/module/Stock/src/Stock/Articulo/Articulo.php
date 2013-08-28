@@ -203,6 +203,32 @@ class Articulo
         return $this->nombre;
     }
     
+    public function getPrecioVenta()
+    {
+        return $this->precio_venta;
+    }
+    
+    public function getPrecioVentaFinal($medio_de_pago)
+    {
+        switch ($medio_de_pago) {
+        	case 'E':
+        	    return $this->precio_venta;
+        	    break;
+        	case 'D':
+        	    $interes = 1.04;
+        	    return $this->precio_venta * $interes;
+        	    break;
+        	case 'C':
+        	    $interes = 1.08;
+        	    return $this->precio_venta * $interes;
+        	    break;
+        	default:
+        	    return $this->precio_venta;
+        	    break;
+        }
+        return $this->precio_venta;
+    }
+    
     public function addExistencia()
     {
         $this->existencia++;

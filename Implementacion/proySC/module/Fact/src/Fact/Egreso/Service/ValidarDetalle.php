@@ -119,13 +119,19 @@ class ValidarDetalle
             return;
         }
         
-        $moneda = $this->em->find('Cont\Moneda\Moneda', $this->data['cont_moneda_id']);
-        
         if (!isset($this->data['precio_unit'])) {
             $this->status = false;
             $this->errorMessages[] = 'No se especifico el precio del producto';
             return;
         }
+        
+        if ($this->data['precio_unit'] != $this->articulo->getPrecioVenta()) {
+            $this->status = false;
+            $this->errorMessages[] = 'El precio de venta no coincide con el establecido para el articulo';
+            return;
+        }
+        
+        $moneda = $this->em->find('Cont\Moneda\Moneda', $this->data['cont_moneda_id']);
         
         if ($this->data['precio_unit'] <= 0) {
             $this->status = false;
@@ -191,8 +197,9 @@ class ValidarDetalle
         }
         
         $successResult = array(
-            'articulo' => $this->articulo->getNombre(),
-            'exitoso'  => true,
+            'articulo'           => $this->articulo->getNombre(),
+            'precio_venta_final' => $this->articulo->getPrecioVentaFinal($this->data['medio_de_pago']),
+            'exitoso'            => true,
         );
         
         return array_merge($this->data, $successResult);
