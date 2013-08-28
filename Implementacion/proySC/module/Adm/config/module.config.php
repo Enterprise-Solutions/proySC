@@ -3,6 +3,7 @@ namespace Adm;
 return array(
     'controllers' => array(
         'invokables' => array(
+        	'Adm\Controller\Usuario' => 'Adm\Controller\UsuarioController'	
         ),
     ),
     'router' => array(

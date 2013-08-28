@@ -1,0 +1,49 @@
+<?php
+namespace EnterpriseSolutions\Simple\Cambios;
+class Cambios
+{
+    public function cambiar($datos,$cambios)
+    {
+        $deltas = array_map(
+        		function($cambio) use($datos){
+        			$key = current(array_keys($cambio));
+        			$valorNuevo = $cambio[$key];
+        			$valorViejo = isset($datos[$key])?$datos[$key]:null;
+        			$delta = compact('key','valorNuevo','valorViejo');
+        			return $delta;
+        		},
+        		$cambios
+        );
+        return $deltas;
+    }
+    
+    public function getValorViejo($cambios,$key)
+    {
+        return $this->_getValor($cambios, $key, 'valorViejo');
+    }
+    
+    public function getValorNuevo($cambios,$key)
+    {
+        return $this->_getValor($cambios, $key, 'valorNuevo');
+    }
+    
+    public function _getValor($cambios,$key,$tipoValor)
+    {
+        foreach($cambios as $cambio){
+        	if($cambio['key'] == $key){
+        		return $cambio[$tipoValor];
+        	}
+        }
+        return false;
+    }
+    
+    public function _tieneCampo($cambios,$campo)
+    {
+        foreach($cambios as $cambio){
+            if($cambio['key'] == $campo){
+                return true;
+            }
+        }
+        return false;
+    }
+}
