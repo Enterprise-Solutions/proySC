@@ -17,7 +17,7 @@ class Select extends EsSelect
 			 	'estado',	
 			 	'roles' => new Expression("''")
 			 ))
-			 ->join(array('od' => 'org_documento'),'au.org_documento_id = od.org_documento_id',array('valor'))
+			 ->join(array('od' => 'org_documento'),'au.org_documento_id = od.org_documento_id',array())
 			 ->join(array('op' => 'org_parte'),'od.org_parte_id = op.org_parte_id',array('nombre' => 'nombre_persona','apellido' => 'apellido_persona'))
 			 ->join(array('dp' => 'dir_pais'),'od.dir_pais_id = dp.dir_pais_id',array())
 			 ->join(array('odt' => 'org_documento_tipo'),'od.org_documento_tipo_codigo = odt.org_documento_tipo_codigo',array());		
