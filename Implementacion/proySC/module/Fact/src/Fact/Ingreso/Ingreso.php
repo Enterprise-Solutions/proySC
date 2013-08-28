@@ -85,6 +85,11 @@ class Ingreso
     protected $total_ingreso;
     
     /**
+     * @ORM\Column(type="string")
+     */
+    protected $fecha_vencimiento;
+    
+    /**
      * @ORM\OneToMany(targetEntity="Fact\Detalle\Ingreso", mappedBy="ingreso")
      */
     protected $detalle;
@@ -176,6 +181,16 @@ class Ingreso
                     array('name' => 'NotEmpty'),
                     array('name' => 'Regex', 'options' => array('pattern' => "/^(P)$/", 'message' => 'El valor debe ser P (Pagado)')),
                 )
+            ),
+            'fecha_vencimiento' => array(
+                'name'       => 'fecha_vencimiento',
+                'required'   => false,
+                'filters'    => array(
+                    array('name' => 'StripTags'),
+                ),
+                'validators' => array(
+                    array('name' => 'Date', 'options' => array('format' => 'd-m-Y', 'locale' => 'py')),
+                ),
             ),
         );
         

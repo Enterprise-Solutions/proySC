@@ -30,6 +30,11 @@ class Egreso
     protected $cont_moneda_id;
     
     /**
+     * @ORM\Column(type="integer")
+     */
+    protected $fact_tarjeta_id;
+    
+    /**
      * @ORM\Column(type="string")
      * @ORM\Column(length=80)
      */
@@ -85,11 +90,23 @@ class Egreso
     protected $total_egreso;
     
     /**
+     * @ORM\Column(type="string")
+     */
+    protected $fecha_vencimiento;
+    
+    /**
+     * @ORM\Column(type="string")
+     * @ORM\Column(length=1)
+     */
+    protected $medio_de_pago;
+    
+    /**
      * @ORM\OneToMany(targetEntity="Fact\Detalle\Egreso", mappedBy="egreso")
      */
     protected $detalle;
     
     protected $defaultValues = array(
+        '$medio_de_pago'            => 'E',
         'total_excenta'             => 0,
         'total_iva_cinco_porciento' => 0,
         'total_iva_diez_porciento'  => 0,
@@ -108,6 +125,10 @@ class Egreso
             'cont_moneda_id' => array(
                 'name'     => 'cont_moneda_id',
                 'required' => true,
+            ),
+            'fact_tarjeta_id' => array(
+                'name'     => 'fact_tarjeta_id',
+                'required' => false,
             ),
             'codigo' => array(
                 'name'       => 'codigo',
@@ -175,6 +196,27 @@ class Egreso
                 'validators' => array(
                     array('name' => 'NotEmpty'),
                     array('name' => 'Regex', 'options' => array('pattern' => "/^(P)$/", 'message' => 'El valor debe ser P (Pagado)')),
+                )
+            ),
+            'fecha_vencimiento' => array(
+                'name'       => 'fecha_vencimiento',
+                'required'   => false,
+                'filters'    => array(
+                    array('name' => 'StripTags'),
+                ),
+                'validators' => array(
+                    array('name' => 'Date', 'options' => array('format' => 'd-m-Y', 'locale' => 'py')),
+                ),
+            ),
+            'medio_de_pago' => array(
+                'name'       => 'medio_de_pago',
+                'required'   => false,
+                'filters'    => array(
+                    array('name' => 'StringToUpper'),
+                    array('name' => 'StringTrim'),
+                ),
+                'validators' => array(
+                    array('name' => 'Regex', 'options' => array('pattern' => "/^(E|C|D)$/", 'message' => 'El valor debe ser E (Efectivo), C (Tarjeta de Credito) o D (Tarjeta de Debito)')),
                 )
             ),
         );
