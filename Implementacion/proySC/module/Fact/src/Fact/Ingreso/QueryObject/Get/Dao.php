@@ -12,6 +12,8 @@ class Dao extends EsDao
         
         $ingreso  = array();
         $detalles = array();
+        $parteRol = array();
+        
         foreach ($records as $record) {
             $ingreso = array(
                 'fact_ingreso_id'           => $record['fact_ingreso_id'],
@@ -28,6 +30,14 @@ class Dao extends EsDao
                 'total_ingreso'             => $record['total_ingreso'],
             );
             
+            $parteRol["{$record['rol']}"] = array(
+                'nombre_persona'      => $record['nombre_persona'],
+                'apellido_persona'    => $record['apellido_persona'],
+                'nombre_organizacion' => $record['nombre_organizacion'],
+                'documento'           => $record['documento'],
+                'tipo_documento'      => $record['tipo'],
+            );
+            
             $detalles[] = array(
                 'fact_ingreso_detalle_id' => $record['fact_ingreso_detalle_id'],
                 'cantidad'                => $record['cantidad'],
@@ -39,7 +49,7 @@ class Dao extends EsDao
         }
         
         if (count($records)) {
-            $records = array_merge($ingreso, array('detalles' => $detalles));
+            $records = array_merge($ingreso, $parteRol, array('detalles' => $detalles));
         }
         return $records;
     }
