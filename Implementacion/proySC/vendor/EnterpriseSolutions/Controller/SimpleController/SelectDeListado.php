@@ -9,6 +9,7 @@ class SelectDeListado extends EsSelect
 	public function __construct($adapter,$tableName)
 	{
 		$this->_tableName = $tableName;
+		parent::__construct($adapter);
 	}
 	
 	public function _init()
