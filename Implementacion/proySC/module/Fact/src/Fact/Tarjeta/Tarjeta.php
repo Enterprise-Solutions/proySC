@@ -4,6 +4,7 @@ namespace Fact\Tarjeta;
 
 use Doctrine\ORM\Mapping as ORM;
 use Zend\InputFilter\Factory as InputFilterFactory;
+use EnterpriseSolutions\Exceptions\Thrower;
 
 /**
  * @ORM\Entity
