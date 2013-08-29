@@ -142,12 +142,11 @@ class Egreso
             ),
             'doc_nro' => array(
                 'name'       => 'doc_nro',
-                'required'   => true,
+                'required'   => false,
                 'filters'    => array(
                     array('name' => 'StripTags'),
                 ),
                 'validators' => array(
-                    array('name' => 'NotEmpty'),
                     array('name' => 'StringLength', 'options' => array('max' => 100)),
                 ),
             ),

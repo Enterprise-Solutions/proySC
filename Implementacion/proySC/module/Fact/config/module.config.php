@@ -35,8 +35,9 @@ return array(
     ),
     'controllers' => array(
         'invokables' => array(
-            'Fact\Controller\Venta'  => 'Fact\Controller\VentaController',
-        	'Fact\Controller\Compra' => 'Fact\Controller\CompraController',
+            'Fact\Controller\Venta'   => 'Fact\Controller\VentaController',
+        	'Fact\Controller\Compra'  => 'Fact\Controller\CompraController',
+            'Fact\Controller\Tarjeta' => 'Fact\Controller\TarjetaController',
         ),
     ),
     'view_manager' => array(
