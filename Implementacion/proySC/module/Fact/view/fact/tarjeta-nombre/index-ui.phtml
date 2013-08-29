@@ -1,0 +1,359 @@
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/factTarjetaNombreStore.js"></script>
+<script type="text/javascript">
+var mainStore = factTarjetaNombreStore;
+
+function hideBloque()
+{
+	var cajaMensaje = Ext.getCmp('messageBox');
+	if(cajaMensaje){
+		cajaMensaje.addClass('oculto');
+	}	
+}
+
+function formularioTarjetaNombre(isNew, data, isReadOnly)
+{
+	return {
+		xtype: 'form',
+		title: (isReadOnly)?('Ver Tarjeta Nombre'):((isNew)?('Crear Tarjeta Nombre'):('Editar Tarjeta Nombre')),
+		cls: 'ladoDerecho',
+		bodyCssClass: 'formularioGeneral',
+		layout: 'form',
+		autoHeight: true,
+		defaults:{xtype: ((isReadOnly)?('displayfield'):('textfield'))},
+		items:[
+		       {
+			       xtype: 'hidden',
+			       name: 'fact_tarjeta_nombre_id',
+			       value: (isNew)?(null):(data.fact_tarjeta_nombre_id)
+		       },
+		       {
+			       fieldLabel: 'Nombre',
+			       name: 'nombre',
+			       width: 150,
+			       maxLength: 50,
+			       value: (isNew)?(null):(data.nombre),
+			       allowBlank: false
+		       },
+		       {
+			       xtype: 'container',
+			       layout: 'column',
+			       defaults:{style: {margin: '5px'}},
+			       items:[
+							{
+							    xtype: 'button',
+							    text: 'Guardar',
+							    hidden: isReadOnly,
+							    handler: function(b,e){
+								       //verificar si esta todo ok
+								       var mainForm = b.ownerCt.ownerCt;
+								       basicForm = mainForm.getForm();
+								       if(basicForm.isValid())
+								       {
+									       var valores = basicForm.getFieldValues();
+									       
+									    	var myId = valores.fact_tarjeta_nombre_id;
+									    	
+
+									    	console.log(myId);    
+								
+									       if(myId)//si existe es edicion
+									       {
+									    	   Ajax.PostElement.request({
+												   url: baseURL + '/fact/tarjeta-nombre/put',
+												   success: function(response, opt){
+												       mainStore.reload();
+												   },
+												   jsonData:{
+												       'put': valores,
+												       'id': myId,
+													   'formulario': mainForm.id
+												   }
+											   });
+									       }
+									       else
+									       {
+										       //sino es creacion
+									    	   //si esta todo ok hacemos la solicitud
+									    	   delete valores.fact_tarjeta_nombre_id;   
+									    	   
+									    	   Ajax.PostElement.request({
+												   url: baseURL + '/fact/tarjeta-nombre/post',
+												   success: function(response, opt){
+													   mainStore.reload();
+												   },
+												   jsonData:{
+												       'post': valores,
+													   'formulario': mainForm.id
+												   }
+											   });
+									       }
+									       
+									       
+									       
+								       }
+								       else
+									   {
+										   Ext.Msg.alert('Aviso','Hay campos inv&aacute;lidos');
+									   }       
+								   }
+							},
+							{
+								xtype: 'button',
+								text: (!isReadOnly)?('Cancelar'):('Cerrar'),
+								handler: function(b,e){
+									var mainForm = b.ownerCt.ownerCt;
+							        var padre = mainForm.ownerCt;
+							        padre.remove(mainForm);
+								}
+							}
+				   ]
+		       }
+		],
+		listeners:{
+			'render':function(){
+				hideBloque();
+			}
+		}
+	};	
+}
+
+
+function borrarTarjetaNombre(id)
+{
+	Ext.Msg.confirm('Borrar','Desea borrar el elemento?', function(idButt){
+		if(idButt == 'yes')
+		{
+			Ajax.PostElement.request({
+				url: baseURL + '/fact/tarjeta-nombre/delete',
+				success: function(response, opt){
+					mainStore.reload();
+				},
+				jsonData:{
+					'delete': [id]
+				}
+	 		});
+		}
+	});
+}
+
+function editarTarjetaNombre(id)
+{
+	
+	var registro = mainStore.getById(id);
+	
+	if(registro)
+	{
+		var destino = Ext.getCmp('formContainer');
+		if(destino)
+		{
+			destino.removeAll();
+			var addedEl = destino.add(formularioTarjetaNombre(false, registro.data, false));
+			destino.doLayout();
+			addedEl.body.highlight();
+		}
+	}
+}
+
+
+
+
+viewContainer.bodyPanel = [{
+	layout: 'fit',
+	xtype: 'container',
+	autoHeight: true,
+	cls: 'fittedContainer',
+	items: [
+			{
+				xtype: 'container',
+				autoHeight: true,
+				id: 'secondMainContainer',
+				layout: 'column',
+				items:[
+						{
+							xtype: 'container',
+							columnWidth: .65,
+							layout: 'anchor',
+							items:[
+									{
+										xtype: 'container',
+										html: 'Mantener Tarjeta Nombre',
+										cls: 'mainTitle'
+									},
+									{
+				       	       			xtype: 'container',
+				       	       			itemId: 'gridContainer',
+				       	       			cls: 'gridContainer',
+				       	       			layout: 'anchor',
+				       	       			items: [
+				       	       			        {
+					       	       			        xtype: 'toolbar',
+					       	       			        style:{padding:'5px'},
+					       	       			        items:[
+					       	       			               {
+						       	       			               xtype: 'displayfield',
+						       	       			               style:{margin: '0 5px'},
+						       	       			         	   value: 'Nombre: '
+					       	       			               },
+					       	       			               {
+						       	       			               xtype: 'textfield',
+						       	       			               name: 'nombre',
+						       	       			               width: 125
+					       	       			               },
+					       	       			                  '->',
+					       	       			         		{
+						       	       			               xtype: 'button',
+						       	       			         	   iconCls: 'addIcon',
+						       	       			               text: 'Buscar',
+						       	       			               handler: function(b,e){
+																    var padre = b.ownerCt;
+																    //obtener valor del campo de texto
+																    var campo = padre.find('name','nombre');
+																    if(campo.length>0)
+																    {
+																	    campo = campo[0];
+																	    mainStore.setBaseParam('s[nombre]',campo.getValue());
+																    }
+
+																    mainStore.load();
+								       	       			       }
+					       	       			               },
+					       	       			         		{
+						       	       			               xtype: 'button',
+						       	       			         	   iconCls: 'addIcon',
+						       	       			               text: 'Limpiar',
+						       	       			               handler: function(b,e){
+																    var padre = b.ownerCt;
+																    //obtener valor del campo de texto
+																    var campo = padre.find('name','nombre');
+																    if(campo.length>0)
+																    {
+																	    campo = campo[0];
+																	    campo.setValue(null);
+																	    mainStore.setBaseParam('s[nombre]',null);
+																	    
+																    }
+
+																    mainStore.load();
+								       	       			       }
+					       	       			               }
+							       	       			]
+				       	       			        },
+				       	       					{
+				               						xtype: 'grid',
+				               						height: 300,
+				               						id: 'mainGrid',
+				               						stripeRows: true,
+				               						loadMask: true,
+				               						sm: new Ext.grid.CellSelectionModel(),
+				               						viewConfig: {
+				               					        forceFit: true,
+				               					        emptyText: 'Sin Registros',
+				               					        loadingText: 'Cargando .. '
+				               						},
+				               						store: mainStore,
+				               						cm: new Ext.grid.ColumnModel([
+														{ header: "Nombre", dataIndex: 'nombre',  width: 120},
+														{ header: "Editar", dataIndex: null,  width: 32, align: 'center', renderer: function(v,meta,record){
+															return '<div class="editIcon" onclick="editarTarjetaNombre(' + record.data.fact_tarjeta_nombre_id + ')"></div>';
+														}},
+														{ header: "Borrar", dataIndex: null,  width: 32, align: 'center', renderer: function(v,meta,record){
+															return '<div class="deleteIcon" onclick="borrarTarjetaNombre(' + record.data.fact_tarjeta_nombre_id + ')"></div>';
+														}}
+														])
+				           						}
+				       	       			]
+				       	   			},
+				       	   			{
+				       	       			xtype: 'toolbar',
+				       	       			layout: 'toolbar',
+				       	       			cls: 'pagingContainer',
+				       	       			items:[
+				       	       			        {
+					       	       			        xtype: 'button',
+					       	       			        iconCls: 'addIcon',
+					       	       			        text: 'Agregar',
+													handler: function(b,e){
+														//buscamos destino
+														var destino = Ext.getCmp('formContainer');
+														if(destino)
+														{
+															destino.removeAll();
+															var addedEl = destino.add(formularioTarjetaNombre(true, null, false));
+															destino.doLayout();
+															addedEl.body.highlight();
+														}
+													}
+				       	       			        },
+						       	       			'->',
+				       	       	   				{
+				       	       	       				xtype: 'paging',
+				       	       	       				displayInfo: true,
+				       	       	       				store: mainStore,
+				       	       	       				pageSize: 10,
+				       	       	       				preprendButtons: true
+				       	       	   				}
+				       	       			]
+				       	   			}
+							]
+						},
+						{
+							xtype: 'container',
+							columnWidth: .35,
+							layout: 'anchor',
+							items:[
+			    					{
+			    						xtype: 'container',
+			    						layout: 'anchor',
+			    						cls: 'oculto',
+			    						id: 'messageBox',
+			    						items:[
+			    						       {
+			        						       xtype: 'container',
+			    						    	   html: 'Generico'
+			    						       }
+			    					
+			   	    					]
+			    					},
+							       {
+									     xtype: 'container',
+									     layout: 'anchor',
+									     id: 'formContainer'
+							       }
+									/*{
+										xtype: 'panel',
+										title: 'Crear Org',
+										cls: 'ladoDerecho',
+										layout: 'anchor',
+										height: 200,
+										items:[]
+									}*/
+							]
+						}
+				]
+			}
+	]
+},
+{
+	xtype: 'container',
+	columnWidth: 1,
+	layout: 'column',
+	cls: 'quickAccessBottom',
+	items:[
+			{
+				cls: 'dataBottom',
+				html: 'Agregar Organizacion',
+				xtype: 'container'
+			},
+			{
+				cls: 'dataBottom',
+				html: 'Agregar Otra Cosa',
+				xtype: 'container'
+			},
+			{
+				cls: 'dataBottom',
+				html: 'Ir Para Otro Lado',
+				xtype: 'container'
+			}				
+	]
+}];
+</script>

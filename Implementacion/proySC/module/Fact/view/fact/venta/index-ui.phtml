@@ -1,5 +1,5 @@
 <!-- primero stores siempre -->
-<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/factCompraDetalleStore.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/factVentaDetalleStore.js"></script>
 <script type="text/javascript" src="<?=$this->basePath();?>/js/stores/genericoProductoStore.js"></script>
 <script type="text/javascript" src="<?=$this->basePath();?>/js/stores/genericoSiNoStore.js"></script>
 <script type="text/javascript" src="<?=$this->basePath();?>/js/stores/stockImpuestoStore.js"></script>
@@ -26,30 +26,51 @@
 <script type="text/javascript" src="<?=$this->basePath();?>/js/common/hideBloque.js"></script>
 <script type="text/javascript">
 
-var mainStore = factCompraDetalleStore;
-
-mainStore.on('remove', function(thisStore, record, index){
-	console.log('remove', thisStore, record, index);
-});
+var mainStore = factVentaDetalleStore;
 
 var monedaDecimales = false;
 var cantDecimalesMoneda = -1;
+var medioPagoPorDefecto = 'E';
 
-guardarCompraHandlerCallback = function(options, success, response)
+guardarVentaHandlerCallback = function(options, success, response)
 {
 	console.log(options, success, response);
-	
 	var formulario = Ext.getCmp('mainForm');
 	if(formulario)
 		formulario.getEl().unmask();
-		
+
 	if(success)
 	{
+		var respuesta = Ext.decode(response.responseText);
+		var egresoId = respuesta.fact_egreso_id;
+
+		//abro en una nueva ventana la visualizacion para impresion
+		window.open(baseURL + '/fact/venta/get-ui#' + egresoId);
+
+		//cargar nro factura
+		Ext.Msg.prompt('N&uacute;mero', 'Ingrese n&uacute;mero de factura impresa:', function(btn, text){
+			console.log(btn, text);
+		    if (btn == 'ok'){
+			    //tomamos text el nro de factura
+		        //e insertamos en la misma
+		        //en un request a respuesta.fact_egreso_id
+		        
+		        //location.href = baseURL + '/fact/venta/get-ui#' + respuesta.fact_egreso_id;
+		    }
+		    else
+		    {
+			    
+		    }
+		});
+		
 	}
-		//location.href = baseURL + '/fact/compra/list-ui';
+	else	
+	{
+		Ext.Msg.alert('Aviso','Ocurri&oacute; un error');
+	}
 };
 
-guardarCompraHandler = function(b,e)
+guardarVentaHandler = function(b,e)
 {
 	//vemos si esta todo ok el formulari
 	var formulario = Ext.getCmp('mainForm');
@@ -76,11 +97,10 @@ guardarCompraHandler = function(b,e)
 		//verificamos que hayan registros
 		var records = mainStore.getRange();
 		
-		console.log('records',records, formatearFecha(valores.fecha, 1));
 		
 		if(records.length == 0)
 		{
-			Ext.Msg.alert('Aviso','La compra no tiene productos');
+			Ext.Msg.alert('Aviso','La venta no tiene productos');
 			return;
 		}
 
@@ -96,17 +116,20 @@ guardarCompraHandler = function(b,e)
 
 		var datos = {
 			'post':{
-				'Ingreso':{
+				'Egreso':{
 					cont_moneda_id: valores.cont_moneda_id,
 					codigo: '--',
-					doc_nro: valores.factura_nro.join('-'),
+					doc_nro: '001-001-020202',
 					doc_fecha: formatearFecha(valores.fecha, 1),
+					fecha_vencimiento: formatearFecha(valores.fecha_vencimiento, 1),
 					doc_tipo: 'F',
 					condicion: 'C',
-					estado: valores.estado_factura
+					estado: valores.estado_factura,
+					medio_de_pago: valores.medio_pago_group.inputValue
 				},
 				'Detalle':registros,
-				'Proveedor': {org_parte_rol_id: valores.org_parte_id_buscar}
+				'Cliente': {org_parte_rol_id: valores.org_parte_id_buscar},
+				'Vendedor': {org_parte_rol_id: valores.org_parte_id_buscar_asesor}
 			}
 		};
 		
@@ -114,8 +137,8 @@ guardarCompraHandler = function(b,e)
 		console.log('datos',datos);
 		
 		Ajax.PostElement.request({
-				url: baseURL + '/fact/compra/post',
-				callback: guardarCompraHandlerCallback,
+				url: baseURL + '/fact/venta/post',
+				callback: guardarVentaHandlerCallback,
 				jsonData: datos
 			});	
 		
@@ -181,12 +204,12 @@ quitarArticuloCompra = function(id)
 			}
 };
 
-agregarArticuloCompraCallback = function(options, success, response)
+agregarArticuloVentaCallback = function(options, success, response)
 {
 	var grilla = Ext.getCmp('mainGrid');
 	var bloque = Ext.getCmp('bloqueArticulo');
 	
-	console.log('agregarArticuloCompraCallback',options, success, response);
+	console.log('agregarArticuloVentaCallback',options, success, response);
 	if(success)
 	{
 		//var datos = Ext.decode(response.responseText);
@@ -209,7 +232,7 @@ agregarArticuloCompraCallback = function(options, success, response)
 				console.log('basicForm',basicForm);
 				
 				//definimos el total
-				var totalAdd = nuevoRegistro.data.cantidad * nuevoRegistro.data.precio_unit; //se suma al total
+				var totalAdd = nuevoRegistro.data.cantidad * nuevoRegistro.data.precio_venta_final; //se suma al total
 				
 				console.log('totalAdd',totalAdd);
 				
@@ -278,6 +301,19 @@ agregarArticuloCompraCallback = function(options, success, response)
 		}
 		
 	}
+	else
+	{
+		console.log(response);
+		//error en validate
+		var respuesta = Ext.decode(response.responseText);
+		if(!respuesta.status)
+		{
+			var titulo = respuesta.mensaje;
+			var cuerpo = respuesta.datos;
+			cuerpo = cuerpo.join('<br>');
+			Ext.Msg.alert(titulo, cuerpo);
+		}
+	}
 	
 	//desenmascar grilla y container
 	if(bloque)
@@ -291,7 +327,7 @@ agregarArticuloCompraCallback = function(options, success, response)
 			
 };
 
-agregarArticuloCompra = function(b, e)
+agregarArticuloVenta = function(b, e)
 {
 	//verificar formulario
 	var formulario = Ext.getCmp('mainForm');
@@ -306,9 +342,6 @@ agregarArticuloCompra = function(b, e)
 			var c1 = basicForm.findField('stock_articulo_id_codigo');
 			var c2 = basicForm.findField('stock_articulo_id_rcap');
 			var c3 = basicForm.findField('cantidad');
-			
-			var c5 = basicForm.findField('porcentaje_impuesto');
-			var c6 = basicForm.findField('cont_moneda_id');
 			
 			if(c1.getValue() == '')
 			{
@@ -328,19 +361,7 @@ agregarArticuloCompra = function(b, e)
 				Ext.Msg.alert('Aviso','Debe seleccionar una cantidad');
 				return;
 			}
-			
-			if(c5.getValue() == '')
-			{
-				Ext.Msg.alert('Aviso','El producto debe tener un porcentaje de impuesto definido');
-				return;
-			}
-
-			if(c6.getValue() == '')
-			{
-				Ext.Msg.alert('Aviso','Debe seleccionar una moneda');
-				return;
-			}
-			
+						
 			var valores = basicForm.getFieldValues();
 			
 			console.log('valores',valores);
@@ -351,7 +372,7 @@ agregarArticuloCompra = function(b, e)
 			var record = mainStore.getById(id);
 			if(record)
 			{
-				Ext.Msg.alert('Aviso','Ese articulo ya se encuentra en la compra');
+				Ext.Msg.alert('Aviso','Ese articulo ya se encuentra en la venta');
 				return;
 			}
 			
@@ -361,7 +382,8 @@ agregarArticuloCompra = function(b, e)
 				precio_unit: valores.precio_unit,
 				stock_articulo_id: valores.stock_articulo_id_codigo,
 				porc_impuesto: valores.porcentaje_impuesto,
-				cont_moneda_id: valores.cont_moneda_id
+				cont_moneda_id: valores.cont_moneda_id,
+				medio_de_pago: medioPagoPorDefecto
 			};
 			
 			//hacemos request enmascarando bloque de articulo y bloque de grilla
@@ -380,8 +402,8 @@ agregarArticuloCompra = function(b, e)
 			
 			//aca hacemos la solicitud y manejamos la respuesta en CB
 			Ajax.PostElement.request({
-				url: baseURL + '/fact/compra/validate',
-				callback: agregarArticuloCompraCallback,
+				url: baseURL + '/fact/venta/validate',
+				callback: agregarArticuloVentaCallback,
 				jsonData: datos
 			});		
 			
@@ -741,29 +763,24 @@ verDetallesArticuloHandlerCallback = function(success, rawData)
 				
 				var record = records[0];
 				
-				console.log('record en view',record);
-				
 				if(success)
 				{
 					var formulario = Ext.getCmp('mainForm');
 					if(formulario)
 					{
-						console.log('inside main form');
 						//seteamos en el form
 						var basicForm = formulario.getForm();
 						
-						console.log('basicForm',basicForm);
-						
 						//obtener campo1 y setear valor
 						var campo1 = basicForm.findField('stock_articulo_id_codigo');
-						console.log('campo1',campo1);
+						
 						if(campo1)
 						{
 							campo1.setValue(record.data.stock_articulo_id);
 						}
 						
 						var campo2 = basicForm.findField('stock_articulo_id_rcap');
-						console.log('campo2',campo2);
+						
 						if(campo2)
 						{
 							console.log('in');
@@ -771,13 +788,33 @@ verDetallesArticuloHandlerCallback = function(success, rawData)
 						}
 						
 						var iva = basicForm.findField('porcentaje_impuesto');
-						console.log('iva', iva);
+						
 						if(iva)
 						{
-							
 							iva.setValue(record.data.porcentaje_impuesto);
 						}
-					
+
+						var precioUnit = basicForm.findField('precio_unit');
+						
+						if(precioUnit)
+						{
+							precioUnit.setValue(record.data.precio_venta);
+						}
+
+						var precioFinal = basicForm.findField('precio_venta_final');
+						
+						if(precioFinal)
+						{
+							precioFinal.setValue(record.data.precio_venta_final);
+						}
+
+						var moneda = basicForm.findField('simbolo');
+						
+						if(moneda)
+						{
+							moneda.setValue(record.data.simbolo);
+						}
+
 					}
 				}
 				else
@@ -873,7 +910,80 @@ function borrarArticulo(id)
 	}
 }
 
-
+function bloqueTarjeta()
+{
+	return {
+		xtype: 'fieldset',
+		title: 'Datos Tarjeta',
+		style: {margin:'5px'},
+		layout: 'column',
+		items:[
+				{
+				    xtype: 'container',
+				    columnWidth: 1,
+				    labelWidth: 40,
+				    layout: 'form',
+				    items:[
+				           {
+       							fieldLabel: 'Entidad',
+       							hiddenName: 'cont_moneda_id',
+       							width: 150,
+       							forceSelection:true,
+       							valueField: 'cont_moneda_id',
+       							displayField:'simbolo',
+       							xtype: 'combo',
+       							store: contMonedaStore,
+       							typeAhead:true,
+       							mode:'local',
+       							allowBlank: false
+				           }
+					   ]
+				},
+		       {
+			       xtype: 'container',
+			       columnWidth: .5,
+			       labelWidth: 40,
+			       layout: 'form',
+			       items:[
+			              {
+       							fieldLabel: 'Tarjeta',
+       							hiddenName: 'cont_moneda_id',
+       							width: 70,
+       							forceSelection:true,
+       							valueField: 'cont_moneda_id',
+       							displayField:'simbolo',
+       							xtype: 'combo',
+       							store: contMonedaStore,
+       							typeAhead:true,
+       							mode:'local',
+       							allowBlank: false
+				           }
+				   ]
+		       },
+		       {
+		    	   xtype: 'container',
+			       columnWidth: .5,
+			       labelWidth: 40,
+			       layout: 'form',
+			       items:[
+						  {
+       							fieldLabel: 'Tipo',
+       							hiddenName: 'cont_moneda_id',
+       							width: 60,
+       							forceSelection:true,
+       							valueField: 'cont_moneda_id',
+       							displayField:'simbolo',
+       							xtype: 'combo',
+       							store: contMonedaStore,
+       							typeAhead:true,
+       							mode:'local',
+       							allowBlank: false
+				           }
+				   ]
+		       }
+		]
+	};
+}
 
 
 
@@ -937,8 +1047,8 @@ viewContainer.bodyPanel = [{
 				       	       								{
 				       	       									layout: 'form',
 				       	       									cls: 'bloqueFactura azul',
-				       	       									columnWidth: .5,
-				       	       									height: 200,
+				       	       									columnWidth: .40,
+				       	       									height: 370,
 				       	       									items:[
 				       	       											{
 				       	       												xtype: 'displayfield',
@@ -1070,7 +1180,7 @@ viewContainer.bodyPanel = [{
 		       															{
 		       																fieldLabel: 'Fecha Venc.',
 			        														xtype: 'datefield',
-			        														disabled: true,
+			        														readOnly:true,
 			        														name: 'fecha_vencimiento',
 			        														listeners:{
 			        															'render':function(thisEl)
@@ -1082,7 +1192,10 @@ viewContainer.bodyPanel = [{
 			        																	fecha = fecha[0];
 			        																	thisEl.value = fecha.value;
 			        																}
-			        															}
+			        															},
+			        															'focus':function(thisEl){
+																					thisEl.blur();
+				        														}
 			        														}
 		       															},
 				       	       											{
@@ -1123,14 +1236,72 @@ viewContainer.bodyPanel = [{
 																					}
 			       																}
 			       															}
+		       															},
+		       															{
+			       															xtype: 'radiogroup',
+			       															columns: 1,
+			       															name: 'medio_pago_group',
+			       															allowBlank: false,
+			       															fieldLabel: 'Medio de Pago',
+			       															items:[
+																					{boxLabel: 'Efectivo', name: 'medio_de_pago', inputValue: 'E', checked: true},
+																					{boxLabel: 'Tarj. Cr&eacute;d.', name: 'medio_de_pago', inputValue: 'C'},
+																					{boxLabel: 'Tarj. D&eacute;b.', name: 'medio_de_pago', inputValue: 'D'}
+							       											],
+							       											listeners:{
+																				'change':function(thisRadio, checked){
+																					medioPagoPorDefecto = checked.inputValue;
+
+																					//agregamos formulario con campos de tarjeta
+																					var bloque = thisRadio.ownerCt;
+
+																					bloque = bloque.find('itemId', 'bloqueTarjeta');
+																					
+																					if(bloque.length > 0)//ya existe
+																					{
+																						bloque = bloque[0];
+
+																						bloque.removeAll();
+																						
+																						
+
+																						if(checked.inputValue == 'C')
+																						{
+																							bloque.add(bloqueTarjeta());
+																						}
+																						else if(checked.inputValue == 'D')
+																						{
+																							bloque.add(bloqueTarjeta());
+																						}
+
+																						bloque.doLayout();
+																					}
+																					
+
+																					//verificamos si ya hay productos agregados
+																					var registrosAnhadidos = mainStore.getRange();
+
+																					if(registrosAnhadidos.length > 0)
+																					{
+																						Ext.Msg.alert('Aviso','Ya agreg&oacute; productos a la venta. Cambiar el tipo de pago puede implicar cambios de montos. Actualizar cada venta para ver su valor final.');
+																					}
+
+																					
+																				}
+								       										}
+		       															},
+		       															{
+			       															xtype: 'container',
+			       															itemId: 'bloqueTarjeta'
 		       															}
 				       	       									]
 				       	       								},
 				       	       								{
-				       	       									columnWidth: .5,
+				       	       									columnWidth: .60,
 				       	       									layout: 'form',
+				       	       									labelWidth: 130,
 				       	       									cls: 'bloqueFactura azul',
-				       	       									height: 200,
+				       	       									height: 160,
 				       	       									items:[
 				       	       											{
 				       	       												xtype: 'displayfield',
@@ -1143,7 +1314,7 @@ viewContainer.bodyPanel = [{
 																			fieldLabel: 'CI / Nombre',
 																			cls: 'searchIcon',
 																			hideTrigger: true,
-																			width: 160,
+																			width: 250,
 																			allowBlank: false,
 																			minChars: 2,
 																			cls: 'searchIcon',
@@ -1210,7 +1381,7 @@ viewContainer.bodyPanel = [{
 				       	       											},
 				       	       											{
 				       	       												xtype: 'textfield',
-				       	       												width: 100,
+				       	       												width: 200,
 				       	       												fieldLabel: 'Documento',
 				       	       												name: 'displayDocumento_asesor',
 				       	       												disabled: true
@@ -1219,7 +1390,7 @@ viewContainer.bodyPanel = [{
 				       	       												xtype: 'textfield',
 				       	       												fieldLabel: 'Nombre o Raz. Social',
 				       	       												name: 'displayNombre_asesor',
-				       	       												width: 100,
+				       	       												width: 200,
 				       	       												disabled: true
 				       	       											},
 				       	       											{
@@ -1248,7 +1419,7 @@ viewContainer.bodyPanel = [{
 				       	       									height: 160,
 				       	       									cls: 'bloqueFactura azul',
 				       	       									id: 'bloqueAsesor',
-				       	       									columnWidth: 1,
+				       	       									columnWidth: .60,
 				       	       									items:[
 				       	       											{
 				       	       												xtype: 'displayfield',
@@ -1261,7 +1432,7 @@ viewContainer.bodyPanel = [{
 																			fieldLabel: 'RUC / Nombre',
 																			cls: 'searchIcon',
 																			hideTrigger: true,
-																			width: 360,
+																			width: 250,
 																			allowBlank: false,
 																			minChars: 2,
 																			cls: 'searchIcon',
@@ -1328,7 +1499,7 @@ viewContainer.bodyPanel = [{
 				       	       											},
 				       	       											{
 				       	       												xtype: 'textfield',
-				       	       												width: 280,
+				       	       												width: 200,
 				       	       												fieldLabel: 'Documento',
 				       	       												name: 'displayDocumento',
 				       	       												disabled: true
@@ -1337,7 +1508,7 @@ viewContainer.bodyPanel = [{
 				       	       												xtype: 'textfield',
 				       	       												fieldLabel: 'Nombre o Raz. Social',
 				       	       												name: 'displayNombre',
-				       	       												width: 280,
+				       	       												width: 200,
 				       	       												disabled: true
 				       	       											},
 				       	       											{
@@ -1394,6 +1565,7 @@ viewContainer.bodyPanel = [{
 																			listeners:{
 																				'beforequery':function(objectQuery)
 																				{
+																					objectQuery.combo.getStore().setBaseParam('s[medio_de_pago]', medioPagoPorDefecto);
 																					objectQuery.combo.getStore().setBaseParam('s[rcap]',null);
 																				},
 																				'beforeselect':function(thisCombo, record, index)
@@ -1448,6 +1620,13 @@ viewContainer.bodyPanel = [{
 																						precio = precio[0];
 																						precio.setValue(record.data.precio_venta);
 																					}
+
+																					var precioFinal = padre.find('name','precio_venta_final');
+																					if(precioFinal.length>0)
+																					{
+																						precioFinal = precioFinal[0];
+																						precioFinal.setValue(record.data.precio_venta_final);
+																					}
 																					
 																					var simbolo = padre.find('name','simbolo');
 																					if(simbolo.length>0)
@@ -1487,6 +1666,7 @@ viewContainer.bodyPanel = [{
 																			listeners:{
 																				'beforequery':function(objectQuery)
 																				{
+																					objectQuery.combo.getStore().setBaseParam('s[medio_de_pago]', medioPagoPorDefecto);
 																					objectQuery.combo.getStore().setBaseParam('s[cadena]',null);
 																				},
 																				'beforeselect':function(thisCombo, record, index)
@@ -1539,6 +1719,13 @@ viewContainer.bodyPanel = [{
 																						precio = precio[0];
 																						precio.setValue(record.data.precio_venta);
 																					}
+
+																					var precioFinal = padre.find('name','precio_venta_final');
+																					if(precioFinal.length>0)
+																					{
+																						precioFinal = precioFinal[0];
+																						precioFinal.setValue(record.data.precio_venta_final);
+																					}
 																					
 																					var simbolo = padre.find('name','simbolo');
 																					if(simbolo.length>0)
@@ -1580,10 +1767,19 @@ viewContainer.bodyPanel = [{
 				       	       																		xtype: 'numberfield',
 				       	       																		width: 90,
 				       	       																		allowNegative: false,
-				       	       																		disabled:true,
+				       	       																		readOnly: true,
 				       	       																		name: 'precio_unit',
 				       	       																		emptyText: 'Seleccione producto..',
 				       	       																		fieldLabel: 'Precio Unit.'
+				       	       																	},
+				       	       																	{
+				       	       																		xtype: 'numberfield',
+				       	       																		width: 90,
+				       	       																		allowNegative: false,
+				       	       																		readOnly: true,
+				       	       																		name: 'precio_venta_final',
+				       	       																		emptyText: 'Seleccione producto..',
+				       	       																		fieldLabel: 'Precio Final'
 				       	       																	}
 				       	       															]
 				       	       														},
@@ -1603,7 +1799,7 @@ viewContainer.bodyPanel = [{
 				       	       																	{
 				       	       																		xtype: 'textfield',
 				       	       																		width: 60,
-				       	       																		disabled:true,
+				       	       																		readOnly: true,
 				       	       																		name: 'simbolo',
 				       	       																		fieldLabel: 'Moneda'
 				       	       																	},
@@ -1614,7 +1810,7 @@ viewContainer.bodyPanel = [{
 			       																					xtype: 'combo',
 			       																					triggerAction: 'all',
 			       																					store: stockImpuestoStore,
-			       																					disabled:true,
+			       																					readOnly: true,
 			      																					displayField: 'valor',
 			       																					valueField: 'id',
 			       																					mode: 'local',
@@ -1660,7 +1856,7 @@ viewContainer.bodyPanel = [{
 				       	       																					iconCls: 'cart',
 				       	       																					width: 75,
 				       	       																					height: 70,
-				       	       																					handler: agregarArticuloCompra,
+				       	       																					handler: agregarArticuloVenta,
 				       	       																					text: 'Agregar'
 				       	       																				}
 				       	       																		]
@@ -1761,7 +1957,7 @@ viewContainer.bodyPanel = [{
 					       	       			        									style:{margin: '5px 0'},
 					       	       			        									iconCls: 'addIcon',
 					       	       			        									handler: function(b,e){
-				       	       																Ext.Msg.alert('Aviso','En Impl.');
+					       	       			        									location.href = baseURL + '/fact/venta/index-ui';
 				       	       															},
 					       	       			        									text: 'Reset'
 																					},
@@ -1789,7 +1985,7 @@ viewContainer.bodyPanel = [{
 					       	       			        									width: 95,
 					       	       			        									iconCls: 'addIcon',
 					       	       			        									text: 'Guardar',
-					       	       			        									handler: guardarCompraHandler
+					       	       			        									handler: guardarVentaHandler
 																					}
 				       	       												]		
 				       	       											}
@@ -1817,22 +2013,22 @@ viewContainer.bodyPanel = [{
 				               							}},
 				               							{ header: "Cant.", fixed: true, dataIndex: 'cantidad',  width: 80},
 														{ header: "Descrip.", dataIndex: 'articulo', width: 160},
-														{ header: "Costo Unit.", dataIndex: 'precio_unit',  width: 100},
+														{ header: "Precio Final", dataIndex: 'precio_venta_final',  width: 100},
 														{ header: "Exenta", dataIndex: null,  width: 100, renderer: function(v,meta,record){
 															if(record.data.porc_impuesto == 0)
-																return record.data.cantidad * record.data.precio_unit;
+																return record.data.cantidad * record.data.precio_venta_final;
 															else
 																return '-';
 														}},
 														{ header: "5%", dataIndex: null,  width: 100, renderer: function(v,meta,record){
 															if(record.data.porc_impuesto == 5)
-																return record.data.cantidad * record.data.precio_unit;
+																return record.data.cantidad * record.data.precio_venta_final;
 															else
 																return '-';
 														}},
 														{ header: "10%", dataIndex: null,  width: 100, renderer: function(v,meta,record){
 															if(record.data.porc_impuesto == 10)
-																return record.data.cantidad * record.data.precio_unit;
+																return record.data.cantidad * record.data.precio_venta_final;
 															else
 																return '-';
 														}}

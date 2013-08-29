@@ -26,25 +26,27 @@
 
 var mainStore = factCompraDetalleStore;
 
-mainStore.on('remove', function(thisStore, record, index){
-	console.log('remove', thisStore, record, index);
-});
 
 var monedaDecimales = false;
 var cantDecimalesMoneda = -1;
 
 guardarCompraHandlerCallback = function(options, success, response)
 {
-	console.log(options, success, response);
-	
-	var formulario = Ext.getCmp('mainForm');
-	if(formulario)
-		formulario.getEl().unmask();
 		
 	if(success)
 	{
+		var respuesta = Ext.decode(response.responseText);
+		location.href = baseURL + '/fact/compra/get-ui#' + respuesta.fact_ingreso_id;
 	}
-		//location.href = baseURL + '/fact/compra/list-ui';
+	else	
+	{
+		var formulario = Ext.getCmp('mainForm');
+		if(formulario)
+			formulario.getEl().unmask();
+
+		Ext.Msg.alert('Aviso','Ocurri&oacute; un error');
+	}
+	
 };
 
 guardarCompraHandler = function(b,e)
@@ -99,6 +101,7 @@ guardarCompraHandler = function(b,e)
 					codigo: '--',
 					doc_nro: valores.factura_nro.join('-'),
 					doc_fecha: formatearFecha(valores.fecha, 1),
+					fecha_vencimiento: formatearFecha(valores.fecha_vencimiento, 1),
 					doc_tipo: 'F',
 					condicion: 'C',
 					estado: valores.estado_factura
@@ -1008,7 +1011,7 @@ viewContainer.bodyPanel = [{
 		       															{
 		       																fieldLabel: 'Fecha Venc.',
 			        														xtype: 'datefield',
-			        														disabled: true,
+			        														readOnly: true,
 			        														name: 'fecha_vencimiento',
 			        														listeners:{
 			        															'render':function(thisEl)
@@ -1020,7 +1023,10 @@ viewContainer.bodyPanel = [{
 			        																	fecha = fecha[0];
 			        																	thisEl.value = fecha.value;
 			        																}
-			        															}
+			        															},
+			        															'focus':function(thisField){
+																					thisField.blur();
+				        														}
 			        														}
 		       															},
 				       	       											{

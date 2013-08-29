@@ -5,13 +5,19 @@
 }
 
 .compraContainer .azul{
-	/*background-color: rgb(101, 153, 255);*/
-	background-color: #CCCCCC;
+	/*background-color: rgb(101, 153, 255);
+	background-color: #CCCCCC;*/
+	background-color: #d0def0;
 }
 
 .compraContainer .azulOscuro{
 	/*background-color: rgb(25, 69, 156);*/
 	background-color: #000033;
+}
+
+.compraContainer .azulOscuro input{
+	color: rgb(5,5,5);
+	font-weight: bold;
 }
 
 .compraContainer .crema{
@@ -26,7 +32,15 @@
 	font-size: 15px;
 	line-height: 23px;
 	font-family: Tahoma;
-	background-color: #000033;
+	background: #1e5799; /* Old browsers */
+	background: -moz-linear-gradient(-45deg,  #1e5799 0%, #207cca 69%, #7db9e8 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, right bottom, color-stop(0%,#1e5799), color-stop(69%,#207cca), color-stop(100%,#7db9e8)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(-45deg,  #1e5799 0%,#207cca 69%,#7db9e8 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(-45deg,  #1e5799 0%,#207cca 69%,#7db9e8 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(-45deg,  #1e5799 0%,#207cca 69%,#7db9e8 100%); /* IE10+ */
+	background: linear-gradient(135deg,  #1e5799 0%,#207cca 69%,#7db9e8 100%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#1e5799', endColorstr='#7db9e8',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
+	
 	padding: 3px;
 	margin-bottom: 10px;
 }

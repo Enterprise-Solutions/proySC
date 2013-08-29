@@ -50,6 +50,16 @@
         								autoWidth:true,
         								xtype: 'toolbar',
         								items: [
+												{
+												    text: 'Administraci&oacute;n',
+												    split: true,
+												    menu:{
+												        defaults:{handler: buttonClick},
+														items:[
+														       {text: 'Mantener Usuario', codigo: 'usuario', modulo: 'adm'}
+														]
+												    }
+												},'-',
         								        {
             								        text: 'Organizacion',
             								        split: true,
@@ -70,6 +80,7 @@
             								        	defaults:{handler: buttonClick},
 														items:[
 														       {text: 'Mantener Articulo', codigo: 'articulo', modulo: 'stock'},
+														       '-',
 														       {text: 'Mantener Marca', codigo: 'marca', modulo: 'stock'},
 														       {text: 'Mantener Categoria', codigo: 'categoria', modulo: 'stock'},
 														       {text: 'Mantener Garantia Tipo', codigo: 'garantia-tipo', modulo: 'stock'}
@@ -96,16 +107,21 @@
 														       {text: 'Crear Venta', codigo: 'venta', modulo: 'fact'},
 														       {text: 'Mantener Ventas', codigo: 'venta', modulo: 'fact', view: 'list-ui'},
 														       {text: 'Crear Compra', codigo: 'compra', modulo: 'fact'},
-														       {text: 'Mantener Compras', codigo: 'compra', modulo: 'fact', view: 'list-ui'}
+														       {text: 'Mantener Compras', codigo: 'compra', modulo: 'fact', view: 'list-ui'},
+														       '-',
+														       {text: 'Mantener Entidad Finc.', codigo: 'entidad-financiera', modulo: 'fact'},
+														       {text: 'Mantener Tarjeta Nombre', codigo: 'tarjeta-nombre', modulo: 'fact'},
+														       {text: 'Mantener Tipo Tarjeta', codigo: 'tarjeta-tipo', modulo: 'fact'},
 														]
                 								    }
-        								        },
+        								        },'-','->',
         								        {
             								        text: 'Salir',
+            								        style:{marginLeft: '-20px !important'},
             								        handler: function(b,e){
-														Ext.Msg.alert('Aviso','En Impl.');
+														location.href = baseURL + '/login/leave';
                 								    }
-        								        }
+        								        },' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '
         								]
         							}/*,
         							{
