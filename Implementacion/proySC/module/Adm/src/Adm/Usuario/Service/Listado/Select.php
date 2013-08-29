@@ -30,6 +30,6 @@ class Select extends EsSelect
 	
 	public function addSearchByNombre($nombre)
 	{
-		$this->_select->where("(op.nombre_persona ~* '$nombre') or (op.apellido_persona ~* '$nombre') or (od.valor ~* '$nombre')");
+		$this->_select->where("((op.nombre_persona ~* '$nombre') or (op.apellido_persona ~* '$nombre') or (od.valor ~* '$nombre'))");
 	}
 }
