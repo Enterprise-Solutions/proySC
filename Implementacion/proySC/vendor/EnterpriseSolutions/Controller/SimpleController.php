@@ -8,6 +8,8 @@ use Zend\Db\TableGateway\TableGateway;
 use Zend\Db\TableGateway\Feature\RowGatewayFeature;
 use Zend\Db\RowGateway\RowGateway;
 use Zend\Db\Adapter\Adapter;
+use EnterpriseSolutions\Db\Dao;
+use EnterpriseSolutions\Controller\SimpleController\SelectDeListado;
 
 class SimpleController extends BaseController
 {
@@ -17,9 +19,14 @@ class SimpleController extends BaseController
 	
 	public function indexAction()
 	{
-		$rs = $this->_getTableGateway()->select();
+		/*$rs = $this->_getTableGateway()->select();
 		$rs = $rs->toArray();
-		return $this->_returnAsJson(array('records' => $rs,'numResults' => count($rs)));
+		return $this->_returnAsJson(array('records' => $rs,'numResults' => count($rs)));*/
+		$select = new SelectDeListado($this->getServiceLocator()->get('Zend\Db\Adapter\Adapter'));
+		$dao = new Dao($select);
+		
+		$template = $this->_crearTemplateParaListado();
+		return $template($dao,array(),array());
 	}
 	
 	public function postAction()
