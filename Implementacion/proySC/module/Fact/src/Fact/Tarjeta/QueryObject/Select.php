@@ -16,4 +16,28 @@ class Select extends DbSelect
              ->join(array('ftn' => 'fact_tarjeta_nombre'), 'ft.fact_tarjeta_nombre_id = ftn.fact_tarjeta_nombre_id', array('tarjeta_nombre' => 'nombre'))
              ->join(array('feb' => 'fact_entidad_financiera'), 'ft.fact_entidad_financiera_id = feb.fact_entidad_financiera_id', array('entidad_financiera' => 'nombre'));
     }
+    
+    public function addSearchByTarjetaId($id)
+    {
+        if ($id) {
+            $this->_select
+                 ->where("ft.fact_tarjeta_id = $id");
+        }
+    }
+    
+    public function addSearchByTarjetaTipo($tipo)
+    {
+        if ($tipo && $tipo != "") {
+            $this->_select
+                 ->where("ftt.nombre ILIKE '%$tipo%'");
+        }
+    }
+    
+    public function addSearchByCadena($cadena)
+    {
+        if ($cadena && $cadena != "") {
+            $this->_select
+                 ->where("(feb.nombre || ' ' || ftn.nombre) ILIKE '%$cadena%'");
+        }
+    }
 }
