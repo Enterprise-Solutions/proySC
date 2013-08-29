@@ -22,7 +22,8 @@ class SimpleController extends BaseController
 		/*$rs = $this->_getTableGateway()->select();
 		$rs = $rs->toArray();
 		return $this->_returnAsJson(array('records' => $rs,'numResults' => count($rs)));*/
-		$select = new SelectDeListado($this->getServiceLocator()->get('Zend\Db\Adapter\Adapter'));
+		
+		$select = new SelectDeListado($this->getServiceLocator()->get('Zend\Db\Adapter\Adapter'),$this->_tableName);
 		$dao = new Dao($select);
 		
 		$template = $this->_crearTemplateParaListado();
