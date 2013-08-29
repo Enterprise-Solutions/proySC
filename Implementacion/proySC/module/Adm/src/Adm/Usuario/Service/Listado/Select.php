@@ -25,7 +25,7 @@ class Select extends EsSelect
 	
 	public function addSearchByEstado($estado)
 	{
-		$this->_select->where("au.estado = '$estado");
+		$this->_select->where("au.estado = '$estado'");
 	}
 	
 	public function addSearchByNombre($nombre)
