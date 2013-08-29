@@ -106,7 +106,7 @@ class Egreso
     protected $detalle;
     
     protected $defaultValues = array(
-        '$medio_de_pago'            => 'E',
+        'medio_de_pago'             => 'E',
         'total_excenta'             => 0,
         'total_iva_cinco_porciento' => 0,
         'total_iva_diez_porciento'  => 0,

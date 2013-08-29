@@ -6,9 +6,9 @@ use Doctrine\ORM\EntityManager;
 
 use EnterpriseSolutions\Controller\BaseController;
 use EnterpriseSolutions\Db\Dao;
-
+use Fact\Egreso\QueryObject\Get\Dao as DaoGet;
 use Fact\Egreso\QueryObject\Select;
-
+use Fact\Egreso\QueryObject\Get;
 use Fact\Egreso\Service\ValidarDetalle as ValidarDetalleService;
 use Fact\Egreso\Service\Crear as CrearEgresoService;
 
@@ -30,6 +30,14 @@ class VentaController extends BaseController
 	    $dao = new Dao($select);
 	    $template = $this->_crearTemplateParaListado();
 	    return $template($dao, array(), $overwritedParams);
+	}
+	
+	public function getAction()
+	{
+	    $query = new Get($this->getServiceLocator()->get('Zend\Db\Adapter\Adapter'));
+	    $dao = new DaoGet($query);
+	    $template = $this->_crearTemplateParaGet();
+	    return $template($dao, array());
 	}
 	
 	/**

@@ -1,6 +1,6 @@
 <?php
 
-namespace Fact\Ingreso\QueryObject\Get;
+namespace Fact\Egreso\QueryObject\Get;
 
 use EnterpriseSolutions\Db\Dao\Get as EsDao;
 
@@ -10,13 +10,13 @@ class Dao extends EsDao
     {
         $records = $this->_select->execute()->toArray();
         
-        $ingreso  = array();
+        $egreso   = array();
         $detalles = array();
         $parteRol = array();
         
         foreach ($records as $record) {
-            $ingreso = array(
-                'fact_ingreso_id'           => $record['fact_ingreso_id'],
+            $egreso = array(
+                'fact_egreso_id'            => $record['fact_egreso_id'],
                 'cont_moneda_id'            => $record['cont_moneda_id'],
                 'moneda'                    => $record['moneda'],
                 'moneda_simbolo'            => $record['moneda_simbolo'],
@@ -26,11 +26,18 @@ class Dao extends EsDao
                 'doc_tipo'                  => $record['doc_tipo'],
                 'condicion'                 => $record['condicion'],
                 'estado'                    => $record['estado'],
+                'medio_de_pago'             => $record['medio_de_pago'],
                 'fecha_vencimiento'         => $record['fecha_vencimiento'],
                 'total_excenta'             => $record['total_excenta'],
                 'total_iva_cinco_porciento' => $record['total_iva_cinco_porciento'],
                 'total_iva_diez_porciento'  => $record['total_iva_diez_porciento'],
-                'total_ingreso'             => $record['total_ingreso'],
+                'total_egreso'              => $record['total_egreso'],
+            );
+            
+            $tarjeta = array(
+                'tarjeta_tipo'       => $record['tarjeta_tipo'],
+                'tarjeta_nombre'     => $record['tarjeta_nombre'],
+                'entidad_financiera' => $record['entidad_financiera'],
             );
             
             $parteRol["{$record['rol']}"] = array(
@@ -41,19 +48,19 @@ class Dao extends EsDao
                 'tipo_documento'      => $record['tipo'],
             );
             
-            $detalles["{$record['fact_ingreso_detalle_id']}"] = array(
-                'fact_ingreso_detalle_id' => $record['fact_ingreso_detalle_id'],
-                'cantidad'                => $record['cantidad'],
-                'costo_unit'              => $record['costo_unit'],
-                'porc_impuesto'           => $record['porc_impuesto'],
-                'articulo'                => $record['articulo'],
-                'articulo_codigo'         => $record['articulo_codigo'],
+            $detalles["{$record['fact_egreso_detalle_id']}"] = array(
+                'fact_egreso_detalle_id' => $record['fact_egreso_detalle_id'],
+                'cantidad'               => $record['cantidad'],
+                'precio_unit'            => $record['precio_unit'],
+                'porc_impuesto'          => $record['porc_impuesto'],
+                'articulo'               => $record['articulo'],
+                'articulo_codigo'        => $record['articulo_codigo'],
             );
         }
         
         if (count($records)) {
             $detalles = array_values($detalles);
-            $records = array_merge($ingreso, $parteRol, array('detalles' => $detalles));
+            $records = array_merge($egreso, array('tarjeta' => $tarjeta), $parteRol, array('detalles' => $detalles));
         }
         return $records;
     }
