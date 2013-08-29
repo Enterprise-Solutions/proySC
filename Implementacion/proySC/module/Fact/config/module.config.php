@@ -35,9 +35,12 @@ return array(
     ),
     'controllers' => array(
         'invokables' => array(
-            'Fact\Controller\Venta'   => 'Fact\Controller\VentaController',
-        	'Fact\Controller\Compra'  => 'Fact\Controller\CompraController',
-            'Fact\Controller\Tarjeta' => 'Fact\Controller\TarjetaController',
+            'Fact\Controller\Venta'             => 'Fact\Controller\VentaController',
+        	'Fact\Controller\Compra'            => 'Fact\Controller\CompraController',
+            'Fact\Controller\Tarjeta'           => 'Fact\Controller\TarjetaController',
+            'Fact\Controller\TarjetaNombre'     => 'Fact\Controller\TarjetaNombreController',
+            'Fact\Controller\TarjetaTipo'       => 'Fact\Controller\TarjetaTipoController',
+            'Fact\Controller\EntidadFinanciera' => 'Fact\Controller\EntidadFinancieraController',
         ),
     ),
     'view_manager' => array(
