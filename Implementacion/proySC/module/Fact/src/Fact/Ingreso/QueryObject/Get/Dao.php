@@ -18,6 +18,8 @@ class Dao extends EsDao
             $ingreso = array(
                 'fact_ingreso_id'           => $record['fact_ingreso_id'],
                 'cont_moneda_id'            => $record['cont_moneda_id'],
+                'moneda'                    => $record['moneda'],
+                'moneda_simbolo'            => $record['moneda_simbolo'],
                 'codigo'                    => $record['codigo'],
                 'doc_nro'                   => $record['doc_nro'],
                 'doc_fecha'                 => $record['doc_fecha'],
