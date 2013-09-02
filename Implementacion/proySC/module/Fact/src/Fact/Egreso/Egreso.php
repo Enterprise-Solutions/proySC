@@ -247,6 +247,12 @@ class Egreso
         }
     }
     
+    public function setNroDocumento($doc_nro)
+    {
+        // Agregar controles si hace falta
+        $this->doc_nro = $doc_nro;
+    }
+    
     public function setEstado($estado)
     {
         switch ($this->estado) {
