@@ -1,16 +1,21 @@
 <?php
-class Framework_Simple_Service_Service
+namespace EnterpriseSolutions\Simple\Service;
+use EnterpriseSolutions\Simple\Repository\DataSource;
+use \Exception;
+class Service
 {
     public function transaccional($service,$ds = null)
     {
-        return function($datos,$ds = null) use ($service) {
+        return function($datos) use ($service,$ds) {
             if(!$ds){
-                $ds = new Framework_Simple_Repository_DataSource();
+                $ds = new DataSource();
             }
-            $conn = $ds->_getDbConnection();
+            $conn = $ds->_getDbConnection()
+            		   ->getDriver()
+            		   ->getConnection();
             try{
             	$conn->beginTransaction();
-            	$resultado =  $service($datos,$ds);
+            	$resultado =  $service($datos);
             	$conn->commit();
             }catch(Exception $e){
             	$conn->rollback();
@@ -20,7 +25,7 @@ class Framework_Simple_Service_Service
         };
     }
     
-    public function auditable($service,$codigoDeOperacion)
+    /*public function auditable($service,$codigoDeOperacion)
     {
         return function($datos) use($codigoDeOperacion,$service){
             $ds = new Framework_Simple_Auditoria_Repository_DataSourceAuditable();
@@ -32,5 +37,5 @@ class Framework_Simple_Service_Service
             
             return $resultado;
         };
-    }
+    }*/
 }

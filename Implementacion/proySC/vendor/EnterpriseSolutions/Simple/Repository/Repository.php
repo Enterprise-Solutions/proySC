@@ -1,8 +1,10 @@
 <?php
-class Framework_Simple_Repository_Repository
+namespace EnterpriseSolutions\Simple\Repository;
+use EnterpriseSolutions\Simple\Repository\DataSource;
+class Repository
 {
     /**
-     * @var Framework_Simple_Repository_DataSource
+     * @var DataSource
      */
     public $_ds;
     public function __construct($ds)
