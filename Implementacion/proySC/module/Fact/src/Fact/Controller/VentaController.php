@@ -11,6 +11,7 @@ use Fact\Egreso\QueryObject\Select;
 use Fact\Egreso\QueryObject\Get;
 use Fact\Egreso\Service\ValidarDetalle as ValidarDetalleService;
 use Fact\Egreso\Service\Crear as CrearEgresoService;
+use Fact\Egreso\Service\CargarNroDocumento as CargarNroDocumentoService;
 
 class VentaController extends BaseController
 {
@@ -53,6 +54,18 @@ class VentaController extends BaseController
 	    $service->persistir();
 	
 	    return $this->toJson($service->getRespuesta());
+	}
+	
+	public function setNroDocumentoAction()
+	{
+	    $em = $this->getEntityManager();
+	    $data = $this->SubmitParams()->getParams();
+	    
+	    $service = new CargarNroDocumentoService($em);
+	    $service->ejecutar($data);
+	    $service->persistir();
+	    
+	    return $this->toJson($service->getResult());
 	}
 	
 	/**
