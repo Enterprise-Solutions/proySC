@@ -276,7 +276,7 @@ class Egreso
     
     protected function actualizarTotales(EgresoDetalle $detalle)
     {
-        $subTotal = $detalle->getSubTotal();
+        $subTotal = $detalle->getSubTotal($this->medio_de_pago);
         switch ($detalle->getPorcImpuesto()) {
         	case '10':
         	    $this->total_iva_diez_porciento += $subTotal;

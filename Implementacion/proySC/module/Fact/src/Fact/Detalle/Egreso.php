@@ -172,8 +172,24 @@ class Egreso
      * Subtotal del detalle (cantidad * precio_unit)
      * @return number
      */
-    public function getSubTotal()
+    public function getSubTotal($medio_de_pago)
     {
+        switch ($medio_de_pago) {
+            case 'E':
+                return $this->cantidad * $this->precio_unit;
+                break;
+            case 'D':
+                $interes = 1.04;
+                return $this->cantidad * ($this->precio_unit * $interes);
+                break;
+            case 'C':
+                $interes = 1.08;
+                return $this->cantidad * ($this->precio_unit * $interes);
+                break;
+            default:
+                return $this->cantidad * $this->precio_unit;
+        }
+        
         return $this->cantidad * $this->precio_unit;
     }
 }
