@@ -95,9 +95,6 @@ class Tarjeta
             'fecha_vencimiento' => array(
                 'name'       => 'fecha_vencimiento',
                 'required'   => false,
-                'filters'    => array(
-                    array('name' => 'StripTags'),
-                ),
                 'validators' => array(
                     array('name' => 'Date', 'options' => array('format' => 'd-m-Y', 'locale' => 'py')),
                 ),
