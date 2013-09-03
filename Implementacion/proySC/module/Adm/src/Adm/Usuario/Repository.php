@@ -6,6 +6,7 @@ use Zend\Db\Adapter\Adapter;
 use EnterpriseSolutions\Simple\Repository\Repository as EsRepository;
 use Adm\Usuario\Repository\FindDatosDePersonaParaCrearUsuario as SelectDatosParaCrearUsuario;
 use Adm\Usuario\Repository\SelectRequisitosDePassword;
+use Adm\Usuario\Service\Listado\Select as SelectDeUsuario;
 
 class Repository extends EsRepository
 {
@@ -18,6 +19,18 @@ class Repository extends EsRepository
 		$dbAdapter = $this->_ds->_getDbConnection();
 		$select = new SelectDatosParaCrearUsuario($dbAdapter);
 		$select->addSearchByOrgParteId($orgParteId);
+		$rs = $select->execute()->toArray();
+		if(count($rs) <= 0){
+			return false;
+		}
+		return current($rs);
+	}
+	
+	public function getAdmUsuario($admUsuarioId)
+	{
+		$dbAdapter = $this->_ds->_getDbConnection();
+		$select = new SelectDeUsuario($dbAdapter);
+		$select->addSearchByAdmUsuarioId($admUsuarioId);
 		$rs = $select->execute()->toArray();
 		if(count($rs) <= 0){
 			return false;

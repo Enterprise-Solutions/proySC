@@ -43,15 +43,15 @@ class BaseController extends AbstractActionController {
 		};
 	}
 	
-	public function _crearTemplateParaGet()
+	public function _crearTemplateParaGet($idParam = 'id')
 	{
 		$self = $this;
-		return function($dao,$overwritedParams) use($self){
+		return function($dao,$overwritedParams) use($self,$idParam){
 			$params = array_merge_recursive(
 				$self->SubmitParams()->getParams(),
 				$overwritedParams
 			);
-			$rs = $dao->get(new Dto($params));
+			$rs = $dao->get(new Dto($params,$idParam));
 			$viewModel = $self->_seleccionarViewModelSegunContexto(array('Zend\View\Model\JsonModel' => array(
 					'text/html','application/json'
 			)));

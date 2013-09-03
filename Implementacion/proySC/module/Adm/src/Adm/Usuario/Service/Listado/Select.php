@@ -32,4 +32,15 @@ class Select extends EsSelect
 	{
 		$this->_select->where("((op.nombre_persona ~* '$nombre') or (op.apellido_persona ~* '$nombre') or (od.valor ~* '$nombre'))");
 	}
+	
+	public function addSearchByAdmUsuarioId($admUsuarioId)
+	{
+		$this->_select
+			 ->where("au.adm_usuario_id = $admUsuarioId");
+	}
+	
+	public function addSearchById($id)
+	{
+		$this->addSearchByAdmUsuarioId($id);
+	}
 }

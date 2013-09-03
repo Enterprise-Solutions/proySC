@@ -18,7 +18,7 @@ class Get
 	public function get(Dto $dto)
 	{
 		if(!$dto->getId()){
-			Thrower::throwValidationException("No se recibio el parametro 'id' del recurso a consultar!");	
+			Thrower::throwValidationException("No se recibio el parametro id del recurso a consultar!");	
 		}
 		return $this->_aplicarBusqueda($dto)
 					->_consultarDs();
@@ -32,6 +32,11 @@ class Get
 	
 	public function _consultarDs()
 	{
-		return current($this->_select->execute()->toArray());
+		$rs = $this->_select->execute()->toArray();
+		if(count($rs) == 1){
+			return current($rs);
+		}
+		return array();
+		//return current($this->_select->execute()->toArray());
 	}
 }
