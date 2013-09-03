@@ -24,7 +24,7 @@ class Get extends DbSelect
              ->join(array('fef' => 'fact_entidad_financiera'), 'ft.fact_entidad_financiera_id = fef.fact_entidad_financiera_id', array('entidad_financiera' => 'nombre'), ZfSelect::JOIN_LEFT)
              
              // Detalles del Ingreso
-             ->join(array('fed' => 'fact_egreso_detalle'), 'fe.fact_egreso_id = fed.fact_egreso_id', array('fact_egreso_detalle_id', 'cantidad', 'precio_unit', 'porc_impuesto', 'precio_venta_final' => new Expression("CASE WHEN fe.medio_de_pago = 'E' THEN fed.precio_unit WHEN fe.medio_de_pago = 'D' THEN fed.precio_unit * 1.04 WHEN fe.medio_de_pago = 'C' THEN fed.precio_unit * 1.08 END")))
+             ->join(array('fed' => 'fact_egreso_detalle'), 'fe.fact_egreso_id = fed.fact_egreso_id', array('fact_egreso_detalle_id', 'cantidad', 'precio_unit', 'porc_impuesto', 'precio_venta_final' => new Expression("CASE WHEN fe.medio_de_pago = 'E' THEN fed.precio_unit WHEN fe.medio_de_pago = 'D' THEN fed.precio_unit * 1.04 WHEN fe.medio_de_pago = 'C' THEN fed.precio_unit * 1.08 ELSE fed.precio_unit END")))
              ->join(array('sa' => 'stock_articulo'), 'fed.stock_articulo_id = sa.stock_articulo_id', array('articulo' => 'nombre', 'articulo_codigo' => 'codigo'))
              
              // Partes
