@@ -3,7 +3,6 @@
 namespace Fact\Controller;
 
 use Doctrine\ORM\EntityManager;
-
 use EnterpriseSolutions\Controller\BaseController;
 use EnterpriseSolutions\Db\Dao;
 use Fact\Egreso\QueryObject\Get\Dao as DaoGet;
@@ -11,6 +10,7 @@ use Fact\Egreso\QueryObject\Select;
 use Fact\Egreso\QueryObject\Get;
 use Fact\Egreso\Service\ValidarDetalle as ValidarDetalleService;
 use Fact\Egreso\Service\Crear as CrearEgresoService;
+use Fact\Egreso\Service\Editar as EditarEgresoService;
 use Fact\Egreso\Service\CargarNroDocumento as CargarNroDocumentoService;
 
 class VentaController extends BaseController
@@ -56,6 +56,21 @@ class VentaController extends BaseController
 	    return $this->toJson($service->getRespuesta());
 	}
 	
+	public function putAction()
+	{
+	    $em = $this->getEntityManager();
+	    $data = $this->SubmitParams()->getParam('put');
+	    
+	    $service = new EditarEgresoService($em);
+	    $service->ejecutar($data);
+	    $service->persistir();
+	    
+	    return $this->toJson($service->getRespuesta());
+	}
+	
+	/**
+	 * Carga el numero de documento luego de la impresion
+	 */
 	public function setNroDocumentoAction()
 	{
 	    $em = $this->getEntityManager();

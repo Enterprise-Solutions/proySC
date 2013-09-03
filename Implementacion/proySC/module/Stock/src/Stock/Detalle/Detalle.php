@@ -100,6 +100,12 @@ class Detalle
         $this->estado = 'V';
     }
     
+    public function disponibilizar()
+    {
+        $this->fact_egreso_detalle_id = null;
+        $this->estado = 'D';
+    }
+    
     public function getIngresoDetalleId()
     {
         return $this->fact_ingreso_detalle_id;
