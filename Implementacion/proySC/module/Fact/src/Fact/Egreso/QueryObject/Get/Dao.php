@@ -52,6 +52,7 @@ class Dao extends EsDao
                 'fact_egreso_detalle_id' => $record['fact_egreso_detalle_id'],
                 'cantidad'               => $record['cantidad'],
                 'precio_unit'            => $record['precio_unit'],
+                'precio_venta_final'     => $record['precio_venta_final'],
                 'porc_impuesto'          => $record['porc_impuesto'],
                 'articulo'               => $record['articulo'],
                 'articulo_codigo'        => $record['articulo_codigo'],

@@ -253,6 +253,14 @@ class Egreso
         $this->doc_nro = $doc_nro;
     }
     
+    public function getNroDocumento()
+    {
+        if (!is_null($this->doc_nro) && $this->doc_nro != "") {
+        	return $this->doc_nro;
+        }
+        return false;
+    }
+    
     public function setEstado($estado)
     {
         switch ($this->estado) {

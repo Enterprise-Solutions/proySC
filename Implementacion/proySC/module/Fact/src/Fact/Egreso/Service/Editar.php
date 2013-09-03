@@ -46,7 +46,12 @@ class Editar
     
     protected function getEgreso($id)
     {
-        return $this->em->find('Fact\Egreso\Egreso', $id);
+        $egreso = $this->em->find('Fact\Egreso\Egreso', $id);
+        if (!$egreso->getNroDocumento()) {
+            Thrower::throwValidationException('El egreso no tiene asignado un Nro. de Documento');
+        }
+        
+        return $egreso;
     }
     
     /**
