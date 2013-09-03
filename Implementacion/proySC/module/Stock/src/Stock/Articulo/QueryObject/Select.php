@@ -79,20 +79,32 @@ class Select extends DbSelect
         $articulo = array('stock_articulo_id', 'nombre', 'codigo', 'precio_venta', 'existencia', 'rcap', 'porcentaje_impuesto');
         switch ($medio) {
         	case 'E':  // Efectivo
+        	    $precio_minimo = new Expression("sa.precio_venta * (100 - sa.descuento_maximo) / 100");
+        	    
         	    $this->_select
-        	         ->columns(array_merge($articulo, array('precio_venta_final' => 'precio_venta')));
+        	         ->columns(array_merge($articulo, array('precio_venta_final' => 'precio_venta', 'precio_minimo' => $precio_minimo)));
         	    break;
         	case 'C':  // Credito
+        	    $interes = 1.08;
+        	    $precio_venta_final = new Expression("sa.precio_venta * $interes");
+        	    $precio_minimo      = new Expression("sa.precio_venta * (100 - sa.descuento_maximo) * $interes / 100");
+        	    
         	    $this->_select
-        	         ->columns(array_merge($articulo, array('precio_venta_final' => new Expression("sa.precio_venta * 1.08"))));
+        	         ->columns(array_merge($articulo, array('precio_venta_final' => $precio_venta_final, 'precio_minimo' => $precio_minimo)));
         	    break;
         	case 'D':  // Debito
+        	    $interes = 1.04;
+        	    $precio_venta_final = new Expression("sa.precio_venta * $interes");
+        	    $precio_minimo      = new Expression("sa.precio_venta * (100 - sa.descuento_maximo) * $interes / 100");
+        	    
         	    $this->_select
-        	         ->columns(array_merge($articulo, array('precio_venta_final' => new Expression("sa.precio_venta * 1.04"))));
+        	         ->columns(array_merge($articulo, array('precio_venta_final' => $precio_venta_final, 'precio_minimo' => $precio_minimo)));
         	    break;
         	default:   // Defecto: Efectivo
+        	    $precio_minimo = new Expression("sa.precio_venta * (100 - sa.descuento_maximo) / 100");
+        	    
         	    $this->_select
-        	         ->columns(array_merge($articulo, array('precio_venta_final' => 'precio_venta')));
+        	         ->columns(array_merge($articulo, array('precio_venta_final' => 'precio_venta', 'precio_minimo' => $precio_minimo)));
         	    break;
         }
     }
