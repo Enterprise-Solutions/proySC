@@ -5,6 +5,7 @@ namespace Fact\Egreso\Service;
 use EnterpriseSolutions\Exceptions\Thrower;
 use Doctrine\ORM\EntityManager;
 use Stock\Articulo\Articulo;
+use Cont\Moneda\Moneda;
 
 class ValidarDetalle
 {
@@ -37,6 +38,12 @@ class ValidarDetalle
      * @var boolean
      */
     protected $status;
+    
+    /**
+     * Moneda utilizada
+     * @var Moneda
+     */
+    protected $moneda;
     
     public function __construct($em)
     {
@@ -121,32 +128,95 @@ class ValidarDetalle
         
         if (!isset($this->data['precio_unit'])) {
             $this->status = false;
-            $this->errorMessages[] = 'No se especifico el precio del producto';
+            $this->errorMessages[] = 'No se especifico el precio de venta del producto';
             return;
         }
         
-        if ($this->data['precio_unit'] != $this->articulo->getPrecioVenta()) {
+        $this->moneda = $this->em->find('Cont\Moneda\Moneda', $this->data['cont_moneda_id']);
+        
+        if (!$this->rangoPermitido()) {
             $this->status = false;
-            $this->errorMessages[] = 'El precio de venta no coincide con el establecido para el articulo';
+            $this->errorMessages[] = 'El precio de venta no se encuentra en el rango permitido';
             return;
         }
-        
-        $moneda = $this->em->find('Cont\Moneda\Moneda', $this->data['cont_moneda_id']);
         
         if ($this->data['precio_unit'] <= 0) {
             $this->status = false;
-            $this->errorMessages[] = 'El precio unitario debe ser mayor a 0 (cero)';
+            $this->errorMessages[] = 'El precio de venta debe ser mayor a 0 (cero)';
         }
         
-        if (is_float($this->data['precio_unit']) && !$moneda->permiteDecimales()) {
+        if (is_float($this->data['precio_unit']) && !$this->moneda->permiteDecimales()) {
             $this->status = false;
             $this->errorMessages[] = 'La moneda seleccionada no permite valores decimales';
         }
         
-        if ($this->cantidadDecimales() > $moneda->getCantidadDecimales()) {
+        if ($this->cantidadDecimales() > $this->moneda->getCantidadDecimales()) {
             $this->status = false;
             $this->errorMessages[] = 'El costo sobrepasa la cantidad de decimales permitidos';
         }
+    }
+    
+    /**
+     * Rango permitido para un precio
+     * @return boolean
+     */
+    protected function rangoPermitido()
+    {
+        $precio_min = $this->getPrecioUnitMinimo();
+        $precio_max = $this->getPrecioUnitMaximo();
+        
+        if ($this->data['precio_unit'] >= $precio_min && $this->data['precio_unit'] <= $precio_max) {
+            return true;
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Precio Minimo del Producto (con interes calculado)
+     * Redondea siempre para arriba
+     * @return number
+     */
+    protected function getPrecioUnitMinimo()
+    {
+        $interes     = $this->getInteresPorFormaDePago();
+        $descuento   = $this->articulo->getPrecioVenta() * ($this->articulo->getDescuentoMaximo() / 100.0);
+        $precio_unit = ($this->articulo->getPrecioVenta() - $descuento) * $interes;
+        return round($precio_unit, $this->moneda->getCantidadDecimales());
+    }
+    
+    /**
+     * Precio Maximo del Producto (con interes calculado)
+     * Redondea siempre para arriba
+     * @return number
+     */
+    protected function getPrecioUnitMaximo()
+    {
+        $interes     = $this->getInteresPorFormaDePago();
+        $precio_unit = $this->articulo->getPrecioVenta() * $interes;
+        return round($precio_unit, $this->moneda->getCantidadDecimales());
+    }
+    
+    /**
+     * Interes dependiendo de la forma de pago
+     * @return number
+     */
+    protected function getInteresPorFormaDePago()
+    {
+        $interes = 1.00;
+        switch ($this->data['medio_de_pago']) {
+        	case 'D':
+        	    $interes = 1.04;
+        	    break;
+        	case 'C':
+        	    $interes = 1.08;
+        	    break;
+        	default:
+        	    $interes = 1.00;
+        	    break;
+        }
+        
+        return $interes;
     }
     
     /**
@@ -197,9 +267,8 @@ class ValidarDetalle
         }
         
         $successResult = array(
-            'articulo'           => $this->articulo->getNombre(),
-            'precio_venta_final' => $this->articulo->getPrecioVentaFinal($this->data['medio_de_pago']),
-            'exitoso'            => true,
+            'articulo' => $this->articulo->getNombre(),
+            'exitoso'  => true,
         );
         
         return array_merge($this->data, $successResult);
