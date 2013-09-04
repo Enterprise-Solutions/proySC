@@ -97,6 +97,14 @@ class DataSource
     	return $cambios;
     }
     
+    public function borrar($tabla,$pkName,$datos,$conn)
+    {
+    	$pkValue = $datos[$pkName];
+    	$sql = "delete from $tabla where $pkName = $pkValue";
+    	$conn->query($sql,Adapter::QUERY_MODE_EXECUTE);
+    	return $this->_cambios->generarCambiosDeBorrado($datos);
+    }
+    
     /**
     * @return Adapter
     */

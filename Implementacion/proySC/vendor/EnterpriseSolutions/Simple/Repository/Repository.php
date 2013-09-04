@@ -28,6 +28,11 @@ class Repository
         return $this->_ds->insertar($tabla, $pk, $cambios,$conn);
     }
     
+    public function borrar($datos,$tabla,$pk)
+    {
+    	$conn = $this->_ds->_getDbConnection();
+    	return $this->_ds->borrar($tabla, $pk, $datos, $conn);
+    }
     
     /*public $_conn;
     public function __construct($conn = null)

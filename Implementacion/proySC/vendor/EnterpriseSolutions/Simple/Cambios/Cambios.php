@@ -17,6 +17,22 @@ class Cambios
         return $deltas;
     }
     
+    public function generarCambiosDeBorrado($datos)
+    {
+    	$keys = array_keys($datos);
+    	$cambios = array_map(
+    		function($key) use($datos){
+    			return array(
+    				'valorNuevo' => '',
+    				'valorViejo' => $datos[$key],
+    				'key' => $key
+    			);
+    		}, 
+    		$keys
+    	);
+    	return $cambios;		
+    }
+    
     public function getCamposCambiados($cambios)
     {
     	$cambios = array_filter(

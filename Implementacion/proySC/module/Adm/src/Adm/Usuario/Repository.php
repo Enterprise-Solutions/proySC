@@ -59,4 +59,16 @@ class Repository extends EsRepository
 		}
 		return $requisitos;
 	}
+	
+	public function findAdmUsuarios($admUsuarioIds)
+	{
+		$dbAdapter = $this->_ds->_getDbConnection();
+		$select = new SelectDeUsuario($dbAdapter);
+		$select->addSearchByAdmUsuarioIds($admUsuarioIds);
+		$rs = $select->execute()->toArray();
+		if(count($rs) <= 0){
+			return false;
+		}
+		return $rs;
+	}
 }
