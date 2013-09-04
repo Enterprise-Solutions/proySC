@@ -8,6 +8,7 @@ use Adm\Usuario\Service\PersonasDisponibles\Select as SelectDePersonasDisponible
 use EnterpriseSolutions\Simple\Repository\DataSource;
 use EnterpriseSolutions\Simple\Service\Service as EsService;
 use Adm\Usuario\Service\Creacion;
+use Adm\Usuario\Service\Edicion;
 use Adm\Usuario\Repository;
 use EnterpriseSolutions\Db\Dao\Get as GetDao;
 class UsuarioController extends BaseController
@@ -45,6 +46,22 @@ class UsuarioController extends BaseController
 		$params = $this->SubmitParams()->getParam('post');
 		$service = function($params) use($creacion){
 			return $creacion->ejecutar($params);
+		};
+		$esService = new EsService();
+		$transaccion = $esService->transaccional($service,$ds);
+		$respuesta = $transaccion($params);
+		return $this->_returnAsJson($respuesta);
+	}
+	
+	public function putAction()
+	{
+		$adapter = $this->getServiceLocator()->get('Zend\Db\Adapter\Adapter');
+		$ds = new DataSource($adapter);
+		$repository = new Repository($ds);
+		$edicion = new Edicion($repository);
+		$params = $this->SubmitParams()->getParam('put');
+		$service = function($params) use($edicion){
+			return $edicion->ejecutar($params);
 		};
 		$esService = new EsService();
 		$transaccion = $esService->transaccional($service,$ds);

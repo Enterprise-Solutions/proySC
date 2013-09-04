@@ -17,6 +17,24 @@ class Cambios
         return $deltas;
     }
     
+    public function getCamposCambiados($cambios)
+    {
+    	$cambios = array_filter(
+    		$cambios,
+    		function($cambio){
+    			if($cambio['valorNuevo'] != $cambio['valorViejo']){
+    				return true;
+    			}
+    			return false;
+    	});
+    	return array_map(
+    		function($cambio){
+    			return $cambio['key'];
+    		}, 
+    		$cambios
+    	);
+    }
+    
     public function getValorViejo($cambios,$key)
     {
         return $this->_getValor($cambios, $key, 'valorViejo');
