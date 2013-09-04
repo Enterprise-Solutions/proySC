@@ -9,6 +9,7 @@ use EnterpriseSolutions\Simple\Repository\DataSource;
 use EnterpriseSolutions\Simple\Service\Service as EsService;
 use Adm\Usuario\Service\Creacion;
 use Adm\Usuario\Repository;
+use EnterpriseSolutions\Db\Dao\Get as GetDao;
 class UsuarioController extends BaseController
 {
 	public function indexAction()
@@ -25,6 +26,14 @@ class UsuarioController extends BaseController
 		$dao = new Dao($select);
 		$template = $this->_crearTemplateParaListado();
 		return $template($dao,array(),array());
+	}
+	
+	public function getAction()
+	{
+		$select = new SelectDeUsuarios($this->getServiceLocator()->get('Zend\Db\Adapter\Adapter'));
+		$dao = new GetDao($select);
+		$template = $this->_crearTemplateParaGet('adm_usuario_id');
+		return $template($dao,array());
 	}
 	
 	public function postAction()

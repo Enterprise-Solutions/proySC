@@ -4,9 +4,11 @@ namespace EnterpriseSolutions\Db\Dao;
 
 class Dto {
 	public $_params = array();
-	public function __construct($params = array())
+	public $_id = 'id';
+	public function __construct($params = array(),$id = 'id')
 	{
 		$this->_params = $params;
+		$this->_id = $id;
 	}
 	
 	public function getOffset()
@@ -43,8 +45,9 @@ class Dto {
 	
 	public function getId()
 	{
-		if(isset($this->_params['id'])){
-			return $this->_params['id'];
+		$id = $this->_id;
+		if(isset($this->_params[$id])){
+			return $this->_params[$id];
 		}
 		return false;
 	}
