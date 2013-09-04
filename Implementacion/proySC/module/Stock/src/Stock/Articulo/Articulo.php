@@ -229,6 +229,11 @@ class Articulo
         return $this->precio_venta;
     }
     
+    public function getDescuentoMaximo()
+    {
+        return $this->descuento_maximo;
+    }
+    
     public function addExistencia()
     {
         $this->existencia++;
