@@ -79,7 +79,8 @@ class Select extends DbSelect
         $articulo = array('stock_articulo_id', 'nombre', 'codigo', 'precio_venta', 'existencia', 'rcap', 'porcentaje_impuesto');
         switch ($medio) {
         	case 'E':  // Efectivo
-        	    $precio_minimo = new Expression("sa.precio_venta * (100 - sa.descuento_maximo) / 100");
+        	    $calculo_precio_minimo = "sa.precio_venta * (100 - sa.descuento_maximo) / 100";
+        	    $precio_minimo = new Expression("CASE WHEN cm.permite_decimal = 'S' THEN round(CAST($calculo_precio_minimo AS numeric), cm.cnt_decimales::integer) ELSE round(CAST($calculo_precio_minimo AS numeric), 0::integer) END");
         	    
         	    $this->_select
         	         ->columns(array_merge($articulo, array('precio_venta_final' => 'precio_venta', 'precio_minimo' => $precio_minimo)));
@@ -87,7 +88,8 @@ class Select extends DbSelect
         	case 'C':  // Credito
         	    $interes = 1.08;
         	    $precio_venta_final = new Expression("sa.precio_venta * $interes");
-        	    $precio_minimo      = new Expression("sa.precio_venta * (100 - sa.descuento_maximo) * $interes / 100");
+        	    $calculo_precio_minimo = "sa.precio_venta * (100 - sa.descuento_maximo) * $interes / 100";
+        	    $precio_minimo = new Expression("CASE WHEN cm.permite_decimal = 'S' THEN round(CAST($calculo_precio_minimo AS numeric), cm.cnt_decimales::integer) ELSE round(CAST($calculo_precio_minimo AS numeric), 0::integer) END");
         	    
         	    $this->_select
         	         ->columns(array_merge($articulo, array('precio_venta_final' => $precio_venta_final, 'precio_minimo' => $precio_minimo)));
@@ -95,13 +97,15 @@ class Select extends DbSelect
         	case 'D':  // Debito
         	    $interes = 1.04;
         	    $precio_venta_final = new Expression("sa.precio_venta * $interes");
-        	    $precio_minimo      = new Expression("sa.precio_venta * (100 - sa.descuento_maximo) * $interes / 100");
+        	    $calculo_precio_minimo = "sa.precio_venta * (100 - sa.descuento_maximo) * $interes / 100";
+        	    $precio_minimo = new Expression("CASE WHEN cm.permite_decimal = 'S' THEN round(CAST($calculo_precio_minimo AS numeric), cm.cnt_decimales::integer) ELSE round(CAST($calculo_precio_minimo AS numeric), 0::integer) END");
         	    
         	    $this->_select
         	         ->columns(array_merge($articulo, array('precio_venta_final' => $precio_venta_final, 'precio_minimo' => $precio_minimo)));
         	    break;
         	default:   // Defecto: Efectivo
-        	    $precio_minimo = new Expression("sa.precio_venta * (100 - sa.descuento_maximo) / 100");
+        	    $calculo_precio_minimo = "sa.precio_venta * (100 - sa.descuento_maximo) / 100";
+        	    $precio_minimo = new Expression("CASE WHEN cm.permite_decimal = 'S' THEN round(CAST($calculo_precio_minimo AS numeric), cm.cnt_decimales::integer) ELSE round(CAST($calculo_precio_minimo AS numeric), 0::integer) END");
         	    
         	    $this->_select
         	         ->columns(array_merge($articulo, array('precio_venta_final' => 'precio_venta', 'precio_minimo' => $precio_minimo)));
