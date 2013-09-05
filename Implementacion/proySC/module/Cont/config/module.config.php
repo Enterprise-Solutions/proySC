@@ -35,8 +35,8 @@ return array(
     ),
     'controllers' => array(
         'invokables' => array(
-            'Cont\Controller\Moneda' => 'Cont\Controller\MonedaController',
-            'Cont\Controller\MonedaConversion'   => 'Cont\Controller\MonedaConversionController',
+            'Cont\Controller\Moneda'           => 'Cont\Controller\MonedaController',
+            'Cont\Controller\MonedaConversion' => 'Cont\Controller\MonedaConversionController',
         ),
     ),
     'view_manager' => array(
@@ -49,7 +49,7 @@ return array(
             __NAMESPACE__ . '_driver' => array(
                 'class' => 'Doctrine\ORM\Mapping\Driver\AnnotationDriver',
                 'cache' => 'array',
-                'paths' => array(__DIR__ . '/../src/' . __NAMESPACE__ . '/Entity'),
+                'paths' => array(__DIR__ . '/../src/' . __NAMESPACE__),
             ),
             'orm_default' => array(
                 'drivers' => array(
