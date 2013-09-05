@@ -38,4 +38,10 @@ class DirBarrioSelect extends EsSelect
 			( db.nombre ~* '$barrio' or dc.nombre ~* '$barrio' or dp.nombre ~* '$barrio' )		
 	    ");
 	}
+	
+	public function addSearchByDirBarrioId($dirBarrioId)
+	{
+		$this->_select
+			 ->where("db.dir_barrio_id = $dirBarrioId");
+	}
 }
