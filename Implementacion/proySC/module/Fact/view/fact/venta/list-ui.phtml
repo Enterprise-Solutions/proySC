@@ -12,6 +12,132 @@ function hideBloque()
 
 var mainStore = factEgresoStore;
 
+
+var formularioEditarEgreso = function(data)
+{
+	return {
+		xtype: 'form',
+		title: 'Anular Egreso',
+		cls: 'ladoDerecho',
+		bodyCssClass: 'formularioGeneral',
+		layout: 'form',
+		autoHeight: true,
+		defaults:{xtype: 'displayfield'},
+		items:[
+		       {
+			       xtype: 'hidden',
+			       name: 'fact_egreso_id',
+			       value: data.fact_egreso_id
+		       },
+		       {
+			       fieldLabel: 'Nro. Egreso',
+			       name: 'doc_nro',
+			       width: 150,
+			       value: data.doc_nro
+		       },
+		       {
+			       fieldLabel: 'Fecha',
+			       name: 'doc_fecha',
+			       width: 150,
+			       value: data.doc_fecha
+		       },
+		       {
+			       fieldLabel: 'Total',
+			       name: 'total_egreso',
+			       width: 150,
+			       value: data.total_egreso
+		       },
+		       {
+			       fieldLabel: 'Moneda',
+			       name: 'moneda_simbolo',
+			       width: 150,
+			       value: data.moneda_simbolo
+		       },
+		       {
+			       xtype: 'container',
+			       layout: 'column',
+			       defaults:{style: {margin: '5px'}},
+			       items:[
+							{
+							    xtype: 'button',
+							    text: 'Anular',
+							    handler: function(b,e){
+								       //verificar si esta todo ok
+								       var mainForm = b.ownerCt.ownerCt;
+								       basicForm = mainForm.getForm();
+								       
+								       	var valores = basicForm.getFieldValues();
+									       
+									    	var myId = valores.fact_egreso_id;
+									    	
+									    	Ext.Msg.confirm('Anular','Desea anular la factura de venta?', function(boton){
+									    		
+									    		if(boton == 'yes')
+									    		{
+									    			 Ajax.PostElement.request({
+												   		url: baseURL + '/fact/venta/put',
+												   		success: function(response, opt){
+												      		 mainStore.reload();
+												      		 hideBloque();
+												   		},
+												   		jsonData:{
+												       		'put': {fact_egreso_id: myId,
+												       				estado: 'A'}
+												   		}
+											   });   
+									    		}
+									    	});
+									    	
+									    	
+									      
+								   }
+							},
+							{
+								xtype: 'button',
+								text: 'Cancelar',
+								handler: function(b,e){
+									var mainForm = b.ownerCt.ownerCt;
+							        var padre = mainForm.ownerCt;
+							        padre.remove(mainForm);
+								}
+							}
+				   ]
+		       }
+		],
+		listeners:{
+			'render':function(){
+				hideBloque();
+			}
+		}
+	};
+};
+
+function verEgreso(fact_egreso_id)
+{
+	location.href = baseURL + '/fact/venta/get-ui#' + fact_egreso_id;
+};
+
+
+var editarEgreso = function(fact_egreso_id)//aca cargamos el formulario para anular
+{
+	//obtenemos registro
+	var registro = mainStore.getById(fact_egreso_id);
+	
+	if(!registro)
+		return;
+		
+	//buscamos destino
+	var destino = Ext.getCmp('formContainer');
+	if(destino)
+	{
+		destino.removeAll();
+		var addedEl = destino.add(formularioEditarEgreso(registro.data));
+		destino.doLayout();
+		addedEl.body.highlight();
+	}
+};
+
+
 viewContainer.bodyPanel = [{
 	layout: 'fit',
 	xtype: 'container',
@@ -216,10 +342,12 @@ viewContainer.bodyPanel = [{
 														{ header: "Total", dataIndex: 'total_egreso',  width: 65},
 														{ header: "Moneda", dataIndex: 'moneda_simbolo',  width: 65},
 														{ header: "Ver", dataIndex: null,  width: 32, align: 'center', renderer: function(v,meta,record){
-															return '<div class="viewIcon" onclick="verMoneda(' + record.data.cont_moneda_id + ')"></div>';
+															return '<div class="viewIcon" onclick="verEgreso(' + record.data.fact_egreso_id + ')"></div>';
 														}},
 														{ header: "Editar", dataIndex: null,  width: 32, align: 'center', renderer: function(v,meta,record){
-															return '<div class="editIcon" onclick="editarMoneda(' + record.data.cont_moneda_id + ')"></div>';
+															if(record.data.doc_nro && record.data.estado != 'A')//solo puedo anular si tiene nro de doc y si NO esta anulado
+																return '<div class="editIcon" onclick="editarEgreso(' + record.data.fact_egreso_id + ')"></div>';
+															else return '';
 														}}
 														])
 				           						}

@@ -15,5 +15,5 @@ var stockArticuloStore = new Ext.data.JsonStore({
 	idProperty: 'stock_articulo_id',
 	fields: ['stock_articulo_id',{name: 'mostrar', convert:function(v,data){
 		return data.nombre + ' / ' + data.codigo;
-	}},'rcap','categoria','codigo','existencia','marca','precio_venta_final','porcentaje_impuesto','nombre','precio_venta','moneda','simbolo']
+	}},'rcap','categoria','codigo','existencia','precio_minimo','marca','precio_venta_final','porcentaje_impuesto','nombre','precio_venta','moneda','simbolo']
 });

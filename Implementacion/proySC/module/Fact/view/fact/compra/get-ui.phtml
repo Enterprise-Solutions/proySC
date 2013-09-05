@@ -2,34 +2,22 @@
 <script type="text/javascript" src="<?=$this->basePath();?>/js/stores/factCompraDetalleStore.js"></script>
 <script type="text/javascript" src="<?=$this->basePath();?>/js/stores/genericoProductoStore.js"></script>
 <script type="text/javascript" src="<?=$this->basePath();?>/js/stores/genericoSiNoStore.js"></script>
-<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/stockImpuestoStore.js"></script>
-<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/orgRolesDePartesProveedorStore.js"></script>
-<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/orgParteTipoStore.js"></script>
-<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/orgParteStore.js"></script>
 
 <script type="text/javascript" src="<?=$this->basePath();?>/js/stores/stockEstadoFacturaStore.js"></script>
 <script type="text/javascript" src="<?=$this->basePath();?>/js/stores/stockEstadoStore.js"></script>
 <script type="text/javascript" src="<?=$this->basePath();?>/js/stores/stockArticuloStore.js"></script>
 <!-- despues lo demas -->
-<script type="text/javascript" src="<?=$this->basePath();?>/js/common/ventanaModal.js"></script>
-<script type="text/javascript" src="<?=$this->basePath();?>/js/forms/formularioEmpresa.js"></script>
-<script type="text/javascript" src="<?=$this->basePath();?>/js/forms/formularioPersona.js"></script>
-<script type="text/javascript" src="<?=$this->basePath();?>/js/forms/orgParteProveedor.js"></script>
 <script type="text/javascript" src="<?=$this->basePath();?>/js/common/hideBloque.js"></script>
 <script type="text/javascript">
 
 var mainStore = factCompraDetalleStore;
 
-mainStore.on('remove', function(thisStore, record, index){
-	console.log('remove', thisStore, record, index);
-});
 
 var monedaDecimales = false;
 var cantDecimalesMoneda = -1;
 
 guardarCompraHandlerCallback = function(options, success, response)
 {
-	console.log(options, success, response);
 	
 	var formulario = Ext.getCmp('mainForm');
 	if(formulario)
@@ -52,7 +40,6 @@ guardarCompraHandler = function(b,e)
 		//obtenemos los datos
 		var valores = basicForm.getFieldValues();
 		
-		console.log('valores',valores);
 		
 		if(!basicForm.isValid())
 		{
@@ -63,12 +50,10 @@ guardarCompraHandler = function(b,e)
 		//obtenemos los datos
 		var valores = basicForm.getFieldValues();
 		
-		console.log('valores',valores);
 		
 		//verificamos que hayan registros
 		var records = mainStore.getRange();
 		
-		console.log('records',records, formatearFecha(valores.fecha, 1));
 		
 		if(records.length == 0)
 		{
@@ -102,9 +87,6 @@ guardarCompraHandler = function(b,e)
 			}
 		};
 		
-		
-		console.log('datos',datos);
-		
 		Ajax.PostElement.request({
 				url: baseURL + '/fact/compra/post',
 				callback: guardarCompraHandlerCallback,
@@ -120,7 +102,6 @@ agregarArticuloCompraCallback = function(options, success, response)
 	var grilla = Ext.getCmp('mainGrid');
 	var bloque = Ext.getCmp('bloqueArticulo');
 	
-	console.log('agregarArticuloCompraCallback',options, success, response);
 	if(success)
 	{
 		//var datos = Ext.decode(response.responseText);
@@ -128,10 +109,9 @@ agregarArticuloCompraCallback = function(options, success, response)
 		
 		if(respuesta.exitoso)//se valido insercion
 		{
-			console.log('resp',respuesta);
 			//creamos registro en el main store
 			var nuevoRegistro = new mainStore.recordType(respuesta, respuesta.stock_articulo_id);
-			console.log('nuevoRegistro',nuevoRegistro);
+			
 			mainStore.insert(0, nuevoRegistro);
 			//una vez insertado tenemos que actualizar nuestro campos de calculos de iva y demas
 			
@@ -140,12 +120,10 @@ agregarArticuloCompraCallback = function(options, success, response)
 			{
 				var basicForm = formulario.getForm();
 				
-				console.log('basicForm',basicForm);
 				
 				//definimos el total
 				var totalAdd = nuevoRegistro.data.cantidad * nuevoRegistro.data.costo_unit; //se suma al total
 				
-				console.log('totalAdd',totalAdd);
 				
 				var sumarIVA;
 				if(nuevoRegistro.data.porc_impuesto == 10)
@@ -174,7 +152,7 @@ agregarArticuloCompraCallback = function(options, success, response)
 				var total = basicForm.findField('valor_total_trans_display');
 				if(total)
 				{
-					console.log(total);
+					
 					total.setValue(total.getValue() + totalAdd);
 				}
 				
@@ -283,7 +261,6 @@ agregarArticuloCompra = function(b, e)
 			
 			var valores = basicForm.getFieldValues();
 			
-			console.log('valores',valores);
 			
 			//verificamos que ese articulo no este en la grilla
 			var id = valores.stock_articulo_id_codigo;
@@ -345,7 +322,7 @@ verDetallesProveedor = function(b,e)
 			//mi store es orgRolParteStore
 			//obtenemos record
 			var registro = orgRolParteStore.getById(valores.org_parte_id_buscar);
-			console.log(registro);
+			
 		}
 		else
 			Ext.Msg.alert('Aviso','Debe seleccionar un proveedor');
@@ -356,7 +333,7 @@ verDetallesProveedor = function(b,e)
 
 agregarArticuloHandlerCallback = function(success, rawData)
 {
-	console.log('success, rawData',success, rawData);
+	
 	if(success)
 	{
 		var bloque = Ext.getCmp('bloqueArticulo');
@@ -374,7 +351,7 @@ agregarArticuloHandlerCallback = function(success, rawData)
 			},
 			callback: function(records, options, success)
 			{
-				console.log('records',records);
+				
 				if(records.length == 0)
 				{
 					Ext.Msg.alert('Aviso','No se encontro registro. Intentelo de nuevo');
@@ -388,19 +365,19 @@ agregarArticuloHandlerCallback = function(success, rawData)
 					var formulario = Ext.getCmp('mainForm');
 					if(formulario)
 					{
-						console.log('inside main form y record', record);
+						
 						//seteamos en el form
 						var basicForm = formulario.getForm();
 						//obtener campo1 y setear valor
 						var campo1 = basicForm.findField('stock_articulo_id_codigo');
-						console.log('campo1',campo1);
+						
 						if(campo1)
 						{
 							campo1.setValue(record.data.stock_articulo_id);
 						}
 						
 						var campo2 = basicForm.findField('stock_articulo_id_rcap');
-						console.log('campo2',campo2);
+						
 						if(campo2)
 						{
 							campo2.setValue(record.data.stock_articulo_id);
@@ -467,7 +444,6 @@ verDetallesArticuloHandlerCallback = function(success, rawData)
 		
 		stockArticuloStore.reload({
 			callback: function(records, options, success){
-				console.log('cb view', records, options, success);
 				
 				
 				if(records.length == 0)
@@ -479,37 +455,35 @@ verDetallesArticuloHandlerCallback = function(success, rawData)
 				
 				var record = records[0];
 				
-				console.log('record en view',record);
 				
 				if(success)
 				{
 					var formulario = Ext.getCmp('mainForm');
 					if(formulario)
 					{
-						console.log('inside main form');
+						
 						//seteamos en el form
 						var basicForm = formulario.getForm();
 						
-						console.log('basicForm',basicForm);
 						
 						//obtener campo1 y setear valor
 						var campo1 = basicForm.findField('stock_articulo_id_codigo');
-						console.log('campo1',campo1);
+						
 						if(campo1)
 						{
 							campo1.setValue(record.data.stock_articulo_id);
 						}
 						
 						var campo2 = basicForm.findField('stock_articulo_id_rcap');
-						console.log('campo2',campo2);
+						
 						if(campo2)
 						{
-							console.log('in');
+							
 							campo2.setValue(record.data.stock_articulo_id, campo2.getStore());
 						}
 						
 						var iva = basicForm.findField('porcentaje_impuesto');
-						console.log('iva', iva);
+						
 						if(iva)
 						{
 							
@@ -662,7 +636,7 @@ viewContainer.bodyPanel = [{
 				       	       											{
 				       	       												xtype: 'textfield',
 				       	       												width: 150,
-				       	       												disabled: true,
+				       	       												readOnly: true,
 				       	       												allowBlank: false,
 				       	       												name: 'doc_nro',
 				       	       												fieldLabel: 'Factura Nro.'
@@ -706,35 +680,35 @@ viewContainer.bodyPanel = [{
 			       															fieldLabel: 'Tipo Operacion',
 			        														xtype: 'textfield',
 			        														value: 'Compra',
-			        														disabled: true
+			        														readOnly: true
 		       															},
 		       															{
 			       															fieldLabel: 'Estado',
 			       															name: 'estado',
 			       															width: 90,
 			        														xtype: 'textfield',
-			        														disabled: true
+			        														readOnly: true
 		       															},
 		       															{
 			       															fieldLabel: 'Fecha',
 			       															name: 'doc_fecha',
 			       															width: 90,
 			        														xtype: 'textfield',
-			        														disabled: true
+			        														readOnly: true
 		       															},
 		       															{
 			       															fieldLabel: 'Fecha Venc.',
-			       															name: 'doc_fecha',
+			       															name: 'fecha_vencimiento',
 			       															width: 90,
 			        														xtype: 'textfield',
-			        														disabled: true
+			        														readOnly: true
 		       															},
 		       															{
 			       															fieldLabel: 'Moneda',
-			       															name: 'simbolo',
+			       															name: 'moneda_simbolo',
 			       															width: 90,
 			        														xtype: 'textfield',
-			        														disabled: true
+			        														readOnly: true
 		       															}
 				       	       									]
 				       	       								},
@@ -751,100 +725,25 @@ viewContainer.bodyPanel = [{
 				       	       												value: 'Proveedor'
 				       	       											},
 				       	       											{
-				       	       												xtype: 'combo',
-																			fieldLabel: 'RUC / Nombre',
-																			cls: 'searchIcon',
-																			hideTrigger: true,
-																			width: 210,
-																			allowBlank: false,
-																			minChars: 2,
-																			cls: 'searchIcon',
-																			displayField: 'mostrar',
-																			valueField: 'org_parte_rol_id',
-																			forceSelection: true,
-																			mode: 'remote',
-																			triggerAction: 'all',
-																			listWidth: 350,
-																			queryDelay: 1000,
-																			queryParam: 's[nombre]',
-																			store: orgRolParteStore,
-																			hiddenName: 'org_parte_id_buscar',
-																			listeners:{
-																				'select':function(thisField, record, index)
-																				{
-																					
-																					//si selecciono algo tengo que poner en los campos dependientes
-																					//busco ambos campos
-																					var padre = thisField.ownerCt;
-																					var displayNombre = padre.find('name','displayNombre');
-																					var displayDocumento = padre.find('name','displayDocumento');
-																					
-																					console.log(displayNombre,displayDocumento,record.data)
-																					
-																					if(displayNombre.length>0)
-																					{
-																						displayNombre = displayNombre[0];
-																						
-																						displayNombre.setValue(record.data.mostrarNombre);
-																					}
-																					
-																					if(displayDocumento.length>0)
-																					{
-																						displayDocumento = displayDocumento[0];
-																						displayDocumento.setValue(record.data.mostrarDocumentos);
-																					}
-																					
-																					
-																				},
-																				'change':function(thisField, newValue, oldValue)
-																				{
-																					if(!newValue)
-																					{
-																						var padre = thisField.ownerCt;
-																						var displayNombre = padre.find('name','displayNombre');
-																						var displayDocumento = padre.find('name','displayDocumento');
-																					
-																						if(displayNombre.length>0)
-																						{
-																							displayNombre = displayNombre[0];
-																							displayNombre.setValue(null);
-																						}
-																					
-																						if(displayDocumento.length>0)
-																						{
-																							displayDocumento = displayDocumento[0];
-																							displayDocumento.setValue(null);
-																						}
-																					}
-																				}
-																			}
-																			
+				       	       												xtype: 'textfield',
+				       	       												width: 180,
+				       	       												fieldLabel: 'Nombre',
+				       	       												name: 'displayNombre',
+				       	       												readOnly: true
 				       	       											},
 				       	       											{
 				       	       												xtype: 'textfield',
 				       	       												width: 180,
 				       	       												fieldLabel: 'Documento',
 				       	       												name: 'displayDocumento',
-				       	       												disabled: true
+				       	       												readOnly: true
 				       	       											},
 				       	       											{
 				       	       												xtype: 'textfield',
-				       	       												fieldLabel: 'Nombre o Raz. Social',
-				       	       												name: 'displayNombre',
+				       	       												fieldLabel: 'Tipo',
+				       	       												name: 'displayTipo',
 				       	       												width: 180,
-				       	       												disabled: true
-				       	       											},
-				       	       											{
-				       	       												xtype: 'container',
-				       	       												layout: 'column',
-				       	       												defaults:{style:{margin: '0 5px'}},
-				       	       												items:[
-				       	       														{
-				       	       															xtype: 'button',
-				       	       															handler: verDetallesProveedor,
-				       	       															text: 'Ver Detalles'
-				       	       														}
-				       	       												]
+				       	       												readOnly: true
 				       	       											}
 				       	       									]
 				       	       								}
@@ -874,7 +773,7 @@ viewContainer.bodyPanel = [{
 				       	       											},
 				       	       											{
 				       	       												xtype: 'container',
-				       	       												defaults:{xtype: 'numberfield', disabled: true},
+				       	       												defaults:{xtype: 'numberfield', readOnly: true},
 				       	       												layout: 'form',
 				       	       												items:[
 				       	       														{
@@ -884,7 +783,7 @@ viewContainer.bodyPanel = [{
 				       	       														},
 				       	       														{
 				       	       															fieldLabel: 'Moneda',
-				       	       															name: 'moneda_display',
+				       	       															name: 'moneda',
 				       	       															xtype: 'textfield'
 				       	       														},
 				       	       														{
@@ -1034,12 +933,11 @@ viewContainer.bodyPanel = [{
 			thisCmp.getEl().mask('Cargando .. ');
 			var ingresoId = location.hash.substr(1);
 			
-			console.log(ingresoId);
 			//cargando
 			Ajax.PostElement.request({
 				url: baseURL + '/fact/compra/get',
 				callback: function(options, success, response){
-					console.log(options, success, response);
+					
 					if(success)
 					{
 						//obtenemos form y cargamos los datos
@@ -1049,8 +947,6 @@ viewContainer.bodyPanel = [{
 						var detalles = respuesta.detalles;
 						
 						factCompraDetalleStore.loadData(detalles);
-						
-						console.log(factCompraDetalleStore);
 						
 						//seteamos valores en el formulario
 						var formulario = Ext.getCmp('mainForm');
@@ -1074,13 +970,33 @@ viewContainer.bodyPanel = [{
 							
 							var aux = basicForm.findField('total_impuesto');
 							aux.setValue(impuesto);
+
+							var nombre = '';
+							var documento = respuesta.proveedor.documento;
+							var tipo = respuesta.proveedor.tipo_documento;
+							//bloque proveedor
+							if(respuesta.proveedor.nombre_organizacion)//es empresa
+							{
+								nombre = respuesta.proveedor.nombre_organizacion;
+							}
+							else
+							{
+								nombre = respuesta.proveedor.apellido_persona + ', ' + respuesta.proveedor.nombre_persona;
+							}
+
+							
+							aux = basicForm.findField('displayNombre');
+							aux.setValue(nombre);
+							aux = basicForm.findField('displayDocumento');
+							aux.setValue(documento);
+							aux = basicForm.findField('displayTipo');
+							aux.setValue(tipo);
 							
 						}
 						
 						//sacamos mascara
 						var idForm = options.jsonData.formId;
 						
-						console.log(idForm);
 						
 						var f = Ext.getCmp(idForm);
 						if(f)

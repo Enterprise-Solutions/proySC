@@ -61,7 +61,40 @@ function formularioMoneda(isNew, data, isReadOnly)
 			       name: 'permite_decimal',
 			       checked: (isNew)?(false):((data.permite_decimal == 'S')?(true):(false)),
 			       disabled: isReadOnly,
-			       xtype: 'checkbox'
+			       xtype: 'checkbox',
+			       listeners:{
+						'check':function(thisCheckBox, checked)
+						{
+							var padre = thisCheckBox.ownerCt;
+							var campo = padre.find('name','cnt_decimales');
+							if(campo.length > 0)
+							{
+								if(checked)
+								{
+									campo[0].setReadOnly(false);
+									campo[0].setValue();
+								}
+								else
+								{
+									campo[0].setReadOnly(true);
+									campo[0].setValue(0);
+								}
+							}
+							
+						}
+				   }
+		       },
+		       {
+			       fieldLabel: 'Cant. Decimals',
+			       xtype: 'numberfield',
+			       name: 'cnt_decimales',
+			       width: 75,
+			       allowNegative: false,
+			       allowDecimals: false,
+			       readOnly: (isNew)?(true):((data.permite_decimal == 'S')?(false):(true)),
+			       value: (isNew)?(0):(data.cnt_decimales),
+	    		   disabled: isReadOnly,
+			       allowBlank: false
 		       },
 		       {
 			       xtype: 'container',
@@ -87,18 +120,18 @@ function formularioMoneda(isNew, data, isReadOnly)
 									    	   valores.permite_decimal = 'N';	
 									    	   
 									    	var myId = valores.cont_moneda_id;
-									    	delete valores.cont_moneda_id;       
+									    	     
 								
 									       if(myId)//si existe es edicion
 									       {
+									    	   
 									    	   Ajax.PostElement.request({
-												   url: baseURL + '/cont/moneda/editar',
+												   url: baseURL + '/cont/moneda/put',
 												   success: function(response, opt){
 												       mainStore.reload();
 												   },
 												   jsonData:{
 												       'put': valores,
-												       'id': myId,
 													   'formulario': mainForm.id
 												   }
 											   });
@@ -110,9 +143,8 @@ function formularioMoneda(isNew, data, isReadOnly)
 									    	   
 									    	   delete valores.cont_moneda_id;
 									    	   
-									    	   
 									    	   Ajax.PostElement.request({
-												   url: baseURL + '/cont/moneda/crear',
+												   url: baseURL + '/cont/moneda/post',
 												   success: function(response, opt){
 													   mainStore.reload();
 												   },
@@ -176,12 +208,12 @@ function borrarMoneda(id)
 		if(idButt == 'yes')
 		{
 			Ajax.PostElement.request({
-				url: baseURL + '/cont/moneda/borrar',
+				url: baseURL + '/cont/moneda/delete',
 				success: function(response, opt){
 					mainStore.reload();
 				},
 				jsonData:{
-					'id': id
+					'delete': [id]
 				}
 	 		});
 		}
@@ -222,7 +254,7 @@ var mainStore = new Ext.data.JsonStore({
 	},
 	autoLoad:true,
 	idProperty: 'cont_moneda_id',
-	fields: ['cont_moneda_id','nombre','nombre_plural','simbolo','descripcion','permite_decimal']
+	fields: ['cont_moneda_id','nombre','nombre_plural','simbolo','descripcion','permite_decimal','cnt_decimales']
 });
 
 

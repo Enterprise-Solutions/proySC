@@ -8,8 +8,110 @@ function hideBloque()
 	}	
 }
 
-function formularioEmpresa(isNew, id, nombre)
+function formularioEmpresa(isNew, id, data)
 {
+	console.log('isNew, id, data',isNew, id, data);
+	//recorremos documentos para agregar campos de ese tipo
+	
+	var bloqueDocumentos = [];
+	var tieneDoc = false;
+	
+	if(!isNew)
+	{
+		if(data.documentos.length > 0)
+		{
+			tieneDoc = true;
+			for(var x=0; x<data.documentos.length; x++)
+			{
+				bloqueDocumentos.push({
+					xtype: 'container',
+					layout: 'form',
+					items:[
+					        {
+						       xtype: 'hidden',
+						       name: 'org_documento_id',
+						       value: data.documentos[x].org_documento_id
+					        },
+							{
+								xtype: 'textfield',
+								name: 'valor',
+								allowBlank: false,
+								value: data.documentos[x].valor,
+								fieldLabel: 'Numero'
+							},
+							{
+								xtype: 'combo',
+								forceSelection: true,
+								mode: 'local',
+								typeAhead: true,
+								displayField: 'nombre',
+								valueField: 'org_documento_tipo_codigo',
+								store: orgDocumentoTipoStore,
+								allowBlank: false,
+								value: data.documentos[x].org_documento_tipo_codigo,
+								name: 'org_documento_tipo_codigo',
+								fieldLabel: 'Tipo'
+							}
+					]
+				});
+			}
+		}
+		else//no tiene doc
+		{
+			bloqueDocumentos.push({
+				xtype: 'container',
+				layout: 'form',
+				items:[
+						{
+							xtype: 'textfield',
+							name: 'valor',
+							allowBlank: false,
+							fieldLabel: 'Numero'
+						},
+						{
+							xtype: 'combo',
+							forceSelection: true,
+							mode: 'local',
+							typeAhead: true,
+							displayField: 'nombre',
+							valueField: 'org_documento_tipo_codigo',
+							store: orgDocumentoTipoStore,
+							allowBlank: false,
+							name: 'org_documento_tipo_codigo',
+							fieldLabel: 'Tipo'
+						}
+				]
+			});
+		}
+	}
+	else
+	{
+		bloqueDocumentos.push({
+			xtype: 'container',
+			layout: 'form',
+			items:[
+					{
+						xtype: 'textfield',
+						name: 'valor',
+						allowBlank: false,
+						fieldLabel: 'Numero'
+					},
+					{
+						xtype: 'combo',
+						forceSelection: true,
+						mode: 'local',
+						typeAhead: true,
+						displayField: 'nombre',
+						valueField: 'org_documento_tipo_codigo',
+						store: orgDocumentoTipoStore,
+						allowBlank: false,
+						name: 'org_documento_tipo_codigo',
+						fieldLabel: 'Tipo'
+					}
+			]
+		});
+	}
+	
 	return {
 		xtype: 'form',
 		title: (isNew)?('Crear Empresa'):('Editar Empresa'),
@@ -26,7 +128,7 @@ function formularioEmpresa(isNew, id, nombre)
 		       {
 			       fieldLabel: 'Nombre',
 			       name: 'nombre',
-			       value: nombre,
+			       value: (isNew)?(null):(data.nombre_organizacion),
 			       xtype: 'textfield',
 			       allowBlank: false
 		       },
@@ -34,26 +136,7 @@ function formularioEmpresa(isNew, id, nombre)
 		           xtype: 'fieldset',
 		           title: 'Documento',
 		           labelWidth: 75,
-		           items:[
-		           			{
-		           				xtype: 'textfield',
-		           				name: 'valor',
-		           				allowBlank: false,
-		           				fieldLabel: 'Numero'
-		           			},
-		           			{
-		           				xtype: 'combo',
-		           				forceSelection: true,
-		           				mode: 'local',
-		           				typeAhead: true,
-		           				displayField: 'nombre',
-		           				valueField: 'org_documento_tipo_codigo',
-		           				store: orgDocumentoTipoStore,
-		           				allowBlank: false,
-		           				name: 'org_documento_tipo_codigo',
-		           				fieldLabel: 'Tipo'
-		           			}
-		           ]
+		           items:bloqueDocumentos
 		       },	
 		       {
 			       xtype: 'container',
@@ -70,9 +153,36 @@ function formularioEmpresa(isNew, id, nombre)
 								       if(basicForm.isValid())
 								       {
 									       var valores = basicForm.getFieldValues();
+
+									       console.log(valores);
+									      
 							
 									       if(valores.org_parte_id)//si existe es edicion
 									       {
+										       var datosDocumentos = {};
+										       if(tieneDoc)
+										       {
+										    	 //si tiene doc , es edicion
+										    	   datosDocumentos.editados = [
+										    	       {
+										    	    	   org_documento_id: valores.org_documento_id,
+										    	    	   valor: valores.valor
+											    	   }
+												   ];
+										       }
+										       else
+										       {
+										    	 //si no tenia es agregado
+										    	   datosDocumentos.agregados = [
+										    	       {
+										    	    	   org_documento_tipo_codigo: valores.org_documento_tipo_codigo,
+										    	    	   valor: valores.valor
+											    	   }
+												   ];
+										       }
+											       
+											      
+											       
 									    	   Ajax.PostElement.request({
 												   url: baseURL + '/org/empresas/editar',
 												   success: function(response, opt){
@@ -81,7 +191,8 @@ function formularioEmpresa(isNew, id, nombre)
 												   jsonData:{
 												       'put':{
 														   'org_parte_id':valores.org_parte_id,
-														   'nombre': valores.nombre
+														   'nombre': valores.nombre,
+														   'Documentos':datosDocumentos
 													   },
 													   'formulario': mainForm.id
 												   }
@@ -269,7 +380,7 @@ function editarEmpresa(id)
 		if(destino)
 		{
 			destino.removeAll();
-			var addedEl = destino.add(formularioEmpresa(false, id, registro.data.nombre_organizacion));
+			var addedEl = destino.add(formularioEmpresa(false, id, registro.data));
 			destino.doLayout();
 			addedEl.body.highlight();
 		}
@@ -292,7 +403,7 @@ var mainStore = new Ext.data.JsonStore({
 	},
 	autoLoad:true,
 	idProperty: 'org_parte_id',
-	fields: ['org_parte_id','documentos','org_parte_tipo_codigo','nombre_organizacion','fecha_nacimiento','foto','org_parte_tipo_nombre']
+	fields: ['org_parte_id','documentos','Direcciones','contactos','org_parte_tipo_codigo','nombre_organizacion','fecha_nacimiento','foto','org_parte_tipo_nombre']
 });
 
 var orgDocumentoTipoStore = new Ext.data.JsonStore({

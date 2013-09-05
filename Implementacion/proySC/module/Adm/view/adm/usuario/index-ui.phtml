@@ -23,17 +23,13 @@ function formularioUsuario(isNew, data, isReadOnly)
 		autoHeight: true,
 		defaults:{xtype: ((isReadOnly)?('displayfield'):('textfield'))},
 		items:[
-		       {
-			       xtype: 'hidden',
-			       name: 'cont_moneda_id',
-			       value: (isNew)?(null):(data.cont_moneda_id)
-		       },
-		       {
+				(isNew)?({
+					//aca es creacion
 					xtype: 'combo',
 					fieldLabel: 'Nombre / Doc.',
 					cls: 'searchIcon',
 					hideTrigger: true,
-					width: 210,
+					width: 250,
 					allowBlank: false,
 					minChars: 2,
 					cls: 'searchIcon',
@@ -47,37 +43,111 @@ function formularioUsuario(isNew, data, isReadOnly)
 					queryParam: 's[nombre]',
 					store: admPersonasDisponiblesStore,
 					hiddenName: 'org_parte_id'
+		       }):((!isReadOnly)?(((
+	    		   {
+		    		   xtype: 'hidden',
+		    		   name: 'adm_usuario_id',
+		    		   value: data.adm_usuario_id
+	    		   }
+			       ))
+			       ):(
+					       //aca es visualizacion
+			    		   {
+			    		   }
+					 ))
+		       ,
+			    {
+		       		xtype: 'displayfield',
+		       		value: (isNew)?(null):(data.apellido + ', ' + data.nombre),
+		       		name: 'displayNombre',
+		       		fieldLabel: 'Nombre',
+	       			hidden: (isNew)?(true):(false)
+					//aca es edicion
 		       },
 		       {
-			       fieldLabel: 'Nombre Plural',
-			       name: 'nombre_plural',
+		    	   xtype: 'displayfield',
+		    	   value: (isNew)?(null):(data.documento_identidad),
+		       		name: 'displayDocumento',
+		       		fieldLabel: 'Documento',
+		       		hidden: (isNew)?(true):(false)
+		       },
+		       {
+		    	   xtype: 'radiogroup',
+			       name: 'estado',
+			       hidden: (isNew)?(true):((isReadOnly)?(true):(false)),
+			       disabled: (isNew)?(true):((isReadOnly)?(true):(false)),
+			       fieldLabel: 'Estado',
+			       columns: 2,
+			       items:[
+			              {inputValue: 'A', name: 'est', boxLabel: 'Activo',disabled: (isNew)?(true):((isReadOnly)?(true):(false)), checked: (isNew)?(false):((isReadOnly)?(false):((data.estado == 'A')?(true):(false)))},
+			              {inputValue: 'B', name: 'est', boxLabel: 'Bloqueado', disabled: (isNew)?(true):((isReadOnly)?(true):(false)), checked: (isNew)?(false):((isReadOnly)?(false):((data.estado == 'B')?(true):(false)))}
+					]
+		       },
+		       {
+			       xtype: 'checkbox',
+			       name: 'cambiar_contrasenha',
+			       hidden: (isNew)?(true):((isReadOnly)?(true):(false)),
+			       fieldLabel: 'Cambiar Contrase&ntilde;a',
+			       checked: false,
+			       listeners:{
+				        'check':function(thisCheckBox, checked){
+							if(checked)
+							{
+								//habilitar contrasenhas
+								var padre = thisCheckBox.ownerCt;
+								var campo = padre.find('name','contrasenha');
+								if(campo.length>0)
+								{
+									campo[0].setDisabled(false);
+								}
+
+								//habilitar contrasenhas
+								var campo = padre.find('name','confirmacion');
+								if(campo.length>0)
+								{
+									campo[0].setDisabled(false);
+								}
+							}
+							else
+							{
+								//deshabilitar contrasenhas
+								//habilitar contrasenhas
+								var padre = thisCheckBox.ownerCt;
+								var campo = padre.find('name','contrasenha');
+								if(campo.length>0)
+								{
+									campo[0].setDisabled(true);
+								}
+
+								//habilitar contrasenhas
+								var campo = padre.find('name','confirmacion');
+								if(campo.length>0)
+								{
+									campo[0].setDisabled(true);
+								}
+							}
+					     }
+				   }
+		       },
+		       {
+			       fieldLabel: 'Contrase&ntilde;a',
+			       name: 'contrasenha',
 			       width: 115,
+			       inputType: 'password',
 			       maxLength: 40,
-			       value: (isNew)?(null):(data.nombre_plural),
+			       hidden: (!isReadOnly)?(false):(true),
+	    		   disabled: (isNew)?(false):(true),
 			       allowBlank: false
 		       },
 		       {
-			       fieldLabel: 'Simbolo',
-			       name: 'simbolo',
+			       fieldLabel: 'Repetir Contrase&ntilde;a',
+			       name: 'confirmacion',
+			       width: 115,
+			       inputType: 'password',
 			       maxLength: 40,
-			       width: 120,
-			       value: (isNew)?(null):(data.simbolo),
+			       hidden: (!isReadOnly)?(false):(true),
+	    		   disabled: (isNew)?(false):(true),
 			       allowBlank: false
-		       },
-		       {
-			       fieldLabel: 'Descrip.',
-			       name: 'descripcion',
-			       width: '80%',
-			       value: (isNew)?(null):(data.descripcion),
-			       disabled: isReadOnly,
-			       xtype: 'textarea'
-		       },
-		       {
-			       fieldLabel: 'Permite Decimal?',
-			       name: 'permite_decimal',
-			       checked: (isNew)?(false):((data.permite_decimal == 'S')?(true):(false)),
-			       disabled: isReadOnly,
-			       xtype: 'checkbox'
 		       },
 		       {
 			       xtype: 'container',
@@ -95,40 +165,34 @@ function formularioUsuario(isNew, data, isReadOnly)
 								       if(basicForm.isValid())
 								       {
 									       var valores = basicForm.getFieldValues();
+									       console.log('valores',valores);
 									       
-									       
-											if(valores.permite_decimal)
-									    	   valores.permite_decimal = 'S';
-									    	else
-									    	   valores.permite_decimal = 'N';	
-									    	   
-									    	var myId = valores.cont_moneda_id;
-									    	delete valores.cont_moneda_id;       
-								
-									       if(myId)//si existe es edicion
+									       if(valores.contrasenha != valores.confirmacion)
 									       {
+										       Ext.Msg.alert('Aviso','La contrase&ntilde;a y su confirmaci&oacute;n son distintas');
+										       return;
+									       }
+
+									       if(valores.adm_usuario_id)//edicion
+									       {
+										       //obtenemos valor del estado
+										       valores.estado = valores.estado.inputValue;
+										       
 									    	   Ajax.PostElement.request({
-												   url: baseURL + '/cont/moneda/editar',
+												   url: baseURL + '/adm/usuario/put',
 												   success: function(response, opt){
-												       mainStore.reload();
+													   mainStore.reload();
 												   },
 												   jsonData:{
 												       'put': valores,
-												       'id': myId,
 													   'formulario': mainForm.id
 												   }
 											   });
 									       }
-									       else
+									       else//creacion
 									       {
-										       //sino es creacion
-									    	   //si esta todo ok hacemos la solicitud
-									    	   
-									    	   delete valores.cont_moneda_id;
-									    	   
-									    	   
 									    	   Ajax.PostElement.request({
-												   url: baseURL + '/cont/moneda/crear',
+												   url: baseURL + '/adm/usuario/post',
 												   success: function(response, opt){
 													   mainStore.reload();
 												   },
@@ -138,7 +202,6 @@ function formularioUsuario(isNew, data, isReadOnly)
 												   }
 											   });
 									       }
-									       
 									       
 									       
 								       }
@@ -168,7 +231,7 @@ function formularioUsuario(isNew, data, isReadOnly)
 	};	
 }
 
-function verMoneda(id)
+function verUsuario(id)
 {
 	
 	var registro = mainStore.getById(id);
@@ -186,25 +249,25 @@ function verMoneda(id)
 	}
 }
 
-function borrarMoneda(id)
+function borrarUsuario(id)
 {
 	Ext.Msg.confirm('Borrar','Desea borrar el elemento?', function(idButt){
 		if(idButt == 'yes')
 		{
 			Ajax.PostElement.request({
-				url: baseURL + '/cont/moneda/borrar',
+				url: baseURL + '/adm/usuario/delete',
 				success: function(response, opt){
 					mainStore.reload();
 				},
 				jsonData:{
-					'id': id
+					'delete':[id]
 				}
 	 		});
 		}
 	});
 }
 
-function editarMoneda(id)
+function editarUsuario(id)
 {
 	
 	var registro = mainStore.getById(id);
@@ -274,7 +337,7 @@ viewContainer.bodyPanel = [{
 				       	       			                   },
 				       	       			             		{
       															hiddenName: 'estado',
-      															width: 60,
+      															width: 75,
       															value: 'A',
       															forceSelection: true,
       															valueField: 'id',
@@ -363,13 +426,13 @@ viewContainer.bodyPanel = [{
 															return '-';
 														}},
 														{ header: "Ver", dataIndex: null,  width: 32, align: 'center', renderer: function(v,meta,record){
-															return '<div class="viewIcon" onclick="verMoneda(' + record.data.cont_moneda_id + ')"></div>';
+															return '<div class="viewIcon" onclick="verUsuario(' + record.data.adm_usuario_id + ')"></div>';
 														}},
 														{ header: "Editar", dataIndex: null,  width: 32, align: 'center', renderer: function(v,meta,record){
-															return '<div class="editIcon" onclick="editarMoneda(' + record.data.cont_moneda_id + ')"></div>';
+															return '<div class="editIcon" onclick="editarUsuario(' + record.data.adm_usuario_id + ')"></div>';
 														}},
 														{ header: "Borrar", dataIndex: null,  width: 32, align: 'center', renderer: function(v,meta,record){
-															return '<div class="deleteIcon" onclick="borrarMoneda(' + record.data.cont_moneda_id + ')"></div>';
+															return '<div class="deleteIcon" onclick="borrarUsuario(' + record.data.adm_usuario_id + ')"></div>';
 														}}
 														])
 				           						}

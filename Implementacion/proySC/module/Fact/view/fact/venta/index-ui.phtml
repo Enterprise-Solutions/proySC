@@ -1,5 +1,11 @@
 <!-- primero stores siempre -->
 <script type="text/javascript" src="<?=$this->basePath();?>/js/stores/factVentaDetalleStore.js"></script>
+
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/factEntidadFinancieraStore.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/factTarjetaNombreStore.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/factTarjetaTipoStore.js"></script>
+
+
 <script type="text/javascript" src="<?=$this->basePath();?>/js/stores/genericoProductoStore.js"></script>
 <script type="text/javascript" src="<?=$this->basePath();?>/js/stores/genericoSiNoStore.js"></script>
 <script type="text/javascript" src="<?=$this->basePath();?>/js/stores/stockImpuestoStore.js"></script>
@@ -11,6 +17,7 @@
 <script type="text/javascript" src="<?=$this->basePath();?>/js/stores/orgParteTipoStore.js"></script>
 <script type="text/javascript" src="<?=$this->basePath();?>/js/stores/orgParteStore.js"></script>
 <script type="text/javascript" src="<?=$this->basePath();?>/js/stores/orgDocumentoTipoStore.js"></script>
+<script type="text/javascript" src="<?=$this->basePath();?>/js/stores/factTarjetaStore.js"></script>
 
 <script type="text/javascript" src="<?=$this->basePath();?>/js/stores/stockEstadoFacturaStore.js"></script>
 <script type="text/javascript" src="<?=$this->basePath();?>/js/stores/stockEstadoStore.js"></script>
@@ -28,9 +35,58 @@
 
 var mainStore = factVentaDetalleStore;
 
+factEntidadFinancieraStore.setBaseParam('p[limit]', 'all');
+factEntidadFinancieraStore.load();
+factTarjetaNombreStore.setBaseParam('p[limit]', 'all');
+factTarjetaNombreStore.load();
+factTarjetaTipoStore.setBaseParam('p[limit]', 'all');
+factTarjetaTipoStore.load();
+
 var monedaDecimales = false;
 var cantDecimalesMoneda = -1;
 var medioPagoPorDefecto = 'E';
+
+function servicioCargarNroDocumento(egresoId, text)
+{
+	Ajax.PostElement.request({
+		url: baseURL + '/fact/venta/set-nro-documento',
+		callback: function(options, success, response){
+			if(success)
+			{
+				//location.href = baseURL + '/fact/venta/get-ui#' + respuesta.fact_egreso_id;
+				location.href = baseURL + '/fact/venta/list-ui';
+			}
+			else
+			{
+				Ext.Msg.alert('Aviso','Ocurri&oacute; un error cargando nro. de documento', function(){
+					mensajeCargarDocumento(egresoId);
+				});
+			}
+		},
+		jsonData: {fact_egreso_id: egresoId, 
+			doc_nro: text}
+	});			  
+}
+
+function mensajeCargarDocumento(egresoId)
+{
+	//cargar nro factura
+	Ext.Msg.prompt('N&uacute;mero', 'Ingrese n&uacute;mero de factura impresa:', function(btn, text){
+		console.log(btn, text);
+	    if (btn == 'ok'){
+		    //tomamos text el nro de factura
+	        //e insertamos en la misma
+	        //en un request a respuesta.fact_egreso_id
+			      
+	        servicioCargarNroDocumento(egresoId, text);
+	        //location.href = baseURL + '/fact/venta/get-ui#' + respuesta.fact_egreso_id;
+	    }
+	    else
+	    {
+	    	mensajeCargarDocumento(egresoId);
+	    }
+	});
+}
 
 guardarVentaHandlerCallback = function(options, success, response)
 {
@@ -47,22 +103,8 @@ guardarVentaHandlerCallback = function(options, success, response)
 		//abro en una nueva ventana la visualizacion para impresion
 		window.open(baseURL + '/fact/venta/get-ui#' + egresoId);
 
-		//cargar nro factura
-		Ext.Msg.prompt('N&uacute;mero', 'Ingrese n&uacute;mero de factura impresa:', function(btn, text){
-			console.log(btn, text);
-		    if (btn == 'ok'){
-			    //tomamos text el nro de factura
-		        //e insertamos en la misma
-		        //en un request a respuesta.fact_egreso_id
-		        
-		        //location.href = baseURL + '/fact/venta/get-ui#' + respuesta.fact_egreso_id;
-		    }
-		    else
-		    {
-			    
-		    }
-		});
-		
+		mensajeCargarDocumento(egresoId);
+
 	}
 	else	
 	{
@@ -119,8 +161,8 @@ guardarVentaHandler = function(b,e)
 				'Egreso':{
 					cont_moneda_id: valores.cont_moneda_id,
 					codigo: '--',
-					doc_nro: '001-001-020202',
 					doc_fecha: formatearFecha(valores.fecha, 1),
+					fact_tarjeta_id: valores.fact_tarjeta_id,
 					fecha_vencimiento: formatearFecha(valores.fecha_vencimiento, 1),
 					doc_tipo: 'F',
 					condicion: 'C',
@@ -232,7 +274,7 @@ agregarArticuloVentaCallback = function(options, success, response)
 				console.log('basicForm',basicForm);
 				
 				//definimos el total
-				var totalAdd = nuevoRegistro.data.cantidad * nuevoRegistro.data.precio_venta_final; //se suma al total
+				var totalAdd = nuevoRegistro.data.cantidad * nuevoRegistro.data.precio_unit; //se suma al total
 				
 				console.log('totalAdd',totalAdd);
 				
@@ -379,7 +421,8 @@ agregarArticuloVenta = function(b, e)
 			//obtenemos los valores que me interesan
 			var datos = {
 				cantidad: valores.cantidad,
-				precio_unit: valores.precio_unit,
+				//precio_unit: valores.precio_unit,
+				precio_unit: valores.precio_venta_final,
 				stock_articulo_id: valores.stock_articulo_id_codigo,
 				porc_impuesto: valores.porcentaje_impuesto,
 				cont_moneda_id: valores.cont_moneda_id,
@@ -876,6 +919,7 @@ verDetallesArticuloHandler = function(b,e)
 		else
 		{
 			Ext.Msg.alert('Aviso','Seleccione un articulo para poder visualizar sus detalles');
+			bloque.getEl().unmask();
 		}
 	}
 };
@@ -910,11 +954,231 @@ function borrarArticulo(id)
 	}
 }
 
-function bloqueTarjeta()
+bloqueTarjetaAgregarCallback = function(success, response)
+{
+	console.log('bloqueTarjetaAgregarCallback',success, response);
+	if(success)
+	{
+		//obtenemos el id
+		var respuesta = Ext.decode(response.responseText);
+		var tarjetaId = respuesta.fact_tarjeta_id;
+
+		//cargamos en el store y en el CB cargamos en el formulario
+		factTarjetaStore.load({
+			params:{
+				's[tarjeta_id]': tarjetaId,
+				's[cadena]': null
+			},
+			callback: function(records, params, success){
+				
+				if(!success)
+				{
+					Ext.Msg.alert('Aviso','Hubo un error seleccionado tarjeta');
+					return;
+				}
+				
+				//obtenemos el  valor que envie
+				var valorEnviado = params.params['s[tarjeta_id]'];
+
+				//verificar si esta todo ok
+				var formulario = Ext.getCmp('mainForm');
+
+				var basicForm = formulario.getForm();
+
+				console.log('basc',basicForm);
+				if(basicForm)
+				{
+					var aux = basicForm.findField('fact_tarjeta_id');
+					if(aux)
+						aux.setValue(valorEnviado);
+				}
+			}
+		});
+	}
+	else
+		Ext.Msg.alert('Aviso','Hubo un error creando tarjeta');
+};
+
+bloqueTarjetaAgregar = function(b,e)
+{
+	//obtenemos los campos del formulario
+	var formulario = Ext.getCmp('mainForm');
+	if(formulario)
+	{
+		var basicForm = formulario.getForm();
+		
+		var campo = basicForm.findField('fact_tarjeta_id');
+		campo.clearValue();
+
+		var tipoTarjeta = basicForm.getFieldValues();
+		
+		
+		//abrimos ventana de creacion
+		ventanaModal.add(bloqueTarjetaAgregarFormulario(true, tipoTarjeta.medio_pago_group.inputValue, false, true, bloqueTarjetaAgregarCallback));
+		ventanaModal.doLayout();
+		ventanaModal.show();
+	}
+};
+
+
+function bloqueTarjetaAgregarFormulario(isNew, data, readOnly, isOnModalWindow, cb)
+{
+	return {
+		xtype: 'form',
+		layout: 'anchor',
+		items:[
+				{
+					xtype: 'fieldset',
+					title: 'Datos Tarjeta',
+					style: {margin:'5px'},
+					layout: 'column',
+					items:[
+							{
+							    xtype: 'container',
+							    columnWidth: 1,
+							    labelWidth: 40,
+							    layout: 'form',
+							    items:[
+							           {
+				   							fieldLabel: 'Entidad',
+				   							hiddenName: 'fact_entidad_financiera_id',
+				   							width: 250,
+				   							forceSelection:true,
+				   							valueField: 'fact_entidad_financiera_id',
+				   							displayField:'nombre',
+				   							xtype: 'combo',
+				   							store: factEntidadFinancieraStore,
+				   							typeAhead:true,
+				   							mode:'local',
+				   							allowBlank: false
+							           }
+								   ]
+							},
+					       {
+						       xtype: 'container',
+						       columnWidth: .5,
+						       labelWidth: 40,
+						       layout: 'form',
+						       items:[
+						              {
+				   							fieldLabel: 'Tarjeta',
+				   							hiddenName: 'fact_tarjeta_nombre_id',
+				   							width: 150,
+				   							forceSelection:true,
+				   							valueField: 'fact_tarjeta_nombre_id',
+				   							displayField:'nombre',
+				   							xtype: 'combo',
+				   							store: factTarjetaNombreStore,
+				   							typeAhead:true,
+				   							mode:'local',
+				   							allowBlank: false
+							           }
+							   ]
+					       },
+					       {
+					    	   xtype: 'container',
+						       columnWidth: .5,
+						       labelWidth: 40,
+						       layout: 'form',
+						       items:[
+									  {
+				   							fieldLabel: 'Tipo',
+				   							hiddenName: 'fact_tarjeta_tipo_id',
+				   							width: 60,
+				   							forceSelection:true,
+				   							valueField: 'fact_tarjeta_tipo_id',
+				   							displayField:'nombre',
+				   							xtype: 'combo',
+				   							readOnly: true,
+				   							value: (data == 'C')?(1):(2),
+				   							store: factTarjetaTipoStore,
+				   							typeAhead:true,
+				   							mode:'local',
+				   							allowBlank: false
+							           }
+							   ]
+					       },
+					       {
+					    	   xtype: 'container',
+						       columnWidth: 1,
+						       labelWidth: 40,
+						       layout: 'column',
+						       items:[
+										{
+											xtype: 'button',
+											style:{margin: '5px'},
+											text: 'Guardar',
+											handler: function(b,e)
+											{
+													//verificar si esta todo ok
+													var mainForm = b.ownerCt.ownerCt.ownerCt;
+
+													basicForm = mainForm.getForm();
+													if(basicForm.isValid())
+													{
+											   			var valores = basicForm.getFieldValues();
+				
+											   			Ajax.PostElement.request({
+												   			url: baseURL + '/fact/tarjeta/post',
+												   			success: function(response, opt){
+												   				if(!isOnModalWindow)
+												   					mainStore.reload();
+												   				else
+											   					{
+												   					ventanaModal.hide();
+																	if(cb)
+																	   cb(true, response);
+											   					}
+												   			},
+												   			jsonData: {
+													   			post:{
+													   				fact_tarjeta_nombre_id: valores.fact_tarjeta_nombre_id,
+													   				fact_tarjeta_tipo_id: valores.fact_tarjeta_tipo_id,
+													   				fact_entidad_financiera_id: valores.fact_entidad_financiera_id
+															   	},
+												   				'formulario': mainForm.id
+												   			}
+											   			});
+													}//end of if
+													else
+													{
+										   				Ext.Msg.alert('Aviso','Hay campos inv&aacute;lidos');
+													}       
+										  		}//end of handler
+										},//end of button 1
+										{
+											xtype: 'button',
+											style:{margin: '5px'},
+											text: 'Cancelar',
+											handler: function(b,e){
+												if(isOnModalWindow)
+												{
+													ventanaModal.hide();
+													if(cb)
+														cb(false, data);
+												}
+												else
+												{
+													var mainForm = b.ownerCt.ownerCt;
+													var padre = mainForm.ownerCt;
+													padre.remove(mainForm);
+												}
+												
+											}//end of handler
+										}//end of button 2
+						       ]
+					       }
+					]
+				}
+		]
+	};
+}
+
+function bloqueTarjeta(tipo)
 {
 	return {
 		xtype: 'fieldset',
-		title: 'Datos Tarjeta',
+		title: 'Buscar Tarjeta',
 		style: {margin:'5px'},
 		layout: 'column',
 		items:[
@@ -923,20 +1187,34 @@ function bloqueTarjeta()
 				    columnWidth: 1,
 				    labelWidth: 40,
 				    layout: 'form',
+				    labelWidth: 75,
 				    items:[
-				           {
-       							fieldLabel: 'Entidad',
-       							hiddenName: 'cont_moneda_id',
-       							width: 150,
-       							forceSelection:true,
-       							valueField: 'cont_moneda_id',
-       							displayField:'simbolo',
-       							xtype: 'combo',
-       							store: contMonedaStore,
-       							typeAhead:true,
-       							mode:'local',
-       							allowBlank: false
-				           }
+							{
+								xtype: 'combo',
+								fieldLabel: 'Entid./Tarjeta',
+								cls: 'searchIcon',
+								hideTrigger: true,
+								width: 150,
+								allowBlank: false,
+								minChars: 2,
+								cls: 'searchIcon',
+								displayField: 'mostrar',
+								valueField: 'fact_tarjeta_id',
+								forceSelection: true,
+								mode: 'remote',
+								triggerAction: 'all',
+								listWidth: 350,
+								queryDelay: 1000,
+								queryParam: 's[cadena]',
+								store: factTarjetaStore,
+								hiddenName: 'fact_tarjeta_id',
+								listeners:{
+									'beforequery':function(objectQuery)
+									{
+										objectQuery.combo.getStore().setBaseParam('s[tarjeta_tipo]', tipo);
+									}
+								}
+							}
 					   ]
 				},
 		       {
@@ -945,19 +1223,12 @@ function bloqueTarjeta()
 			       labelWidth: 40,
 			       layout: 'form',
 			       items:[
-			              {
-       							fieldLabel: 'Tarjeta',
-       							hiddenName: 'cont_moneda_id',
-       							width: 70,
-       							forceSelection:true,
-       							valueField: 'cont_moneda_id',
-       							displayField:'simbolo',
-       							xtype: 'combo',
-       							store: contMonedaStore,
-       							typeAhead:true,
-       							mode:'local',
-       							allowBlank: false
-				           }
+							{
+								xtype: 'button',
+								iconCls: 'addIcon',
+								text: 'Agregar Tarjeta',
+								handler: bloqueTarjetaAgregar
+							}
 				   ]
 		       },
 		       {
@@ -966,19 +1237,6 @@ function bloqueTarjeta()
 			       labelWidth: 40,
 			       layout: 'form',
 			       items:[
-						  {
-       							fieldLabel: 'Tipo',
-       							hiddenName: 'cont_moneda_id',
-       							width: 60,
-       							forceSelection:true,
-       							valueField: 'cont_moneda_id',
-       							displayField:'simbolo',
-       							xtype: 'combo',
-       							store: contMonedaStore,
-       							typeAhead:true,
-       							mode:'local',
-       							allowBlank: false
-				           }
 				   ]
 		       }
 		]
@@ -1263,15 +1521,13 @@ viewContainer.bodyPanel = [{
 
 																						bloque.removeAll();
 																						
-																						
-
 																						if(checked.inputValue == 'C')
 																						{
-																							bloque.add(bloqueTarjeta());
+																							bloque.add(bloqueTarjeta('Credito'));
 																						}
 																						else if(checked.inputValue == 'D')
 																						{
-																							bloque.add(bloqueTarjeta());
+																							bloque.add(bloqueTarjeta('Debito'));
 																						}
 
 																						bloque.doLayout();
@@ -1584,6 +1840,27 @@ viewContainer.bodyPanel = [{
 																					
 																					//reseteo el otro campo
 																					var padre = thisField.ownerCt;
+
+																					var contenedorPrecioFinal = padre.find('itemId','contenedorPrecioFinal');
+
+																					if(contenedorPrecioFinal.length>0)
+																					{
+																						contenedorPrecioFinal = contenedorPrecioFinal[0];
+																						contenedorPrecioFinal.removeAll();
+																						contenedorPrecioFinal.add({
+		       	       																		xtype: 'numberfield',
+		       	       																		width: 90,
+		       	       																		allowNegative: false,
+		       	       																		minValue: record.data.precio_minimo,
+		       	       																		maxValue: record.data.precio_venta_final,
+		       	       																		value: record.data.precio_venta_final,
+		       	       																		name: 'precio_venta_final',
+		       	       																		fieldLabel: 'Precio Final'
+	   	       																			});
+	
+																						padre.doLayout();
+																					}
+																					
 																					var otroCombo = padre.find('hiddenName','stock_articulo_id_rcap');
 																					if(otroCombo.length>0)
 																					{
@@ -1684,6 +1961,28 @@ viewContainer.bodyPanel = [{
 																				{
 																					//reseteo el otro campo
 																					var padre = thisField.ownerCt;
+
+																					var contenedorPrecioFinal = padre.find('itemId','contenedorPrecioFinal');
+
+																					if(contenedorPrecioFinal.length>0)
+																					{
+																						contenedorPrecioFinal = contenedorPrecioFinal[0];
+																						contenedorPrecioFinal.removeAll();
+																						contenedorPrecioFinal.add({
+		       	       																		xtype: 'numberfield',
+		       	       																		width: 90,
+		       	       																		allowNegative: false,
+		       	       																		minValue: record.data.precio_minimo,
+		       	       																		maxValue: record.data.precio_venta_final,
+		       	       																		value: record.data.precio_venta_final,
+		       	       																		name: 'precio_venta_final',
+		       	       																		fieldLabel: 'Precio Final'
+	   	       																			});
+	
+																						padre.doLayout();
+																					}
+
+																								
 																					var otroCombo = padre.find('hiddenName','stock_articulo_id_codigo');
 																					if(otroCombo.length>0)
 																					{
@@ -1764,22 +2063,17 @@ viewContainer.bodyPanel = [{
 				       	       																		fieldLabel: 'Cantidad'
 				       	       																	},
 				       	       																	{
-				       	       																		xtype: 'numberfield',
+				       	       																		xtype: 'hidden',
 				       	       																		width: 90,
-				       	       																		allowNegative: false,
-				       	       																		readOnly: true,
-				       	       																		name: 'precio_unit',
-				       	       																		emptyText: 'Seleccione producto..',
-				       	       																		fieldLabel: 'Precio Unit.'
+				       	       																		name: 'precio_unit'
 				       	       																	},
 				       	       																	{
-				       	       																		xtype: 'numberfield',
-				       	       																		width: 90,
-				       	       																		allowNegative: false,
-				       	       																		readOnly: true,
-				       	       																		name: 'precio_venta_final',
-				       	       																		emptyText: 'Seleccione producto..',
-				       	       																		fieldLabel: 'Precio Final'
+					       	       																	xtype: 'container',
+					       	       																	layout: 'form',
+					       	       																	itemId: 'contenedorPrecioFinal',
+					       	       																	items:[
+							       	       																	
+							       	       															]
 				       	       																	}
 				       	       															]
 				       	       														},
@@ -2016,19 +2310,19 @@ viewContainer.bodyPanel = [{
 														{ header: "Precio Final", dataIndex: 'precio_venta_final',  width: 100},
 														{ header: "Exenta", dataIndex: null,  width: 100, renderer: function(v,meta,record){
 															if(record.data.porc_impuesto == 0)
-																return record.data.cantidad * record.data.precio_venta_final;
+																return record.data.cantidad * record.data.precio_unit;
 															else
 																return '-';
 														}},
 														{ header: "5%", dataIndex: null,  width: 100, renderer: function(v,meta,record){
 															if(record.data.porc_impuesto == 5)
-																return record.data.cantidad * record.data.precio_venta_final;
+																return record.data.cantidad * record.data.precio_unit;
 															else
 																return '-';
 														}},
 														{ header: "10%", dataIndex: null,  width: 100, renderer: function(v,meta,record){
 															if(record.data.porc_impuesto == 10)
-																return record.data.cantidad * record.data.precio_venta_final;
+																return record.data.cantidad * record.data.precio_unit;
 															else
 																return '-';
 														}}

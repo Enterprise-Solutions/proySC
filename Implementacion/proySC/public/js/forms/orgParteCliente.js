@@ -6,7 +6,6 @@
 
 function formularioOrgParte(isNew, data, readOnly, isOnModalWindow, cb)
 {
-	console.log('formularioOrgParte',isNew, data, readOnly, isOnModalWindow, cb);
 	return {
 		xtype: 'container',
 		layout: 'anchor',

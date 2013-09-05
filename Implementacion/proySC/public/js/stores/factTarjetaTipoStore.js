@@ -8,6 +8,7 @@ var factTarjetaTipoStore = new Ext.data.JsonStore({
 		'p[limit]': 10,
 		'p[page]': 0
 	},
+	totalProperty: 'numResults',
 	paramNames: {
 		start: 'p[page]',
 		limit: 'p[limit]'
