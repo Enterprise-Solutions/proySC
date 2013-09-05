@@ -24,7 +24,8 @@ class Edicion
 		 * */
 		$admUsuario = $this->_repository->getAdmUsuario($params['adm_usuario_id']);
 		$this->_validarOperacion($admUsuario, $params);
-		$this->_editarAdmUsuario($admUsuario, $params, $this->_repository, $this->_passwordEncoder);
+		$cambiosAdmUsuario = $this->_editarAdmUsuario($admUsuario, $params, $this->_repository, $this->_passwordEncoder);
+		return $this->_construirRespuesta($admUsuario, $cambiosAdmUsuario);
 	}
 	
 	public function _validarOperacion($admUsuario,$params)
@@ -60,11 +61,25 @@ class Edicion
 		}
 		
 		if(isset($params['contrasenha'])){
-			$cambiosEnviados[] = array('contrasenha' => $this->_passwordEncoder);
+			$cambiosEnviados[] = array('contrasenha' => $passwordEncoder($params['contrasenha']));
+			$cambiosEnviados[] = array('fecha_modif_contrasenha' => date('Y-m-d'));
 		}
 		
 		$cambios = new Cambios();
 		$cambiosAdmUsuario = $cambios->cambiar($admUsuario, $cambiosEnviados);
-		$repository->persistirCambiosADatos($cambiosAdmUsuario,$admUsuario,'adm_usuario','adm_usuario_id');
+		return $repository->persistirCambiosADatos($cambiosAdmUsuario,$admUsuario,'adm_usuario','adm_usuario_id');
+	}
+	
+	public function _construirRespuesta($admUsuario,$cambiosAdmUsuario)
+	{
+		$cambios = new Cambios;
+		
+		return array(
+			'status'  => true,
+			'mensaje' => 'Usuario editado exitosamente',
+			'datos'   => array(
+				'campos_modificados' => $cambios->getCamposCambiados($cambiosAdmUsuario)		
+			) 	
+		);
 	}
 }

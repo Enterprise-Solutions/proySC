@@ -50,12 +50,32 @@ class UsuarioControllerTest extends PHPUnit_Framework_TestCase {
 		// TODO Auto-generated constructor
 	}
 	
-	public function testCrearUsuario()
+	/*public function testCrearUsuario()
 	{
 		$this->routeMatch->setParam('action', 'post');
 		$this->request->setMethod('post');
 		$this->request->getHeaders()->addHeaderLine('Content-Type','application/json');
 		$this->request->setContent('{"post":{"org_parte_id":5,"contrasenha":"JaJa_2013","confirmacion":"JaJa_2013"}}');
+		$result = $this->controller->dispatch($this->request);
+		print_r($result);
+	}*/
+	
+	/*public function testUpdateUsuario()
+	{
+		$this->routeMatch->setParam('action', 'put');
+		$this->request->setMethod('post');
+		$this->request->getHeaders()->addHeaderLine('Content-Type','application/json');
+		$this->request->setContent('{"put":{"adm_usuario_id":5,"contrasenha":"JaJa_2013","confirmacion":"JaJa_2013"}}');
+		$result = $this->controller->dispatch($this->request);
+		print_r($result);
+	}*/
+	
+	public function testBorradoDeUsuario()
+	{
+		$this->routeMatch->setParam('action', 'delete');
+		$this->request->setMethod('post');
+		$this->request->getHeaders()->addHeaderLine('Content-Type','application/json');
+		$this->request->setContent('{"delete":[6]}');
 		$result = $this->controller->dispatch($this->request);
 		print_r($result);
 	}

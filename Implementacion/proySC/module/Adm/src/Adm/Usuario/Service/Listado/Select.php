@@ -39,6 +39,21 @@ class Select extends EsSelect
 			 ->where("au.adm_usuario_id = $admUsuarioId");
 	}
 	
+	public function addSearchByAdmUsuarioIds($admUsuarioIds)
+	{
+		$admUsuarioIds = join(',',$admUsuarioIds);
+		$this->_select
+			 ->columns(array(
+			 	'adm_usuario_id',
+			 	'org_documento_id',
+			 	'contrasenha',
+			 	'documento_identidad' => new Expression(" od.valor||' ('||odt.nombre||' - '||dp.nombre||')' "),	
+			 	'estado_usuario' => new Expression(" case when estado = 'A' then 'Activo' else 'Bloqueado' end"),
+			 	'estado',));
+		$this->_select
+			 ->where("au.adm_usuario_id in ($admUsuarioIds)");
+	}
+	
 	public function addSearchById($id)
 	{
 		$this->addSearchByAdmUsuarioId($id);
