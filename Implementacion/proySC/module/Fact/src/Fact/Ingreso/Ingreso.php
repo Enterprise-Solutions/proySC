@@ -101,6 +101,7 @@ class Ingreso
     protected $detalle;
     
     protected $defaultValues = array(
+        'cont_moneda_id'            => 1,
         'total_excenta'             => 0,
         'total_iva_cinco_porciento' => 0,
         'total_iva_diez_porciento'  => 0,

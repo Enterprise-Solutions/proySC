@@ -4,7 +4,7 @@ namespace Fact\Controller;
 
 use Doctrine\ORM\EntityManager;
 use EnterpriseSolutions\Controller\BaseController;
-use Fact\Movimiento\Ingreso as CrearIngresoService;
+use Fact\Movimiento\Ingreso as CrearIngresoInternoService;
 
 class MovimientoController extends BaseController
 {
@@ -16,7 +16,7 @@ class MovimientoController extends BaseController
         $em = $this->getEntityManager();
         $data = $this->SubmitParams()->getParam('post');
         
-        $service = new CrearIngresoService($em);
+        $service = new CrearIngresoInternoService($em);
         $service->ejecutar($data);
         $service->persistir();
         

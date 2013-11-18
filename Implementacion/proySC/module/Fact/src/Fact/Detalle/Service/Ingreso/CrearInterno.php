@@ -52,6 +52,7 @@ class CrearInterno
     protected function crearDetalle($data)
     {
         $this->detalle = new IngresoDetalle();
+        $this->detalle->esMovimientoInterno();
         $this->detalle->fromArray($data);
         $this->detalle->setDefaultValues();
         $this->detalle->setIngreso($this->ingreso);

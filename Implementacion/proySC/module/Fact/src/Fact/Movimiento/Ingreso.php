@@ -4,7 +4,7 @@ namespace Fact\Movimiento;
 
 use Doctrine\ORM\EntityManager;
 use Fact\Detalle\Service\Ingreso\CrearInterno as CrearMovInternoService;
-use Fact\Ingreso\Ingreso;
+use Fact\Ingreso\Ingreso as IngresoInterno;
 use Fact\Ingreso\Proveedor;
 
 class Ingreso
@@ -16,7 +16,7 @@ class Ingreso
     protected $em;
     
     /**
-     * Ingreso
+     * IngresoInterno
      * @var Ingreso
      */
     protected $ingreso;
@@ -40,7 +40,7 @@ class Ingreso
      */
     protected function crearIngreso($data)
     {
-        $this->ingreso = new Ingreso();
+        $this->ingreso = new IngresoInterno();
         $this->ingreso->esMovimientoInterno();
         $this->ingreso->fromArray($data);
         $this->ingreso->setDefaultValues();
@@ -85,7 +85,7 @@ class Ingreso
     public function getRespuesta()
     {
         return array(
-            'fact_ingreso_id' => "",
+            'fact_ingreso_id' => $this->ingreso->getId(),
             'exitoso'         => true,
         );
     }

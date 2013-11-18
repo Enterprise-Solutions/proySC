@@ -58,14 +58,18 @@ class Ingreso
      * @var array
      */
     protected $defaultValues = array(
-    	'cantidad' => 1,
+    	'cantidad'      => 1,
+        'costo_unit'    => 0,
+        'porc_impuesto' => 0,
     );
     
     protected $requiere_costo;
+    protected $requiere_impuesto;
     
     public function __construct()
     {
-        $this->requiere_costo = true;
+        $this->requiere_costo    = true;
+        $this->requiere_impuesto = true;
     }
     
     /**
@@ -107,7 +111,7 @@ class Ingreso
             ),
             'porc_impuesto' => array(
                 'name'       => 'porc_impuesto',
-                'required'   => true,
+                'required'   => $this->requiere_impuesto,
                 'filters'    => array(
                     array('name' => 'StripTags'),
                     array('name' => 'StringTrim'),
@@ -122,6 +126,12 @@ class Ingreso
         $inputFilter = $inputFilterFactory->createInputFilter($spec);
         $inputFilter->setData($data);
         return $inputFilter;
+    }
+    
+    public function esMovimientoInterno()
+    {
+        $this->requiere_costo    = false;
+        $this->requiere_impuesto = false;
     }
     
     public function setIngreso($ingreso)
