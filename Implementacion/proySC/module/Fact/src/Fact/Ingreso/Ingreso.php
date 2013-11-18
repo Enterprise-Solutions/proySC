@@ -90,6 +90,12 @@ class Ingreso
     protected $fecha_vencimiento;
     
     /**
+     * Especifica si el movimiento requiere o no una moneda
+     * @var boolean
+     */
+    protected $requiere_moneda;
+    
+    /**
      * @ORM\OneToMany(targetEntity="Fact\Detalle\Ingreso", mappedBy="ingreso")
      */
     protected $detalle;
@@ -112,7 +118,7 @@ class Ingreso
         $spec = array(
             'cont_moneda_id' => array(
                 'name'     => 'cont_moneda_id',
-                'required' => true,
+                'required' => $this->requiere_moneda,
             ),
             'codigo' => array(
                 'name'       => 'codigo',
@@ -199,9 +205,18 @@ class Ingreso
         return $inputFilter;
     }
     
+    /**
+     * Los ingresos requieren moneda por defecto
+     */
     public function __construct()
     {
         $this->detalle = new ArrayCollection();
+        $this->requiere_moneda = true;
+    }
+    
+    public function esMovimientoInterno()
+    {
+        $this->requiere_moneda = false;
     }
     
     public function getDetalle()

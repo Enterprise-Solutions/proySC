@@ -41,6 +41,7 @@ return array(
             'Fact\Controller\TarjetaNombre'     => 'Fact\Controller\TarjetaNombreController',
             'Fact\Controller\TarjetaTipo'       => 'Fact\Controller\TarjetaTipoController',
             'Fact\Controller\EntidadFinanciera' => 'Fact\Controller\EntidadFinancieraController',
+            'Fact\Controller\Movimiento'        => 'Fact\Controller\MovimientoController',
         ),
     ),
     'view_manager' => array(

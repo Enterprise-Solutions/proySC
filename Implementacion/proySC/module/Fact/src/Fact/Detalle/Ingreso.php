@@ -61,6 +61,13 @@ class Ingreso
     	'cantidad' => 1,
     );
     
+    protected $requiere_costo;
+    
+    public function __construct()
+    {
+        $this->requiere_costo = true;
+    }
+    
     /**
      * Input Filter
      * @param array $data
@@ -88,7 +95,7 @@ class Ingreso
             ),
             'costo_unit' => array(
                 'name'       => 'costo_unit',
-                'required'   => true,
+                'required'   => $this->requiere_costo,
                 'filters'    => array(
                     array('name' => 'StripTags'),
                     array('name' => 'StringTrim'),
